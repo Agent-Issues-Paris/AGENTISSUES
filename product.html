@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAGENT+ Shop</title>
+<meta name="description" content="AAGENT+ — product details.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-product">
+
+<div class="intro-overlay" id="introOverlay">
+  <video id="introVideo" src="assets/reel.mp4" autoplay muted playsinline></video>
+</div>
+
+<header class="site-header">
+  <div class="brand-row">
+    <a class="brand-title" href="index.html"><span class="brand-title__a">a</span>gent</a>
+    <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
+    </svg>
+  </div>
+  <a class="logo-overlay" href="index.html">
+    <img src="assets/logo-agent-issues.png" alt="Agent Issues logo">
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="shop.html" class="active">Shop</a>
+    <a href="cart.html" data-cart-count>Cart</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="product-detail" id="productDetail">
+    <p class="product-loading">Loading product...</p>
+  </section>
+</main>
+
+<script src="shopify.js"></script>
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('productDetail');
+  var params = new URLSearchParams(window.location.search);
+  var handle = params.get('handle');
+
+  if (!handle) {
+    container.innerHTML = '<p class="product-loading">Product not found. <a href="shop.html">Back to shop</a>.</p>';
+    return;
+  }
+
+  Shopify.getProductByHandle(handle).then(function (product) {
+    if (!product) {
+      container.innerHTML = '<p class="product-loading">Product not found. <a href="shop.html">Back to shop</a>.</p>';
+      return;
+    }
+    renderProduct(product);
+  }).catch(function (err) {
+    console.error('Failed to load product', err);
+    container.innerHTML = '<p class="product-loading">Could not load this product.</p>';
+  });
+
+  function renderProduct(product) {
+    document.title = 'AAGENT+ — ' + product.title;
+
+    var images = product.images.edges.map(function (e) { return e.node; });
+    var variants = product.variants.edges.map(function (e) { return e.node; });
+    var hasOptions = variants.length > 1 && variants[0].selectedOptions[0].name !== 'Title';
+    var optionName = hasOptions ? variants[0].selectedOptions[0].name : null;
+    var title = escapeHtml(product.title);
+
+    var thumbsHtml = images.map(function (img, i) {
+      return '<button type="button" class="product-thumb' + (i === 0 ? ' is-active' : '') + '" data-src="' + img.url + '"><img src="' + img.url + '" alt=""></button>';
+    }).join('');
+
+    var optionsHtml = '';
+    if (hasOptions) {
+      optionsHtml =
+        '<div class="info-box">' +
+        '  <h2>' + escapeHtml(optionName) + '</h2>' +
+        '  <div class="size-options" role="radiogroup" aria-label="' + escapeHtml(optionName) + '">' +
+        variants.map(function (v, i) {
+          var val = escapeHtml(v.selectedOptions[0].value);
+          return (
+            '<button type="button" class="size-option' + (i === 0 ? ' is-selected' : '') + (v.availableForSale ? '' : ' is-disabled') +
+            '" data-variant-id="' + v.id + '"' + (v.availableForSale ? '' : ' disabled') + '>' + val + '</button>'
+          );
+        }).join('') +
+        '  </div>' +
+        '</div>';
+    }
+
+    container.innerHTML =
+      '<div class="product-layout">' +
+      '  <div class="product-gallery">' +
+      '    <div class="product-gallery__main"><img id="productMainImage" src="' + (images[0] ? images[0].url : '') + '" alt="' + title + '"></div>' +
+      '    <div class="product-gallery__thumbs">' + thumbsHtml + '</div>' +
+      '  </div>' +
+      '  <div class="product-info">' +
+      '    <div class="info-box">' +
+      '      <h2>' + title + '</h2>' +
+      '      <p>' + escapeHtml(product.description) + '</p>' +
+      '    </div>' +
+      optionsHtml +
+      '    <div class="cart-controls">' +
+      '      <div class="info-box">' +
+      '        <div class="qty">' +
+      '          <button type="button" id="qtyMinus" aria-label="Decrease quantity">-</button>' +
+      '          <span id="qtyValue">1</span>' +
+      '          <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="info-box"><button type="button" id="addToCartBtn">ADD TO CART</button></div>' +
+      '      <div class="info-box"><button type="button" id="checkoutBtn">CHECKOUT</button></div>' +
+      '    </div>' +
+      '    <div class="info-box price-box"><p id="priceBox">' + Shopify.formatMoney(variants[0].price.amount, variants[0].price.currencyCode) + '</p></div>' +
+      '    <p id="cartMessage" class="cart-message" aria-live="polite"></p>' +
+      '  </div>' +
+      '</div>';
+
+    var selectedVariant = variants[0];
+    var qty = 1;
+
+    Array.prototype.forEach.call(container.querySelectorAll('.product-thumb'), function (btn) {
+      btn.addEventListener('click', function () {
+        Array.prototype.forEach.call(container.querySelectorAll('.product-thumb'), function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        document.getElementById('productMainImage').src = btn.getAttribute('data-src');
+      });
+    });
+
+    Array.prototype.forEach.call(container.querySelectorAll('.size-option'), function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        Array.prototype.forEach.call(container.querySelectorAll('.size-option'), function (b) { b.classList.remove('is-selected'); });
+        btn.classList.add('is-selected');
+        var variantId = btn.getAttribute('data-variant-id');
+        selectedVariant = variants.filter(function (v) { return v.id === variantId; })[0];
+        document.getElementById('priceBox').textContent = Shopify.formatMoney(selectedVariant.price.amount, selectedVariant.price.currencyCode);
+        document.getElementById('cartMessage').textContent = '';
+      });
+    });
+
+    document.getElementById('qtyMinus').addEventListener('click', function () {
+      qty = Math.max(1, qty - 1);
+      document.getElementById('qtyValue').textContent = qty;
+    });
+    document.getElementById('qtyPlus').addEventListener('click', function () {
+      qty += 1;
+      document.getElementById('qtyValue').textContent = qty;
+    });
+
+    document.getElementById('addToCartBtn').addEventListener('click', function () {
+      var msg = document.getElementById('cartMessage');
+      if (!selectedVariant.availableForSale) {
+        msg.textContent = 'This option is sold out.';
+        return;
+      }
+      msg.textContent = 'Adding...';
+      Shopify.cartLinesAdd(selectedVariant.id, qty).then(function () {
+        msg.textContent = 'Added to cart.';
+      }).catch(function (err) {
+        msg.textContent = 'Could not add to cart: ' + err.message;
+      });
+    });
+
+    document.getElementById('checkoutBtn').addEventListener('click', function () {
+      var msg = document.getElementById('cartMessage');
+      if (!selectedVariant.availableForSale) {
+        msg.textContent = 'This option is sold out.';
+        return;
+      }
+      msg.textContent = 'Preparing checkout...';
+      Shopify.cartLinesAdd(selectedVariant.id, qty).then(function (cart) {
+        window.location.href = cart.checkoutUrl;
+      }).catch(function (err) {
+        msg.textContent = 'Could not start checkout: ' + err.message;
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+});
+</script>
+</body>
+</html>

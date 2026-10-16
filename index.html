@@ -26,68 +26,14 @@
   <nav class="main-nav">
     <a href="index.html" class="active">Home</a>
     <a href="shop.html">Shop</a>
-    <a href="#">Cart</a>
+    <a href="cart.html" data-cart-count>Cart</a>
     <a href="about.html">About</a>
   </nav>
 </header>
 
 <main>
-  <section class="columns">
-    <a class="column" href="issue1.html">
-      <div class="product-image">
-        <img class="img-default" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
-        <img class="img-hover" src="assets/ISSUE1.2.png" alt="AAGENT+ Issue 1 cover, alternate crop">
-      </div>
-      <div class="price-bar">
-        <span>ISSUE 1</span>
-        <span class="add-to-cart">ADD TO CART</span>
-        <span>$32.00</span>
-      </div>
-    </a>
-    <a class="column" href="issue1.html">
-      <div class="product-image">
-        <img class="img-default" src="assets/ISSUE1.2.png" alt="AAGENT+ Issue 1 cover, alternate crop">
-        <img class="img-hover" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
-      </div>
-      <div class="price-bar">
-        <span>ISSUE 1</span>
-        <span class="add-to-cart">ADD TO CART</span>
-        <span>$32.00</span>
-      </div>
-    </a>
-    <a class="column" href="issue1.html">
-      <div class="product-image">
-        <img class="img-default" src="assets/ISSUE1.2.png" alt="AAGENT+ Issue 1 cover, alternate crop">
-        <img class="img-hover" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
-      </div>
-      <div class="price-bar">
-        <span>ISSUE 1</span>
-        <span class="add-to-cart">ADD TO CART</span>
-        <span>$32.00</span>
-      </div>
-    </a>
-    <a class="column" href="shop.html">
-      <div class="product-image tee-frame">
-        <img class="img-default tee" src="assets/tee-white.png" alt="I heart INSPO white tee">
-        <img class="img-hover tee" src="assets/tee-white-model.jpg" alt="I heart INSPO white tee, model shot">
-      </div>
-      <div class="price-bar">
-        <span>I &lt;3 INSPO WHITE TEE</span>
-        <span class="add-to-cart">ADD TO CART</span>
-        <span>$32.00</span>
-      </div>
-    </a>
-    <a class="column" href="shop.html">
-      <div class="product-image tee-frame">
-        <img class="img-default tee" src="assets/tee-black.png" alt="I heart INSPO black tee">
-        <img class="img-hover tee" src="assets/tee-black-model.jpg" alt="I heart INSPO black tee, model shot">
-      </div>
-      <div class="price-bar">
-        <span>I &lt;3 INSPO BLACK TEE</span>
-        <span class="add-to-cart">ADD TO CART</span>
-        <span>$32.00</span>
-      </div>
-    </a>
+  <section class="columns" id="homeProducts">
+    <p class="product-loading">Loading products...</p>
   </section>
 
   <section class="info-row">
@@ -106,7 +52,54 @@
   </section>
 </main>
 
+<script src="shopify.js"></script>
 <script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('homeProducts');
+  if (!container) return;
+  var ISSUE1_HANDLE = 'aagent-issue-01-i-❤️-inspo-fw25-26';
+
+  Shopify.getCollectionProducts('frontpage').then(function (products) {
+    if (!products.length) {
+      container.innerHTML = '<p class="product-loading">No products yet.</p>';
+      return;
+    }
+    container.innerHTML = products.map(renderColumn).join('');
+  }).catch(function (err) {
+    console.error('Failed to load home products', err);
+    container.innerHTML = '<p class="product-loading">Could not load products.</p>';
+  });
+
+  function renderColumn(product) {
+    var images = product.images.edges;
+    var img1 = images[0] ? images[0].node.url : '';
+    var img2 = images[1] ? images[1].node.url : img1;
+    var price = Shopify.formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode);
+    var href = product.handle === ISSUE1_HANDLE ? 'issue1.html' : ('product.html?handle=' + encodeURIComponent(product.handle));
+    var title = escapeHtml(product.title);
+    return (
+      '<a class="column" href="' + href + '">' +
+      '  <div class="product-image">' +
+      '    <img class="img-default" src="' + img1 + '" alt="' + title + '">' +
+      '    <img class="img-hover" src="' + img2 + '" alt="' + title + '">' +
+      '  </div>' +
+      '  <div class="price-bar">' +
+      '    <span>' + title + '</span>' +
+      '    <span class="add-to-cart">ADD TO CART</span>' +
+      '    <span>' + price + '</span>' +
+      '  </div>' +
+      '</a>'
+    );
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+});
+</script>
 </body>
 </html>
 

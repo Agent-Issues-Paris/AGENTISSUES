@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAGENT+ Cart</title>
+<meta name="description" content="AAGENT+ — your cart.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="intro-overlay" id="introOverlay">
+  <video id="introVideo" src="assets/reel.mp4" autoplay muted playsinline></video>
+</div>
+
+<header class="site-header">
+  <div class="brand-row">
+    <a class="brand-title" href="index.html"><span class="brand-title__a">a</span>gent</a>
+    <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
+    </svg>
+  </div>
+  <a class="logo-overlay" href="index.html">
+    <img src="assets/logo-agent-issues.png" alt="Agent Issues logo">
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="shop.html">Shop</a>
+    <a href="cart.html" class="active" data-cart-count>Cart</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="cart-page" id="cartPage">
+    <p class="product-loading">Loading cart...</p>
+  </section>
+</main>
+
+<script src="shopify.js"></script>
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('cartPage');
+  load();
+
+  function load() {
+    var cartId = Shopify.getCartId();
+    if (!cartId) {
+      renderEmpty();
+      return;
+    }
+    Shopify.fetchCart(cartId).then(function (cart) {
+      if (!cart || !cart.lines.edges.length) {
+        renderEmpty();
+        return;
+      }
+      renderCart(cart);
+    }).catch(function (err) {
+      console.error('Failed to load cart', err);
+      renderEmpty();
+    });
+  }
+
+  function renderEmpty() {
+    container.innerHTML = '<p class="product-loading">Your cart is empty. <a href="shop.html">Go to shop</a>.</p>';
+    Shopify.updateCartBadge(null);
+  }
+
+  function renderCart(cart) {
+    var lines = cart.lines.edges.map(function (e) { return e.node; });
+
+    container.innerHTML =
+      '<div class="cart-lines">' +
+      lines.map(renderLine).join('') +
+      '</div>' +
+      '<div class="cart-summary info-box">' +
+      '  <span>SUBTOTAL</span>' +
+      '  <span>' + Shopify.formatMoney(cart.cost.subtotalAmount.amount, cart.cost.subtotalAmount.currencyCode) + '</span>' +
+      '</div>' +
+      '<div class="cart-controls">' +
+      '  <div class="info-box"><a class="cart-continue" href="shop.html">CONTINUE SHOPPING</a></div>' +
+      '  <div class="info-box"><button type="button" id="checkoutBtn">CHECKOUT</button></div>' +
+      '</div>';
+
+    Array.prototype.forEach.call(container.querySelectorAll('.cart-line'), function (row) {
+      var lineId = row.getAttribute('data-line-id');
+      var qtyEl = row.querySelector('.qty span');
+
+      row.querySelector('.cart-qty-minus').addEventListener('click', function () {
+        var qty = parseInt(qtyEl.textContent, 10);
+        if (qty <= 1) return;
+        Shopify.cartLinesUpdate(lineId, qty - 1).then(load);
+      });
+      row.querySelector('.cart-qty-plus').addEventListener('click', function () {
+        var qty = parseInt(qtyEl.textContent, 10);
+        Shopify.cartLinesUpdate(lineId, qty + 1).then(load);
+      });
+      row.querySelector('.cart-line__remove').addEventListener('click', function () {
+        Shopify.cartLinesRemove(lineId).then(load);
+      });
+    });
+
+    document.getElementById('checkoutBtn').addEventListener('click', function () {
+      window.location.href = cart.checkoutUrl;
+    });
+
+    Shopify.updateCartBadge(cart);
+  }
+
+  function renderLine(line) {
+    var m = line.merchandise;
+    var variantLabel = m.title && m.title !== 'Default Title' ? ' (' + escapeHtml(m.title) + ')' : '';
+    return (
+      '<div class="cart-line info-box" data-line-id="' + line.id + '">' +
+      '  <img class="cart-line__image" src="' + (m.image ? m.image.url : '') + '" alt="">' +
+      '  <div class="cart-line__details">' +
+      '    <p class="cart-line__title">' + escapeHtml(m.product.title) + variantLabel + '</p>' +
+      '    <div class="qty">' +
+      '      <button type="button" class="cart-qty-minus" aria-label="Decrease quantity">-</button>' +
+      '      <span>' + line.quantity + '</span>' +
+      '      <button type="button" class="cart-qty-plus" aria-label="Increase quantity">+</button>' +
+      '    </div>' +
+      '  </div>' +
+      '  <p class="cart-line__price">' + Shopify.formatMoney(m.price.amount, m.price.currencyCode) + '</p>' +
+      '  <button type="button" class="cart-line__remove" aria-label="Remove">×</button>' +
+      '</div>'
+    );
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+});
+</script>
+</body>
+</html>

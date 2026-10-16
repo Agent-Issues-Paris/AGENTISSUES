@@ -26,7 +26,7 @@
   <nav class="main-nav">
     <a href="index.html" class="active">Home</a>
     <a href="shop.html">Shop</a>
-    <a href="#">Cart</a>
+    <a href="cart.html" data-cart-count>Cart</a>
     <a href="about.html">About</a>
   </nav>
 </header>
@@ -60,7 +60,7 @@
         <p>This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture</p>
       </div>
       <div class="info-box price-box">
-        <p>$34</p>
+        <p id="priceBox">$27.00</p>
       </div>
     </div>
 
@@ -68,14 +68,15 @@
       <div class="cart-controls">
         <div class="info-box">
           <div class="qty">
-            <button type="button" aria-label="Decrease quantity">-</button>
-            <span>1</span>
-            <button type="button" aria-label="Increase quantity">+</button>
+            <button type="button" id="qtyMinus" aria-label="Decrease quantity">-</button>
+            <span id="qtyValue">1</span>
+            <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
           </div>
         </div>
-        <div class="info-box"><button type="button">ADD TO CART</button></div>
-        <div class="info-box"><button type="button">CHECKOUT</button></div>
+        <div class="info-box"><button type="button" id="addToCartBtn">ADD TO CART</button></div>
+        <div class="info-box"><button type="button" id="checkoutBtn">CHECKOUT</button></div>
       </div>
+      <p id="cartMessage" class="cart-message" aria-live="polite"></p>
     </div>
 
     <div class="product-col credits-col">
@@ -129,7 +130,59 @@
   </section>
 </main>
 
+<script src="shopify.js"></script>
 <script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var ISSUE1_HANDLE = 'aagent-issue-01-i-❤️-inspo-fw25-26';
+  var priceBox = document.getElementById('priceBox');
+  var qtyValue = document.getElementById('qtyValue');
+  var qtyMinus = document.getElementById('qtyMinus');
+  var qtyPlus = document.getElementById('qtyPlus');
+  var addBtn = document.getElementById('addToCartBtn');
+  var checkoutBtn = document.getElementById('checkoutBtn');
+  var msg = document.getElementById('cartMessage');
+  var qty = 1;
+  var variant = null;
+
+  Shopify.getProductByHandle(ISSUE1_HANDLE).then(function (product) {
+    if (!product) return;
+    variant = product.variants.edges[0].node;
+    priceBox.textContent = Shopify.formatMoney(variant.price.amount, variant.price.currencyCode);
+  }).catch(function (err) {
+    console.error('Failed to load Issue 1 product', err);
+  });
+
+  qtyMinus.addEventListener('click', function () {
+    qty = Math.max(1, qty - 1);
+    qtyValue.textContent = qty;
+  });
+  qtyPlus.addEventListener('click', function () {
+    qty += 1;
+    qtyValue.textContent = qty;
+  });
+
+  addBtn.addEventListener('click', function () {
+    if (!variant) return;
+    msg.textContent = 'Adding...';
+    Shopify.cartLinesAdd(variant.id, qty).then(function () {
+      msg.textContent = 'Added to cart.';
+    }).catch(function (err) {
+      msg.textContent = 'Could not add to cart: ' + err.message;
+    });
+  });
+
+  checkoutBtn.addEventListener('click', function () {
+    if (!variant) return;
+    msg.textContent = 'Preparing checkout...';
+    Shopify.cartLinesAdd(variant.id, qty).then(function (cart) {
+      window.location.href = cart.checkoutUrl;
+    }).catch(function (err) {
+      msg.textContent = 'Could not start checkout: ' + err.message;
+    });
+  });
+});
+</script>
 </body>
 </html>
 

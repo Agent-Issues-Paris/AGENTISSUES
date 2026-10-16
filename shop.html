@@ -26,27 +26,14 @@
   <nav class="main-nav">
     <a href="index.html">Home</a>
     <a href="shop.html" class="active">Shop</a>
-    <a href="#">Cart</a>
+    <a href="cart.html" data-cart-count>Cart</a>
     <a href="about.html">About</a>
   </nav>
 </header>
 
 <main>
-  <section class="columns">
-    <div class="column">
-      <img class="tee" src="assets/tee-white.png" alt="I heart INSPO white tee">
-      <div class="price-bar">
-        <span>I &lt;3 INSPO WHITE TEE</span>
-        <span>$32.00</span>
-      </div>
-    </div>
-    <div class="column">
-      <img class="tee" src="assets/tee-black.png" alt="I heart INSPO black tee">
-      <div class="price-bar">
-        <span>I &lt;3 INSPO BLACK TEE</span>
-        <span>$32.00</span>
-      </div>
-    </div>
+  <section class="columns" id="shopProducts">
+    <p class="product-loading">Loading products...</p>
   </section>
 
   <section class="info-row">
@@ -61,7 +48,53 @@
   </section>
 </main>
 
+<script src="shopify.js"></script>
 <script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('shopProducts');
+  if (!container) return;
+
+  Shopify.getCollectionProducts('shop').then(function (products) {
+    if (!products.length) {
+      container.innerHTML = '<p class="product-loading">No products yet.</p>';
+      return;
+    }
+    container.innerHTML = products.map(renderColumn).join('');
+  }).catch(function (err) {
+    console.error('Failed to load shop products', err);
+    container.innerHTML = '<p class="product-loading">Could not load products.</p>';
+  });
+
+  function renderColumn(product) {
+    var images = product.images.edges;
+    var img1 = images[0] ? images[0].node.url : '';
+    var img2 = images[1] ? images[1].node.url : img1;
+    var price = Shopify.formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode);
+    var href = 'product.html?handle=' + encodeURIComponent(product.handle);
+    var title = escapeHtml(product.title);
+    return (
+      '<a class="column" href="' + href + '">' +
+      '  <div class="product-image tee-frame">' +
+      '    <img class="img-default tee" src="' + img1 + '" alt="' + title + '">' +
+      '    <img class="img-hover tee" src="' + img2 + '" alt="' + title + '">' +
+      '  </div>' +
+      '  <div class="price-bar">' +
+      '    <span>' + title + '</span>' +
+      '    <span class="add-to-cart">ADD TO CART</span>' +
+      '    <span>' + price + '</span>' +
+      '  </div>' +
+      '</a>'
+    );
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+});
+</script>
 </body>
 </html>
 
