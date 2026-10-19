@@ -21,9 +21,12 @@
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ content_for_header }}
 </head>
+{%- if request.page_type == 'product' -%}
+  {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
+{%- endif -%}
 {%- liquid
   assign body_class = 'template-' | append: template.name
-  if template.suffix == 'issue'
+  if is_issue contains 'true'
     assign body_class = body_class | append: ' no-scroll page-issue1'
   elsif template.name == 'product'
     assign body_class = body_class | append: ' page-product'

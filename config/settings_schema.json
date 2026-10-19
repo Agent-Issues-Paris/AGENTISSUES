@@ -8,6 +8,18 @@
     "theme_support_url": "https://github.com/Agent-Issues-Paris"
   },
   {
+    "name": "Issues",
+    "settings": [
+      {
+        "type": "product_list",
+        "id": "issue_products",
+        "label": "Magazine issues",
+        "limit": 20,
+        "info": "These products get the issue layout (endless strip of spreads) instead of the regular product page."
+      }
+    ]
+  },
+  {
     "name": "Intro video",
     "settings": [
       {

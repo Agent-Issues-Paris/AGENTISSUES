@@ -1,0 +1,20 @@
+{%- comment -%}
+  Outputs "true" when the product should use the magazine issue layout:
+  it is listed in Theme settings → Issues, or it has the "issue" template.
+  Usage: {% capture is_issue %}{% render 'is-issue', product: product %}{% endcapture %}
+{%- endcomment -%}
+{%- liquid
+  assign found = false
+  if product.template_suffix == 'issue'
+    assign found = true
+  endif
+  for p in settings.issue_products
+    if p.id == product.id
+      assign found = true
+      break
+    endif
+  endfor
+  if found
+    echo 'true'
+  endif
+-%}

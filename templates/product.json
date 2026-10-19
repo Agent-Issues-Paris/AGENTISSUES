@@ -1,11 +1,16 @@
 {
   "sections": {
+    "issue": {
+      "type": "main-product-issue",
+      "settings": {}
+    },
     "main": {
       "type": "main-product",
       "settings": {}
     }
   },
   "order": [
+    "issue",
     "main"
   ]
 }

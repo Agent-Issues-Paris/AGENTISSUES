@@ -1,3 +1,5 @@
+{%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
+{%- unless is_issue contains 'true' -%}
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign option_name = product.options.first
@@ -51,6 +53,7 @@
     {%- endform -%}
   </div>
 </section>
+{%- endunless -%}
 
 {% schema %}
 {

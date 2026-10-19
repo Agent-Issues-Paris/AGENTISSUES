@@ -15,7 +15,10 @@
     when 'collection', 'list-collections'
       assign active = 'shop'
     when 'product'
-      if template.suffix == 'issue'
+      capture is_issue
+        render 'is-issue', product: product
+      endcapture
+      if is_issue contains 'true'
         assign active = 'home'
       else
         assign active = 'shop'

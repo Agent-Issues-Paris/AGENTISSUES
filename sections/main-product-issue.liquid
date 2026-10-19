@@ -1,7 +1,10 @@
 {%- comment -%}
   Magazine issue page: endless horizontal strip of spreads + buy box.
-  Assign the "issue" product template to the issue product in Shopify admin.
+  Shown for products listed in Theme settings → Issues (or with the "issue"
+  template); renders nothing for any other product.
 {%- endcomment -%}
+{%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
+{%- if is_issue contains 'true' -%}
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign description = section.settings.description
@@ -64,6 +67,7 @@
     </div>
   {%- endif -%}
 </section>
+{%- endif -%}
 
 {% schema %}
 {
