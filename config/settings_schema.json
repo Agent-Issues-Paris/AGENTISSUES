@@ -26,7 +26,8 @@
         "type": "checkbox",
         "id": "show_intro",
         "label": "Play intro video on first visit",
-        "default": true
+        "default": false,
+        "info": "Off until the random-spreads reel is ready."
       },
       {
         "type": "video",
@@ -49,6 +50,36 @@
         "type": "image_picker",
         "id": "favicon",
         "label": "Favicon"
+      }
+    ]
+  },
+  {
+    "name": "Cookie banner",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "cookie_banner",
+        "label": "Show the site's own cookie banner",
+        "default": true,
+        "info": "Turn off Shopify's built-in banner in Settings → Customer privacy, otherwise both appear."
+      },
+      {
+        "type": "textarea",
+        "id": "cookie_text",
+        "label": "Text",
+        "default": "We use cookies to understand how the shop is used and to show our ads to the right people."
+      },
+      {
+        "type": "text",
+        "id": "cookie_accept_label",
+        "label": "Accept button",
+        "default": "ACCEPT"
+      },
+      {
+        "type": "text",
+        "id": "cookie_decline_label",
+        "label": "Decline button",
+        "default": "DECLINE"
       }
     ]
   }

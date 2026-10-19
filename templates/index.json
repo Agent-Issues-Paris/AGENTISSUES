@@ -27,7 +27,7 @@
           }
         },
         "box_3": {
-          "type": "box",
+          "type": "policies",
           "settings": {
             "heading": "POLICIES",
             "text": "All rights reserved.\nWebsite by AUX STUDIO."

@@ -28,11 +28,19 @@
             "heading": "CONTACT",
             "text": "aagentplus@protonmail.com\n@agent.issues"
           }
+        },
+        "box_3": {
+          "type": "policies",
+          "settings": {
+            "heading": "POLICIES",
+            "text": "All rights reserved.\nWebsite by AUX STUDIO."
+          }
         }
       },
       "block_order": [
         "box_1",
-        "box_2"
+        "box_2",
+        "box_3"
       ]
     }
   },

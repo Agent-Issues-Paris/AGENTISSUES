@@ -24,9 +24,11 @@ The existing GitHub Pages site is untouched; this theme can be uploaded unpublis
    ```bash
    shopify theme push --unpublished --store p0pt9d-ef.myshopify.com
    ```
-3. **Issue product → Theme template → `issue`**, so its product page uses the magazine layout.
+3. Magazine issues get the endless-strip layout automatically when listed in Theme settings → Issues (Issue 1 is preselected).
 4. **Online Store → Pages → Add page** titled "About" (handle `about`), template `page.about`.
-5. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
+5. **Settings → Customer privacy → Cookie banner:** turn off Shopify's own banner. The theme shows its own (Theme settings → Cookie banner), wired to Shopify's Customer Privacy API.
+6. **Settings → Policies:** fill in refund, privacy, terms and shipping. They are linked from the POLICIES box and render inside the site frame.
+7. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
 
 ## Local development
 

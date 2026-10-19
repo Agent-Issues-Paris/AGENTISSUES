@@ -2,7 +2,17 @@
   {%- for block in section.blocks -%}
     <div class="info-box" {{ block.shopify_attributes }}>
       <h2>{{ block.settings.heading | escape }}</h2>
-      <p>{{ block.settings.text | escape | newline_to_br }}</p>
+      {%- case block.type -%}
+        {%- when 'policies' -%}
+          <p class="policy-links">
+            {%- for policy in shop.policies -%}
+              <a href="{{ policy.url }}">{{ policy.title | escape }}</a><br>
+            {%- endfor -%}
+            {%- if block.settings.text != blank -%}{{ block.settings.text | escape | newline_to_br }}{%- endif -%}
+          </p>
+        {%- else -%}
+          <p>{{ block.settings.text | escape | newline_to_br }}</p>
+      {%- endcase -%}
     </div>
   {%- endfor -%}
 </section>
@@ -25,6 +35,20 @@
       "settings": [
         { "type": "text", "id": "heading", "label": "Heading", "default": "HEADING" },
         { "type": "textarea", "id": "text", "label": "Text", "default": "Text" }
+      ]
+    },
+    {
+      "type": "policies",
+      "name": "Policies",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "POLICIES" },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text under the links",
+          "info": "Links come from Settings → Policies in Shopify admin.",
+          "default": "All rights reserved."
+        }
       ]
     }
   ],

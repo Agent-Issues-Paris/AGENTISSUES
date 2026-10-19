@@ -35,12 +35,16 @@
   <div class="brand-row">
     {%- if section.settings.ticker_text != blank -%}
       {%- capture ticker_line -%}{% for i in (1..10) %}{{ section.settings.ticker_text | escape }} - {% endfor %}{%- endcapture -%}
-      <div class="ticker" role="marquee" aria-label="{{ section.settings.ticker_text | escape }}">
+      {%- if section.settings.ticker_link != blank -%}
+        <a class="ticker" href="{{ section.settings.ticker_link }}" aria-label="{{ section.settings.ticker_text | escape }}">
+      {%- else -%}
+        <div class="ticker" role="marquee" aria-label="{{ section.settings.ticker_text | escape }}">
+      {%- endif -%}
         <div class="ticker__track" aria-hidden="true">
           <span>{{ ticker_line }}</span>
           <span>{{ ticker_line }}</span>
         </div>
-      </div>
+      {%- if section.settings.ticker_link != blank -%}</a>{%- else -%}</div>{%- endif -%}
     {%- else -%}
       <a class="brand-title" href="{{ routes.root_url }}"><span class="brand-title__a">a</span>gent</a>
     {%- endif -%}
@@ -74,6 +78,12 @@
       "label": "Ticker text",
       "info": "Scrolling line at the very top. Leave empty to show the \"agent\" wordmark instead.",
       "default": "PRE ORDER NEW ISSUE “THE FOOD ISSUE” NOW!"
+    },
+    {
+      "type": "url",
+      "id": "ticker_link",
+      "label": "Ticker link",
+      "info": "Where a click on the ticker goes, e.g. the preorder product."
     },
     {
       "type": "image_picker",

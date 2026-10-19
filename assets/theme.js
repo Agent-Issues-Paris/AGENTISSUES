@@ -537,3 +537,34 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+// Cookie banner: Shopify's Customer Privacy API decides whether consent is
+// needed (e.g. EU visitors) and stores the answer.
+document.addEventListener('DOMContentLoaded', function () {
+  var banner = document.querySelector('[data-cookie-banner]');
+  if (!banner || !window.Shopify || !window.Shopify.loadFeatures) return;
+
+  window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (error) {
+    if (error) return;
+    var privacy = window.Shopify.customerPrivacy;
+    if (!privacy || !privacy.shouldShowBanner()) return;
+
+    banner.hidden = false;
+    requestAnimationFrame(function () { banner.classList.add('is-visible'); });
+
+    function answer(granted) {
+      privacy.setTrackingConsent({
+        analytics: granted,
+        marketing: granted,
+        preferences: granted,
+        sale_of_data: granted
+      }, function () {
+        banner.classList.remove('is-visible');
+        setTimeout(function () { banner.hidden = true; }, 300);
+      });
+    }
+
+    banner.querySelector('[data-cookie-accept]').addEventListener('click', function () { answer(true); });
+    banner.querySelector('[data-cookie-decline]').addEventListener('click', function () { answer(false); });
+  });
+});

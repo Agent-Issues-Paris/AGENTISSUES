@@ -1,0 +1,20 @@
+{%- comment -%}
+  Cookie consent in the site's own style, wired to Shopify's Customer Privacy
+  API in theme.js. It only appears where Shopify says consent is required and
+  the visitor hasn't chosen yet. Turn off Shopify's built-in banner in
+  Settings → Customer privacy → Cookie banner, otherwise both show.
+{%- endcomment -%}
+{%- if settings.cookie_banner -%}
+  <div class="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookies" data-cookie-banner hidden>
+    <div class="info-box">
+      <p>
+        {{- settings.cookie_text | escape | newline_to_br -}}
+        {%- if shop.privacy_policy %} <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title | escape }}</a>{% endif -%}
+      </p>
+    </div>
+    <div class="cookie-banner__actions">
+      <div class="info-box"><button type="button" data-cookie-decline>{{ settings.cookie_decline_label | escape }}</button></div>
+      <div class="info-box"><button type="button" data-cookie-accept>{{ settings.cookie_accept_label | escape }}</button></div>
+    </div>
+  </div>
+{%- endif -%}
