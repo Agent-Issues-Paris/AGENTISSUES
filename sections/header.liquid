@@ -30,14 +30,25 @@
 -%}
 <header class="site-header">
   <div class="brand-row">
-    <a class="brand-title" href="{{ routes.root_url }}"><span class="brand-title__a">a</span>gent</a>
+    {%- if section.settings.ticker_text != blank -%}
+      {%- capture ticker_line -%}{% for i in (1..10) %}{{ section.settings.ticker_text | escape }} - {% endfor %}{%- endcapture -%}
+      <div class="ticker" role="marquee" aria-label="{{ section.settings.ticker_text | escape }}">
+        <div class="ticker__track" aria-hidden="true">
+          <span>{{ ticker_line }}</span>
+          <span>{{ ticker_line }}</span>
+        </div>
+      </div>
+    {%- else -%}
+      <a class="brand-title" href="{{ routes.root_url }}"><span class="brand-title__a">a</span>gent</a>
+    {%- endif -%}
     <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
     </svg>
   </div>
   <a class="logo-overlay" href="{{ routes.root_url }}">
     {%- if section.settings.logo != blank -%}
-      {{ section.settings.logo | image_url: width: 600 | image_tag: alt: shop.name }}
+      {%- comment -%} Plain src, no srcset: "draw ur own logo" swaps the src in theme.js {%- endcomment -%}
+      <img src="{{ section.settings.logo | image_url: width: 600 }}" width="{{ section.settings.logo.width }}" height="{{ section.settings.logo.height }}" alt="{{ shop.name | escape }} logo">
     {%- else -%}
       <img src="{{ 'logo-agent-issues.png' | asset_url }}" width="900" height="443" alt="{{ shop.name | escape }} logo">
     {%- endif -%}
@@ -54,6 +65,13 @@
 {
   "name": "Header",
   "settings": [
+    {
+      "type": "text",
+      "id": "ticker_text",
+      "label": "Ticker text",
+      "info": "Scrolling line at the very top. Leave empty to show the \"agent\" wordmark instead.",
+      "default": "PRE ORDER NEW ISSUE “THE FOOD ISSUE” NOW!"
+    },
     {
       "type": "image_picker",
       "id": "logo",

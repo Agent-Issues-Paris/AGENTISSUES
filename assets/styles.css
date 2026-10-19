@@ -25,7 +25,7 @@ html:has(body.no-scroll) {
     transform: translateY(30px);
   }
   to {
-    opacity: 1;
+    opacity: var(--rise-opacity, 1);
     transform: translateY(0);
   }
 }
@@ -62,6 +62,12 @@ main {
   height: auto;
 }
 
+/* hand-drawn logos keep the original logo's footprint */
+.logo-overlay img.is-custom {
+  height: 148px;
+  object-fit: contain;
+}
+
 .brand-row {
   position: relative;
   display: flex;
@@ -72,39 +78,43 @@ main {
   animation: rise-in 0.6s ease both;
 }
 
-.site-header.is-scrolled .logo-overlay {
+.site-header.show-logo .logo-overlay {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-.brand-title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 74.4px; /* tracking value kept independent of font-size */
+/* scrolling announcement, in the site's bold Times */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker {
+  width: 100%;
+  overflow: hidden;
+}
+
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 70s linear infinite;
+}
+
+.ticker__track span {
+  flex: 0 0 auto;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 18px;
   text-transform: uppercase;
-  margin-right: -74.4px; /* cancel trailing letter-spacing so glyphs are truly centered */
-  color: inherit;
-  text-decoration: none;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.site-header.is-scrolled .brand-title {
-  opacity: 0;
-  transform: translateY(-40px);
-  pointer-events: none;
-}
-
-.brand-title__a {
-  display: inline-block;
-  letter-spacing: normal;
-  margin-right: 74.4px; /* preserves the tracking without rotating the gap */
-  transform: rotate(45deg);
+  white-space: pre;
 }
 
 .star {
   position: absolute;
   right: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 0 10px #fff; /* keeps the ticker from running under it */
   top: 50%;
   transform: translateY(-50%);
 }
@@ -235,6 +245,39 @@ main {
   opacity: 1;
 }
 
+.price-bar .add-to-cart {
+  cursor: pointer;
+}
+
+.price-bar .add-to-cart:hover {
+  text-decoration: underline;
+}
+
+.price-bar .add-to-cart.is-picking {
+  display: flex;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.quick-size {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.quick-size:hover {
+  text-decoration: underline;
+}
+
+.quick-size:disabled {
+  opacity: 0.3;
+  text-decoration: line-through;
+  cursor: default;
+}
+
 /* ---------- product detail page ---------- */
 
 .columns.product-grid {
@@ -336,7 +379,9 @@ main {
   width: 66%;
   margin-left: auto;
   height: auto;
-  overflow-y: visible;
+  max-height: calc(100vh - var(--header-h, 110px) - 20px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .info-box.credits-box p {
@@ -360,6 +405,13 @@ main {
 
 .page-issue1 .info-box {
   background-color: #fff;
+}
+
+/* product pages: text blocks sit at 90% (set via the rise-in end state, which would otherwise override opacity) */
+.page-issue1 .info-box,
+.page-product .info-box {
+  --rise-opacity: 0.9;
+  opacity: 0.9;
 }
 
 /* ---------- generic product page ---------- */
@@ -485,6 +537,122 @@ main {
   font-size: 13px;
 }
 
+/* ---------- home hero ---------- */
+
+/* info | big centered cover | buying, all fitting one screen under the header */
+.home-hero {
+  --hero-h: calc(100vh - var(--header-h, 110px) - 10px);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 0 10px 10px;
+}
+
+/* hidden until Shopify says which issue is the hero, so the old one never flashes */
+.home-hero {
+  transition: opacity 0.3s ease;
+}
+
+.home-hero.is-loading {
+  opacity: 0;
+}
+
+.home-hero__info,
+.home-hero__buy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.home-hero__info {
+  max-height: var(--hero-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none; /* still scrolls, just no visible bar */
+}
+
+.home-hero__info::-webkit-scrollbar {
+  display: none;
+}
+
+.home-hero__info .issue-title {
+  font-size: 24px;
+}
+
+.info-box.credits-list p {
+  margin: 0 0 16px;
+}
+
+.info-box.credits-list p:last-child {
+  margin-bottom: 0;
+}
+
+.home-hero__cover {
+  position: relative;
+  display: block;
+  height: var(--hero-h);
+  aspect-ratio: 912 / 1193;
+  border: 1px solid #000;
+  animation: rise-in 0.6s ease both;
+  animation-delay: 0.3s;
+}
+
+.home-hero__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-hero__cover .img-hover {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.home-hero__cover:hover .img-hover {
+  opacity: 1;
+}
+
+.home-hero__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: border-color 0.15s ease;
+}
+
+.home-hero__control:hover {
+  border-color: red;
+}
+
+.home-hero__control .qty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.home-hero__control button {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.home-hero__control:hover button,
+.home-hero__control button:hover {
+  color: red;
+}
+
 /* ---------- cart page ---------- */
 
 .cart-page {
@@ -567,6 +735,27 @@ main {
 }
 
 @media (max-width: 700px) {
+  /* home: cover, then buying, then the info */
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .home-hero__cover {
+    order: 1;
+    width: 100%;
+    height: auto;
+  }
+
+  .home-hero__buy {
+    order: 2;
+  }
+
+  .home-hero__info {
+    order: 3;
+    max-height: none;
+    overflow: visible;
+  }
+
   .product-layout {
     grid-template-columns: 1fr;
   }
@@ -637,6 +826,133 @@ main {
   object-fit: cover;
 }
 
+/* ---------- draw ur own logo ---------- */
+
+@keyframes sticker-wiggle {
+  0%, 100% { transform: rotate(-15deg); }
+  25% { transform: rotate(-13.5deg); }
+  75% { transform: rotate(-16.5deg); }
+}
+
+.draw-sticker {
+  position: absolute;
+  top: 40px;
+  left: calc(50% + 140px); /* just right of the 300px centered logo */
+  z-index: 101;
+  padding: 5px;
+  border: 2px solid #ed1c24;
+  background: #ed1c24;
+  color: #fff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transform: rotate(-15deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* shows after the 5s delay, whether or not the page has been scrolled */
+.draw-sticker.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  animation: sticker-wiggle 0.25s ease-in-out infinite;
+}
+
+.draw-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.draw-modal.is-open {
+  display: flex;
+}
+
+.draw-modal__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: min(640px, 100%);
+  padding: 20px;
+  background: #fff;
+  border: 3px solid #000;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.draw-modal__title {
+  padding: 8px 20px;
+  background: #ed1c24;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* tools | canvas | empty column the same width as the tools, so the canvas stays centered */
+.draw-modal__body {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  gap: 20px;
+  width: 100%;
+}
+
+.draw-modal__tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draw-tool {
+  padding: 2px;
+  width: 34px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0.35;
+}
+
+.draw-tool.is-active {
+  opacity: 1;
+}
+
+.draw-tool svg {
+  display: block;
+  fill: #000;
+}
+
+.draw-modal__canvas {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 720 / 460;
+  background: #f4f4f4;
+  border: 1px solid #000;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.draw-modal__done {
+  padding: 8px 20px;
+  border: 0;
+  background: #ccc;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.draw-modal__done:hover {
+  background: #bbb;
+}
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 700px) {
@@ -649,7 +965,8 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .logo-overlay {
+  .logo-overlay,
+  .draw-sticker {
     display: none;
   }
 
@@ -728,7 +1045,7 @@ main {
     width: 100%;
     margin-left: 0;
     height: auto;
-    overflow-y: visible;
+    max-height: 45vh;
   }
 
   .page-issue1 .price-box {

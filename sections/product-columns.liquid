@@ -7,10 +7,22 @@
   if source == blank and collection
     assign source = collection
   endif
+  if section.settings.all_products
+    assign source = collections.all
+  endif
+  assign products = source.products
+  if section.settings.all_products
+    assign products = source.products | sort: 'created_at' | reverse
+  endif
+  assign pinned = section.settings.pinned_product
 -%}
 <section class="columns">
-  {%- if source != blank and source.products_count > 0 -%}
-    {%- for product in source.products limit: section.settings.limit -%}
+  {%- if products.size > 0 -%}
+    {%- if pinned != blank -%}
+      {% render 'product-card', product: pinned, tee: section.settings.tee_framing %}
+    {%- endif -%}
+    {%- for product in products limit: section.settings.limit -%}
+      {%- if pinned != blank and product.id == pinned.id -%}{%- continue -%}{%- endif -%}
       {% render 'product-card', product: product, tee: section.settings.tee_framing %}
     {%- endfor -%}
   {%- else -%}
@@ -27,6 +39,17 @@
       "id": "collection",
       "label": "Collection",
       "info": "On collection pages, leave empty to show that collection."
+    },
+    {
+      "type": "checkbox",
+      "id": "all_products",
+      "label": "Show every product (newest first)",
+      "default": false
+    },
+    {
+      "type": "product",
+      "id": "pinned_product",
+      "label": "Pin this product first"
     },
     {
       "type": "range",

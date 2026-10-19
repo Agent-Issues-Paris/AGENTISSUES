@@ -1,11 +1,9 @@
 {
   "sections": {
-    "products": {
-      "type": "product-columns",
+    "hero": {
+      "type": "home-hero",
       "settings": {
-        "collection": "frontpage",
-        "limit": 24,
-        "tee_framing": false
+        "fallback_product": "aagent-issue-01-i-❤️-inspo-fw25-26"
       }
     },
     "info": {
@@ -44,7 +42,7 @@
     }
   },
   "order": [
-    "products",
+    "hero",
     "info"
   ]
 }

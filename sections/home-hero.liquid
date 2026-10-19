@@ -1,0 +1,147 @@
+{%- comment -%}
+  The hero is the newest product in the chosen collection ("Home page" by
+  default), so a new issue takes over as soon as it's added there.
+  The fallback issue (Issue 1) keeps its flat cover art and the texts below;
+  any other issue uses its Shopify photos, and its description is split at a
+  "Contributors:" paragraph into blurb + credits.
+{%- endcomment -%}
+{%- liquid
+  assign source = section.settings.collection | default: collections.frontpage
+  assign hero = source.products | sort: 'created_at' | reverse | first
+  assign fallback = section.settings.fallback_product
+  assign is_fallback = false
+  if hero == blank or fallback != blank and hero.id == fallback.id
+    assign is_fallback = true
+  endif
+  if hero == blank
+    assign hero = fallback
+  endif
+  assign variant = hero.selected_or_first_available_variant
+-%}
+
+{%- if is_fallback -%}
+  {%- assign blurb_html = section.settings.description | escape | newline_to_br -%}
+  {%- assign credits_html = section.settings.credits -%}
+{%- else -%}
+  {%- liquid
+    # descriptionHtml -> paragraphs of lines, same rules as the old site:
+    # blank lines / </p> split paragraphs, <br> splits lines
+    assign marked = hero.description | replace: '<br />', '§BR§' | replace: '<br/>', '§BR§' | replace: '<br>', '§BR§' | replace: '</p>', '§P§' | replace: '</div>', '§P§' | strip_html | replace: '&nbsp;', ' '
+    assign paragraphs = marked | split: '§P§'
+    assign blurb_html = ''
+    assign credits_html = ''
+    assign in_credits = false
+    for para in paragraphs
+      assign lines = para | split: '§BR§'
+      assign clean = ''
+      assign first_line = ''
+      for line in lines
+        assign l = line | strip
+        if l == blank
+          continue
+        endif
+        if first_line == ''
+          assign first_line = l
+        endif
+        if clean != ''
+          assign clean = clean | append: '<br>'
+        endif
+        assign clean = clean | append: l
+      endfor
+      if clean == ''
+        continue
+      endif
+      assign heading = first_line | downcase | remove: ':' | strip
+      if in_credits == false and heading == 'contributors'
+        assign in_credits = true
+        assign clean = clean | remove_first: first_line | remove_first: '<br>'
+      endif
+      if in_credits
+        if clean != ''
+          assign credits_html = credits_html | append: '<p>' | append: clean | append: '</p>'
+        endif
+      else
+        if blurb_html != ''
+          assign blurb_html = blurb_html | append: '<br><br>'
+        endif
+        assign blurb_html = blurb_html | append: clean
+      endif
+    endfor
+  -%}
+{%- endif -%}
+
+{%- if hero != blank -%}
+<section class="home-hero">
+  <div class="home-hero__info">
+    <div class="info-box">
+      <h2 class="issue-title">{{ hero.title | escape }}</h2>
+      <p>{{ blurb_html }}</p>
+    </div>
+    {%- if credits_html != blank -%}
+      <div class="info-box credits-list">
+        <h2>CONTRIBUTORS</h2>
+        {{ credits_html }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <a class="home-hero__cover" href="{{ hero.url }}">
+    {%- if is_fallback -%}
+      <img class="img-default" src="{{ 'ISSUE1.png' | asset_url }}" width="912" height="1193" alt="{{ hero.title | escape }} cover">
+      <img class="img-hover" src="{{ 'ISSUE1.2.png' | asset_url }}" width="918" height="1194" alt="" aria-hidden="true">
+    {%- else -%}
+      {%- assign img2 = hero.images[1] | default: hero.featured_image -%}
+      {{ hero.featured_image | image_url: width: 1600 | image_tag: class: 'img-default', alt: hero.title, widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
+      {{ img2 | image_url: width: 1600 | image_tag: class: 'img-hover', alt: '', aria-hidden: 'true', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
+    {%- endif -%}
+  </a>
+
+  {%- form 'product', hero, class: 'home-hero__buy', data-product-form: '' -%}
+    <input type="hidden" name="id" value="{{ variant.id }}" data-variant-input>
+    <input type="hidden" name="quantity" value="1" data-qty-input>
+    <div class="info-box price-box"><p data-price-box>{{ variant.price | money }}</p></div>
+    <div class="info-box home-hero__control">
+      <div class="qty">
+        <button type="button" data-qty-minus aria-label="Decrease quantity">-</button>
+        <span data-qty-value>1</span>
+        <button type="button" data-qty-plus aria-label="Increase quantity">+</button>
+      </div>
+    </div>
+    <div class="info-box home-hero__control"><button type="submit" data-add-to-cart>ADD TO CART</button></div>
+    <div class="info-box home-hero__control"><button type="submit" name="return_to" value="/checkout" data-checkout>CHECKOUT</button></div>
+    <p class="cart-message" aria-live="polite" data-cart-message>{% unless variant.available %}Sold out.{% endunless %}</p>
+  {%- endform -%}
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Issue hero",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "The newest product here becomes the hero. Defaults to \"Home page\"."
+    },
+    {
+      "type": "product",
+      "id": "fallback_product",
+      "label": "Issue 1 product",
+      "info": "When this product is the hero it uses the flat cover art and the texts below."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Issue 1 description",
+      "default": "This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture"
+    },
+    {
+      "type": "html",
+      "id": "credits",
+      "label": "Issue 1 credits",
+      "default": "<p>Nastya Livadnova<br>Joseph Hauser<br>Raphael Lugassy<br>Mika Ben Amar<br>Onek4ever<br>Ellie Warnke<br>Cloe Franco<br>Dora Kapus<br>Elizaveta Rakhmankulova<br>Goun Jeong<br>Mizuki Hirano<br>Mery Hoc<br>Patrick Garvey<br>Malene Specht<br>Phoebe Pendergast<br>Sofia Castellon<br>Nika Shulga<br>Teo Cisorio<br>Roman Mokrov<br>GIRLS CARRYING SHIT<br>Gunner Dongieux</p><p>Words by:<br>Ilya Egorov<br>Halle Robbe<br>TEN TODAY (tentoday.net):<br>Eli Harrell<br>Dasha Aksenova<br>Wes Mahony<br>Christine Pang<br>Theo Belci<br>Alex Leeman<br>Max Turner</p><p>Cover photo:<br>Raphael Lugassy<br>AA+ is led by a team of two siblings<br>Ilya Egorov<br>Creative Director, Editor-in-Chief</p><p>Zlata Egorova<br>Art Director, Designer</p>"
+    }
+  ]
+}
+{% endschema %}
