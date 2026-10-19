@@ -1,0 +1,111 @@
+{%- comment -%}
+  Magazine issue page: endless horizontal strip of spreads + buy box.
+  Assign the "issue" product template to the issue product in Shopify admin.
+{%- endcomment -%}
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign description = section.settings.description
+  if description == blank
+    assign description = product.description | strip_html
+  endif
+-%}
+
+{%- capture strip_images -%}
+  {%- if section.blocks.size > 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.settings.image != blank -%}
+        {%- capture img_class -%}{% if block.settings.portrait %}portrait{% endif %}{%- endcapture -%}
+        {{ block.settings.image | image_url: width: 2000 | image_tag: class: img_class, alt: block.settings.image.alt, data-strip-center: block.settings.center, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- else -%}
+    <img class="portrait" src="{{ 'ISSUE1.png' | asset_url }}" width="912" height="1193" alt="{{ product.title | escape }} cover">
+    <img class="portrait" src="{{ 'ISSUE1.2.png' | asset_url }}" width="918" height="1194" alt="{{ product.title | escape }} cover, alternate crop">
+    <img src="{{ 'spread-nastya.jpg' | asset_url }}" width="1800" height="1349" alt="">
+    <img class="portrait" src="{{ 'spread-nastya-mock.jpg' | asset_url }}" width="1600" height="1828" alt="">
+    <img src="{{ 'spread-moods.jpg' | asset_url }}" width="1800" height="1350" alt="">
+    <img src="{{ 'spread-mokrov.jpg' | asset_url }}" width="1800" height="1350" alt="Issue spread" data-strip-center="true">
+    <img src="{{ 'spread-fake.jpg' | asset_url }}" width="1800" height="1350" alt="">
+    <img class="portrait" src="{{ 'spread-raph.jpg' | asset_url }}" width="1600" height="1828" alt="">
+  {%- endif -%}
+{%- endcapture -%}
+
+<div class="hero-strip">
+  <div class="hero-strip__track">
+    {{ strip_images }}
+    {%- comment -%} Second copy makes the strip loop seamlessly; hidden from screen readers. {%- endcomment -%}
+    {{ strip_images | replace: '<img ', '<img aria-hidden="true" ' | replace: 'data-strip-center="true"', '' }}
+  </div>
+</div>
+
+<section class="columns product-grid">
+  <div class="product-col">
+    <div class="info-box">
+      <h2>{{ section.settings.heading | default: product.title | escape }}</h2>
+      <p>{{ description | escape | newline_to_br }}</p>
+    </div>
+    <div class="info-box price-box">
+      <p data-price-box>{{ current_variant.price | money }}</p>
+    </div>
+  </div>
+
+  {%- form 'product', product, class: 'product-col product-col--hero', data-product-form: '' -%}
+    <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-input>
+    {% render 'qty-cart-controls' %}
+    <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}Sold out.{% endunless %}</p>
+  {%- endform -%}
+
+  {%- if section.settings.credits != blank -%}
+    <div class="product-col credits-col">
+      <details class="info-box credits-box">
+        <summary>{{ section.settings.credits_label | escape }}</summary>
+        {{ section.settings.credits }}
+      </details>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Issue",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "ISSUE 1"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "info": "Leave empty to use the product description.",
+      "default": "This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture"
+    },
+    {
+      "type": "text",
+      "id": "credits_label",
+      "label": "Credits button label (mobile)",
+      "default": "Contributors..."
+    },
+    {
+      "type": "html",
+      "id": "credits",
+      "label": "Credits",
+      "default": "<p>Contributors:<br>Nastya Livadnova<br>Joseph Hauser<br>Raphael Lugassy<br>Mika Ben Amar<br>Onek4ever<br>Ellie Warnke<br>Cloe Franco<br>Dora Kapus<br>Elizaveta Rakhmankulova<br>Goun Jeong<br>Mizuki Hirano<br>Mery Hoc<br>Patrick Garvey<br>Malene Specht<br>Phoebe Pendergast<br>Sofia Castellon<br>Nika Shulga<br>Teo Cisorio<br>Roman Mokrov<br>GIRLS CARRYING SHIT<br>Gunner Dongieux</p><p>Words by:<br>Ilya Egorov<br>Halle Robbe<br>TEN TODAY (tentoday.net):<br>Eli Harrell<br>Dasha Aksenova<br>Wes Mahony<br>Christine Pang<br>Theo Belci<br>Alex Leeman<br>Max Turner</p><p>Cover photo:<br>Raphael Lugassy<br>AA+ is led by a team of two siblings<br>Ilya Egorov<br>Creative Director, Editor-in-Chief</p><p>Zlata Egorova<br>Art Director, Designer</p>"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Strip image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "checkbox", "id": "portrait", "label": "Portrait (tall) image", "default": false },
+        { "type": "checkbox", "id": "center", "label": "Start the strip centred on this image", "default": false }
+      ]
+    }
+  ],
+  "max_blocks": 30
+}
+{% endschema %}

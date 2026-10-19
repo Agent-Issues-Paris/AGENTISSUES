@@ -1,0 +1,46 @@
+{
+  "sections": {
+    "info": {
+      "type": "info-row",
+      "settings": {
+        "top": true
+      },
+      "blocks": {
+        "box_1": {
+          "type": "box",
+          "settings": {
+            "heading": "ABOUT US",
+            "text": "We are a Paris based magazine about SOLDADOS that cares about the intersection about SOLDADOS and other SOLDADOS that keep saying might as welllll when shit comes up. We gangster asf."
+          }
+        },
+        "box_2": {
+          "type": "box",
+          "settings": {
+            "heading": "CONTACT",
+            "text": "aagentplus@protonmail.com\n@agent.issues"
+          }
+        },
+        "box_3": {
+          "type": "box",
+          "settings": {
+            "heading": "STOCKIST",
+            "text": ". Soldado store, Rue de Notre Dame 46\n. Piola los Pibes, 9 Rue de Meissioneir"
+          }
+        }
+      },
+      "block_order": [
+        "box_1",
+        "box_2",
+        "box_3"
+      ]
+    },
+    "main": {
+      "type": "main-page",
+      "settings": {}
+    }
+  },
+  "order": [
+    "info",
+    "main"
+  ]
+}

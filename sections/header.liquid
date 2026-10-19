@@ -1,0 +1,77 @@
+{%- liquid
+  assign shop_url = routes.collections_url | append: '/shop'
+  if section.settings.shop_collection != blank
+    assign shop_url = section.settings.shop_collection.url
+  endif
+  assign about_url = routes.root_url | append: 'pages/about'
+  if section.settings.about_page != blank
+    assign about_url = section.settings.about_page.url
+  endif
+
+  assign active = ''
+  case request.page_type
+    when 'index'
+      assign active = 'home'
+    when 'collection', 'list-collections'
+      assign active = 'shop'
+    when 'product'
+      if template.suffix == 'issue'
+        assign active = 'home'
+      else
+        assign active = 'shop'
+      endif
+    when 'cart'
+      assign active = 'cart'
+    when 'page'
+      if page.url == about_url
+        assign active = 'about'
+      endif
+  endcase
+-%}
+<header class="site-header">
+  <div class="brand-row">
+    <a class="brand-title" href="{{ routes.root_url }}"><span class="brand-title__a">a</span>gent</a>
+    <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
+    </svg>
+  </div>
+  <a class="logo-overlay" href="{{ routes.root_url }}">
+    {%- if section.settings.logo != blank -%}
+      {{ section.settings.logo | image_url: width: 600 | image_tag: alt: shop.name }}
+    {%- else -%}
+      <img src="{{ 'logo-agent-issues.png' | asset_url }}" width="900" height="443" alt="{{ shop.name | escape }} logo">
+    {%- endif -%}
+  </a>
+  <nav class="main-nav">
+    <a href="{{ routes.root_url }}"{% if active == 'home' %} class="active"{% endif %}>Home</a>
+    <a href="{{ shop_url }}"{% if active == 'shop' %} class="active"{% endif %}>Shop</a>
+    <a href="{{ routes.cart_url }}"{% if active == 'cart' %} class="active"{% endif %} data-cart-count>Cart{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}</a>
+    <a href="{{ about_url }}"{% if active == 'about' %} class="active"{% endif %}>About</a>
+  </nav>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo (shown when scrolling)",
+      "info": "Leave empty to use the bundled AGENT ISSUES logo."
+    },
+    {
+      "type": "collection",
+      "id": "shop_collection",
+      "label": "Shop link",
+      "info": "Defaults to the collection with handle \"shop\"."
+    },
+    {
+      "type": "page",
+      "id": "about_page",
+      "label": "About link",
+      "info": "Defaults to /pages/about."
+    }
+  ]
+}
+{% endschema %}

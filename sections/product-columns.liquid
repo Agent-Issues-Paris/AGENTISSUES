@@ -1,0 +1,51 @@
+{%- comment -%}
+  Grid of product columns from a collection. Used on the home page and
+  on collection pages (where it falls back to the current collection).
+{%- endcomment -%}
+{%- liquid
+  assign source = section.settings.collection
+  if source == blank and collection
+    assign source = collection
+  endif
+-%}
+<section class="columns">
+  {%- if source != blank and source.products_count > 0 -%}
+    {%- for product in source.products limit: section.settings.limit -%}
+      {% render 'product-card', product: product, tee: section.settings.tee_framing %}
+    {%- endfor -%}
+  {%- else -%}
+    <p class="product-loading">No products yet.</p>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Product columns",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "On collection pages, leave empty to show that collection."
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Max products",
+      "min": 1,
+      "max": 48,
+      "step": 1,
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "tee_framing",
+      "label": "T-shirt image framing",
+      "default": false
+    }
+  ],
+  "presets": [
+    { "name": "Product columns" }
+  ]
+}
+{% endschema %}

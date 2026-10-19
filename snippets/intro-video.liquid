@@ -1,0 +1,18 @@
+{%- comment -%}
+  Full-screen reel shown once per browser session (see theme.js).
+  Uses the video picked in Theme settings, or the bundled reel.mp4.
+{%- endcomment -%}
+{%- if settings.show_intro -%}
+  {%- liquid
+    assign intro_src = 'reel.mp4' | asset_url
+    if settings.intro_video != blank
+      assign mp4 = settings.intro_video.sources | where: 'mime_type', 'video/mp4' | first
+      if mp4
+        assign intro_src = mp4.url
+      endif
+    endif
+  -%}
+  <div class="intro-overlay" id="introOverlay">
+    <video id="introVideo" src="{{ intro_src }}" autoplay muted playsinline></video>
+  </div>
+{%- endif -%}

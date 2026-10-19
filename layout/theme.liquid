@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="{{ canonical_url }}">
+{%- if settings.favicon != blank -%}
+  <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 64, height: 64 }}">
+{%- endif -%}
+<title>
+  {%- if template.name == 'index' -%}
+    {{ shop.name }}
+  {%- else -%}
+    {{ page_title }} | {{ shop.name }}
+  {%- endif -%}
+</title>
+{%- if page_description != blank -%}
+  <meta name="description" content="{{ page_description | escape }}">
+{%- endif -%}
+{% render 'meta-tags' %}
+{{ 'styles.css' | asset_url | stylesheet_tag }}
+{{ content_for_header }}
+</head>
+{%- liquid
+  assign body_class = 'template-' | append: template.name
+  if template.suffix == 'issue'
+    assign body_class = body_class | append: ' no-scroll page-issue1'
+  elsif template.name == 'product'
+    assign body_class = body_class | append: ' page-product'
+  endif
+-%}
+<body class="{{ body_class }}">
+
+{% render 'intro-video' %}
+
+{% section 'header' %}
+
+<main id="MainContent">
+  {{ content_for_layout }}
+</main>
+
+<script src="{{ 'theme.js' | asset_url }}" defer></script>
+</body>
+</html>

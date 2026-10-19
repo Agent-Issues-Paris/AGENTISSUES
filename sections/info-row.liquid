@@ -1,0 +1,39 @@
+<section class="info-row{% if section.settings.top %} info-row--top{% endif %}">
+  {%- for block in section.blocks -%}
+    <div class="info-box" {{ block.shopify_attributes }}>
+      <h2>{{ block.settings.heading | escape }}</h2>
+      <p>{{ block.settings.text | escape | newline_to_br }}</p>
+    </div>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "Info boxes",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "top",
+      "label": "Place at top of page",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "box",
+      "name": "Box",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "HEADING" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Text" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Info boxes",
+      "blocks": [{ "type": "box" }, { "type": "box" }, { "type": "box" }]
+    }
+  ]
+}
+{% endschema %}

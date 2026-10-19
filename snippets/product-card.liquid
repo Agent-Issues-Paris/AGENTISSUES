@@ -1,0 +1,29 @@
+{%- comment -%}
+  One product column with hover image swap.
+  Accepts:
+  - product: {Product}
+  - tee: {Boolean} use the t-shirt framing from the shop page
+{%- endcomment -%}
+{%- liquid
+  assign img1 = product.media[0].preview_image | default: product.featured_image
+  assign img2 = product.media[1].preview_image | default: img1
+  assign default_class = 'img-default'
+  assign hover_class = 'img-hover'
+  if tee
+    assign default_class = 'img-default tee'
+    assign hover_class = 'img-hover tee'
+  endif
+-%}
+<a class="column" href="{{ product.url }}">
+  <div class="product-image{% if tee %} tee-frame{% endif %}">
+    {%- if img1 -%}
+      {{ img1 | image_url: width: 1200 | image_tag: class: default_class, alt: product.title, loading: 'lazy', sizes: '(max-width: 700px) 100vw, 33vw', widths: '400, 800, 1200' }}
+      {{ img2 | image_url: width: 1200 | image_tag: class: hover_class, alt: product.title, loading: 'lazy', sizes: '(max-width: 700px) 100vw, 33vw', widths: '400, 800, 1200' }}
+    {%- endif -%}
+  </div>
+  <div class="price-bar">
+    <span>{{ product.title | escape }}</span>
+    <span class="add-to-cart">ADD TO CART</span>
+    <span>{{ product.price | money }}</span>
+  </div>
+</a>

@@ -1,0 +1,27 @@
+<section class="info-row info-row--top">
+  <div class="info-box">
+    <h2>SEARCH</h2>
+    <form action="{{ routes.search_url }}" method="get" role="search">
+      <input type="search" name="q" value="{{ search.terms | escape }}" aria-label="Search">
+      <input type="hidden" name="type" value="product">
+    </form>
+  </div>
+</section>
+{%- if search.performed -%}
+  <section class="columns">
+    {%- for item in search.results -%}
+      {%- if item.object_type == 'product' -%}
+        {% render 'product-card', product: item %}
+      {%- endif -%}
+    {%- else -%}
+      <p class="product-loading">No results.</p>
+    {%- endfor -%}
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Search",
+  "settings": []
+}
+{% endschema %}

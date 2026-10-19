@@ -1,0 +1,43 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Agent Issues",
+    "theme_version": "0.1.0",
+    "theme_author": "Agent Issues Paris",
+    "theme_documentation_url": "https://github.com/Agent-Issues-Paris",
+    "theme_support_url": "https://github.com/Agent-Issues-Paris"
+  },
+  {
+    "name": "Intro video",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_intro",
+        "label": "Play intro video on first visit",
+        "default": true
+      },
+      {
+        "type": "video",
+        "id": "intro_video",
+        "label": "Intro video",
+        "info": "Leave empty to use the bundled reel."
+      }
+    ]
+  },
+  {
+    "name": "Sharing",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "share_image",
+        "label": "Default social sharing image",
+        "info": "Shown when a non-product page is shared (Instagram, Telegram, iMessage...)."
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      }
+    ]
+  }
+]

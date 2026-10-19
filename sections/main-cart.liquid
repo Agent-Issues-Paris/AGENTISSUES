@@ -1,0 +1,54 @@
+{%- comment -%}
+  Quantity and remove buttons are handled by theme.js (POST /cart/change.js,
+  then reload). Checkout is a normal form submit.
+{%- endcomment -%}
+{%- assign shop_url = collections.shop.url | default: routes.all_products_collection_url -%}
+<section class="cart-page">
+  {%- if cart.item_count == 0 -%}
+    <p class="product-loading">Your cart is empty. <a href="{{ shop_url }}">Go to shop</a>.</p>
+  {%- else -%}
+    <form action="{{ routes.cart_url }}" method="post" novalidate>
+      <div class="cart-lines">
+        {%- for item in cart.items -%}
+          <div class="cart-line info-box">
+            {%- if item.image -%}
+              {{ item.image | image_url: width: 300 | image_tag: class: 'cart-line__image', alt: '' }}
+            {%- else -%}
+              <span class="cart-line__image"></span>
+            {%- endif -%}
+            <div class="cart-line__details">
+              <p class="cart-line__title">
+                {{ item.product.title | escape }}
+                {%- unless item.product.has_only_default_variant %} ({{ item.variant.title | escape }}){% endunless -%}
+              </p>
+              <div class="qty">
+                <button type="button" class="cart-qty-minus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity"{% if item.quantity <= 1 %} disabled{% endif %}>-</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" class="cart-qty-plus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | plus: 1 }}" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            <p class="cart-line__price">{{ item.final_price | money }}</p>
+            <button type="button" class="cart-line__remove" data-cart-change="{{ forloop.index }}" data-quantity="0" aria-label="Remove">×</button>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="cart-summary info-box">
+        <span>SUBTOTAL</span>
+        <span>{{ cart.total_price | money }}</span>
+      </div>
+
+      <div class="cart-controls">
+        <div class="info-box"><a class="cart-continue" href="{{ shop_url }}">CONTINUE SHOPPING</a></div>
+        <div class="info-box"><button type="submit" name="checkout">CHECKOUT</button></div>
+      </div>
+    </form>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Cart",
+  "settings": []
+}
+{% endschema %}

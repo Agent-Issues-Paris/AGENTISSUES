@@ -1,0 +1,60 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign option_name = product.options.first
+-%}
+<section class="product-detail">
+  <div class="product-layout">
+    <div class="product-gallery">
+      <div class="product-gallery__main">
+        {%- if product.featured_image -%}
+          {{ product.featured_image | image_url: width: 1600 | image_tag: data-main-image: '', alt: product.title, sizes: '(max-width: 700px) 100vw, 50vw', widths: '600, 1000, 1600' }}
+        {%- endif -%}
+      </div>
+      <div class="product-gallery__thumbs">
+        {%- for image in product.images -%}
+          <button type="button" class="product-thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ image | image_url: width: 1600 }}">
+            {{ image | image_url: width: 200 | image_tag: alt: '' }}
+          </button>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- form 'product', product, class: 'product-info', data-product-form: '' -%}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-input>
+
+      <div class="info-box">
+        <h2>{{ product.title | escape }}</h2>
+        <p>{{ product.description | strip_html }}</p>
+      </div>
+
+      {%- unless product.has_only_default_variant -%}
+        <div class="info-box">
+          <h2>{{ option_name | escape }}</h2>
+          <div class="size-options" role="radiogroup" aria-label="{{ option_name | escape }}">
+            {%- for variant in product.variants -%}
+              <button
+                type="button"
+                class="size-option{% if variant.id == current_variant.id %} is-selected{% endif %}{% unless variant.available %} is-disabled{% endunless %}"
+                data-variant-id="{{ variant.id }}"
+                data-price="{{ variant.price | money | escape }}"
+                {% unless variant.available %}disabled{% endunless %}
+              >{{ variant.title | escape }}</button>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endunless -%}
+
+      {% render 'qty-cart-controls' %}
+
+      <div class="info-box price-box"><p data-price-box>{{ current_variant.price | money }}</p></div>
+      <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}This option is sold out.{% endunless %}</p>
+    {%- endform -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product",
+  "settings": []
+}
+{% endschema %}

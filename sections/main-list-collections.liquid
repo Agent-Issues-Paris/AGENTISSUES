@@ -1,0 +1,14 @@
+<section class="info-row info-row--top">
+  {%- for collection in collections -%}
+    <div class="info-box">
+      <h2><a href="{{ collection.url }}">{{ collection.title | escape }}</a></h2>
+    </div>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "Collections list",
+  "settings": []
+}
+{% endschema %}
