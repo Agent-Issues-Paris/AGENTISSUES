@@ -1,6 +1,6 @@
 # Agent Issues — Shopify theme
 
-A port of the static site in [AGENTISSUES](https://github.com/joaquinecheverry/AGENTISSUES) to a native Shopify (Online Store 2.0) theme. Same design and CSS, but pages are rendered by Shopify, so link previews, SEO, Shopify apps and analytics all work.
+A port of the static site on the `gh-pages` branch of this repo to a native Shopify (Online Store 2.0) theme. Same design and CSS, but pages are rendered by Shopify, so link previews, SEO, Shopify apps and analytics all work.
 
 The existing GitHub Pages site is untouched; this theme can be uploaded unpublished and previewed side by side.
 
