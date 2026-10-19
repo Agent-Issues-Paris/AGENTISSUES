@@ -421,3 +421,60 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btn) reset(btn);
   });
 });
+
+/* ---------- policy links in the footer ---------- */
+document.addEventListener('DOMContentLoaded', function () {
+  var slots = document.querySelectorAll('[data-policy-links]');
+  if (!slots.length || !window.Shopify || !Shopify.getPolicies) return;
+  Shopify.getPolicies(false).then(function (policies) {
+    slots.forEach(function (slot) {
+      policies.forEach(function (policy) {
+        var a = document.createElement('a');
+        a.href = 'policy.html?p=' + encodeURIComponent(policy.handle);
+        a.textContent = policy.title;
+        slot.appendChild(a);
+        slot.appendChild(document.createElement('br'));
+      });
+    });
+  }).catch(function (err) {
+    console.error('Failed to load policies', err);
+  });
+});
+
+/* ---------- cookie banner ---------- */
+// The static site sets no tracking cookies yet, so this only records the
+// visitor's choice. Anything that adds analytics or ads should check
+// window.agentConsent() first.
+var COOKIE_BANNER = true;
+var CONSENT_KEY = 'agentCookieConsent';
+
+window.agentConsent = function () {
+  try { return localStorage.getItem(CONSENT_KEY); } catch (e) { return null; }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (!COOKIE_BANNER || window.agentConsent()) return;
+
+  var banner = document.createElement('div');
+  banner.className = 'cookie-banner';
+  banner.setAttribute('role', 'dialog');
+  banner.setAttribute('aria-label', 'Cookies');
+  banner.innerHTML =
+    '<div class="info-box"><p>We use cookies to understand how the shop is used and to show our ads to the right people. ' +
+    '<a href="policy.html?p=privacy-policy">Privacy Policy</a></p></div>' +
+    '<div class="cookie-banner__actions">' +
+    '  <div class="info-box"><button type="button" data-cookie-decline>DECLINE</button></div>' +
+    '  <div class="info-box"><button type="button" data-cookie-accept>ACCEPT</button></div>' +
+    '</div>';
+  document.body.appendChild(banner);
+  requestAnimationFrame(function () { banner.classList.add('is-visible'); });
+
+  function answer(value) {
+    try { localStorage.setItem(CONSENT_KEY, value); } catch (e) {}
+    banner.classList.remove('is-visible');
+    setTimeout(function () { banner.remove(); }, 300);
+  }
+
+  banner.querySelector('[data-cookie-accept]').addEventListener('click', function () { answer('granted'); });
+  banner.querySelector('[data-cookie-decline]').addEventListener('click', function () { answer('denied'); });
+});

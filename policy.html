@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAGENT+ Policies</title>
+<meta name="description" content="AAGENT+ shop policies.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand-row">
+    <div class="ticker" role="marquee" aria-label="Pre order new issue &ldquo;The Food Issue&rdquo; now!">
+      <div class="ticker__track" aria-hidden="true">
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+      </div>
+    </div>
+    <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
+    </svg>
+  </div>
+  <a class="logo-overlay" href="index.html">
+    <img src="assets/logo-agent-issues.png" alt="Agent Issues logo">
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="shop.html">Shop</a>
+    <a href="cart.html" data-cart-count>Cart</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="shopify-policy__container" id="policyPage">
+    <p class="product-loading">Loading...</p>
+  </section>
+</main>
+
+<script src="shopify.js"></script>
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('policyPage');
+  var handle = new URLSearchParams(window.location.search).get('p');
+
+  Shopify.getPolicies(true).then(function (policies) {
+    var policy = policies.filter(function (p) { return p.handle === handle; })[0] || policies[0];
+    if (!policy) {
+      container.innerHTML = '<p>No policies yet.</p>';
+      return;
+    }
+    document.title = 'AAGENT+ ' + policy.title;
+    container.innerHTML =
+      '<div class="shopify-policy__title"><h1></h1></div>' +
+      '<div class="shopify-policy__body">' + policy.body + '</div>';
+    container.querySelector('h1').textContent = policy.title;
+  }).catch(function (err) {
+    console.error('Failed to load policy', err);
+    container.innerHTML = '<p>Could not load this page.</p>';
+  });
+});
+</script>
+</body>
+</html>

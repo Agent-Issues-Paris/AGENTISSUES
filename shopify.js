@@ -60,6 +60,19 @@
     });
   }
 
+  // the shop's legal policies (Shopify admin > Settings > Policies); empty ones are null
+  var POLICY_KEYS = ['refundPolicy', 'privacyPolicy', 'termsOfService', 'shippingPolicy'];
+
+  function getPolicies(withBody) {
+    var fields = 'title handle' + (withBody ? ' body' : '');
+    var query = 'query Policies { shop { ' + POLICY_KEYS.map(function (k) {
+      return k + ' { ' + fields + ' }';
+    }).join(' ') + ' } }';
+    return shopifyFetch(query).then(function (data) {
+      return POLICY_KEYS.map(function (k) { return data.shop[k]; }).filter(Boolean);
+    });
+  }
+
   function getProductByHandle(handle) {
     var query =
       'query ProductByHandle($handle: String!) {' +
@@ -226,6 +239,7 @@
     getCollectionProducts: getCollectionProducts,
     getAllProducts: getAllProducts,
     getProductByHandle: getProductByHandle,
+    getPolicies: getPolicies,
     formatMoney: formatMoney,
     getCartId: getCartId,
     getOrCreateCart: getOrCreateCart,
