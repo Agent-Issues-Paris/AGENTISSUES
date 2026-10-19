@@ -15,7 +15,12 @@
 
 <header class="site-header">
   <div class="brand-row">
-    <a class="brand-title" href="index.html"><span class="brand-title__a">a</span>gent</a>
+    <div class="ticker" role="marquee" aria-label="Pre order new issue &ldquo;The Food Issue&rdquo; now!">
+      <div class="ticker__track" aria-hidden="true">
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+      </div>
+    </div>
     <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
     </svg>
@@ -32,22 +37,76 @@
 </header>
 
 <main>
-  <section class="columns" id="homeProducts">
-    <p class="product-loading">Loading products...</p>
-  </section>
+  <section class="home-hero">
+    <div class="home-hero__info">
+      <div class="info-box">
+        <h2 class="issue-title" id="issueTitle">ISSUE 1</h2>
+        <p>This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture</p>
+      </div>
+      <div class="info-box credits-list">
+        <h2>CONTRIBUTORS</h2>
+        <p>Nastya Livadnova<br>
+        Joseph Hauser<br>
+        Raphael Lugassy<br>
+        Mika Ben Amar<br>
+        Onek4ever<br>
+        Ellie Warnke<br>
+        Cloe Franco<br>
+        Dora Kapus<br>
+        Elizaveta Rakhmankulova<br>
+        Goun Jeong<br>
+        Mizuki Hirano<br>
+        Mery Hoc<br>
+        Patrick Garvey<br>
+        Malene Specht<br>
+        Phoebe Pendergast<br>
+        Sofia Castellon<br>
+        Nika Shulga<br>
+        Teo Cisorio<br>
+        Roman Mokrov<br>
+        GIRLS CARRYING SHIT<br>
+        Gunner Dongieux</p>
 
-  <section class="info-row">
-    <div class="info-box">
-      <h2>ABOUT US</h2>
-      <p>We are a Paris based magazine about SOLDADOS that cares about the intersection about SOLDADOS and other SOLDADOS that keep saying might as welllll when shit comes up. We gangster asf.</p>
+        <p>Words by:<br>
+        Ilya Egorov<br>
+        Halle Robbe<br>
+        TEN TODAY (tentoday.net):<br>
+        Eli Harrell<br>
+        Dasha Aksenova<br>
+        Wes Mahony<br>
+        Christine Pang<br>
+        Theo Belci<br>
+        Alex Leeman<br>
+        Max Turner</p>
+
+        <p>Cover photo:<br>
+        Raphael Lugassy<br>
+        AA+ is led by a team of two siblings<br>
+        Ilya Egorov<br>
+        Creative Director, Editor-in-Chief</p>
+
+        <p>Zlata Egorova<br>
+        Art Director, Designer</p>
+      </div>
     </div>
-    <div class="info-box">
-      <h2>CONTACT</h2>
-      <p>aagentplus@protonmail.com<br>@agent.issues</p>
-    </div>
-    <div class="info-box">
-      <h2>POLICIES</h2>
-      <p>All rights reserved.<br>Website by AUX STUDIO.</p>
+
+    <a class="home-hero__cover" href="issue1.html">
+      <img class="img-default" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
+      <img class="img-hover" src="assets/ISSUE1.2.png" alt="" aria-hidden="true">
+    </a>
+
+    <div class="home-hero__buy">
+      <div class="info-box price-box"><p id="priceBox">$27.00</p></div>
+      <div class="info-box home-hero__control">
+        <div class="qty">
+          <button type="button" id="qtyMinus" aria-label="Decrease quantity">-</button>
+          <span id="qtyValue">1</span>
+          <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+      <div class="info-box home-hero__control"><button type="button" id="addToCartBtn">ADD TO CART</button></div>
+      <div class="info-box home-hero__control"><button type="button" id="checkoutBtn">CHECKOUT</button></div>
+      <p id="cartMessage" class="cart-message" aria-live="polite"></p>
     </div>
   </section>
 </main>
@@ -56,48 +115,50 @@
 <script src="script.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  var container = document.getElementById('homeProducts');
-  if (!container) return;
   var ISSUE1_HANDLE = 'aagent-issue-01-i-❤️-inspo-fw25-26';
+  var priceBox = document.getElementById('priceBox');
+  var qtyValue = document.getElementById('qtyValue');
+  var msg = document.getElementById('cartMessage');
+  var qty = 1;
+  var variant = null;
 
-  Shopify.getCollectionProducts('frontpage').then(function (products) {
-    if (!products.length) {
-      container.innerHTML = '<p class="product-loading">No products yet.</p>';
-      return;
-    }
-    container.innerHTML = products.map(renderColumn).join('');
+  Shopify.getProductByHandle(ISSUE1_HANDLE).then(function (product) {
+    if (!product) return;
+    document.getElementById('issueTitle').textContent = product.title;
+    variant = product.variants.edges[0].node;
+    priceBox.textContent = Shopify.formatMoney(variant.price.amount, variant.price.currencyCode);
   }).catch(function (err) {
-    console.error('Failed to load home products', err);
-    container.innerHTML = '<p class="product-loading">Could not load products.</p>';
+    console.error('Failed to load Issue 1 product', err);
   });
 
-  function renderColumn(product) {
-    var images = product.images.edges;
-    var img1 = images[0] ? images[0].node.url : '';
-    var img2 = images[1] ? images[1].node.url : img1;
-    var price = Shopify.formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode);
-    var href = product.handle === ISSUE1_HANDLE ? 'issue1.html' : ('product.html?handle=' + encodeURIComponent(product.handle));
-    var title = escapeHtml(product.title);
-    return (
-      '<a class="column" href="' + href + '">' +
-      '  <div class="product-image">' +
-      '    <img class="img-default" src="' + img1 + '" alt="' + title + '">' +
-      '    <img class="img-hover" src="' + img2 + '" alt="' + title + '">' +
-      '  </div>' +
-      '  <div class="price-bar">' +
-      '    <span>' + title + '</span>' +
-      '    <span class="add-to-cart">ADD TO CART</span>' +
-      '    <span>' + price + '</span>' +
-      '  </div>' +
-      '</a>'
-    );
-  }
+  document.getElementById('qtyMinus').addEventListener('click', function () {
+    qty = Math.max(1, qty - 1);
+    qtyValue.textContent = qty;
+  });
+  document.getElementById('qtyPlus').addEventListener('click', function () {
+    qty += 1;
+    qtyValue.textContent = qty;
+  });
 
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
+  document.getElementById('addToCartBtn').addEventListener('click', function () {
+    if (!variant) return;
+    msg.textContent = 'Adding...';
+    Shopify.cartLinesAdd(variant.id, qty).then(function () {
+      msg.textContent = 'Added to cart.';
+    }).catch(function (err) {
+      msg.textContent = 'Could not add to cart: ' + err.message;
+    });
+  });
+
+  document.getElementById('checkoutBtn').addEventListener('click', function () {
+    if (!variant) return;
+    msg.textContent = 'Preparing checkout...';
+    Shopify.cartLinesAdd(variant.id, qty).then(function (cart) {
+      window.location.href = cart.checkoutUrl;
+    }).catch(function (err) {
+      msg.textContent = 'Could not start checkout: ' + err.message;
+    });
+  });
 });
 </script>
 </body>

@@ -47,6 +47,17 @@
     });
   }
 
+  // every product published to the storefront, newest first
+  function getAllProducts() {
+    var query =
+      'query AllProducts {' +
+      '  products(first: 50, sortKey: CREATED_AT, reverse: true) { edges { node { ' + PRODUCT_FIELDS + ' } } }' +
+      '}';
+    return shopifyFetch(query).then(function (data) {
+      return data.products.edges.map(function (e) { return e.node; });
+    });
+  }
+
   function getProductByHandle(handle) {
     var query =
       'query ProductByHandle($handle: String!) {' +
@@ -211,6 +222,7 @@
 
   global.Shopify = {
     getCollectionProducts: getCollectionProducts,
+    getAllProducts: getAllProducts,
     getProductByHandle: getProductByHandle,
     formatMoney: formatMoney,
     getCartId: getCartId,

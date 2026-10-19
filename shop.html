@@ -15,7 +15,12 @@
 
 <header class="site-header">
   <div class="brand-row">
-    <a class="brand-title" href="index.html"><span class="brand-title__a">a</span>gent</a>
+    <div class="ticker" role="marquee" aria-label="Pre order new issue &ldquo;The Food Issue&rdquo; now!">
+      <div class="ticker__track" aria-hidden="true">
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+        <span>PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - PRE ORDER NEW ISSUE &ldquo;THE FOOD ISSUE&rdquo; NOW! - </span>
+      </div>
+    </div>
     <svg class="star" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 2 L14.59 8.99 L22 9.51 L16.36 14.36 L18.18 21.51 L12 17.5 L5.82 21.51 L7.64 14.36 L2 9.51 L9.41 8.99 Z" stroke="#000" stroke-width="1"/>
     </svg>
@@ -55,7 +60,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var container = document.getElementById('shopProducts');
   if (!container) return;
 
-  Shopify.getCollectionProducts('shop').then(function (products) {
+  var ISSUE1_HANDLE = 'aagent-issue-01-i-❤️-inspo-fw25-26';
+
+  // everything published in Shopify shows up here, with the Issue pinned first
+  Shopify.getAllProducts().then(function (products) {
+    var issue = products.filter(function (p) { return p.handle === ISSUE1_HANDLE; })[0];
+    products = products.filter(function (p) { return p.handle !== ISSUE1_HANDLE; });
+    if (issue) products.unshift(issue);
     if (!products.length) {
       container.innerHTML = '<p class="product-loading">No products yet.</p>';
       return;
@@ -71,7 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var img1 = images[0] ? images[0].node.url : '';
     var img2 = images[1] ? images[1].node.url : img1;
     var price = Shopify.formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode);
-    var href = 'product.html?handle=' + encodeURIComponent(product.handle);
+    var isIssue = product.handle === ISSUE1_HANDLE;
+    var href = isIssue ? 'issue1.html' : ('product.html?handle=' + encodeURIComponent(product.handle));
     var title = escapeHtml(product.title);
     return (
       '<a class="column" href="' + href + '">' +
@@ -81,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '  </div>' +
       '  <div class="price-bar">' +
       '    <span>' + title + '</span>' +
-      '    <span class="add-to-cart">ADD TO CART</span>' +
+      '    <span class="add-to-cart" role="button" data-variants="' + quickAddVariants(product) + '">ADD TO CART</span>' +
       '    <span>' + price + '</span>' +
       '  </div>' +
       '</a>'
