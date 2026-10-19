@@ -37,13 +37,13 @@
 </header>
 
 <main>
-  <section class="home-hero">
+  <section class="home-hero is-loading" id="homeHero">
     <div class="home-hero__info">
       <div class="info-box">
         <h2 class="issue-title" id="issueTitle">ISSUE 1</h2>
-        <p>This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture</p>
+        <p id="issueDescription">This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture</p>
       </div>
-      <div class="info-box credits-list">
+      <div class="info-box credits-list" id="issueCredits">
         <h2>CONTRIBUTORS</h2>
         <p>Nastya Livadnova<br>
         Joseph Hauser<br>
@@ -90,9 +90,9 @@
       </div>
     </div>
 
-    <a class="home-hero__cover" href="issue1.html">
-      <img class="img-default" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
-      <img class="img-hover" src="assets/ISSUE1.2.png" alt="" aria-hidden="true">
+    <a class="home-hero__cover" id="issueCover" href="issue1.html">
+      <img class="img-default" id="issueCoverImg" src="assets/ISSUE1.png" alt="AAGENT+ Issue 1 cover">
+      <img class="img-hover" id="issueCoverHover" src="assets/ISSUE1.2.png" alt="" aria-hidden="true">
     </a>
 
     <div class="home-hero__buy">
@@ -109,6 +109,21 @@
       <p id="cartMessage" class="cart-message" aria-live="polite"></p>
     </div>
   </section>
+
+  <section class="info-row">
+    <div class="info-box">
+      <h2>ABOUT US</h2>
+      <p>We are a Paris based magazine about SOLDADOS that cares about the intersection about SOLDADOS and other SOLDADOS that keep saying might as welllll when shit comes up. We gangster asf.</p>
+    </div>
+    <div class="info-box">
+      <h2>CONTACT</h2>
+      <p>aagentplus@protonmail.com<br>@agent.issues</p>
+    </div>
+    <div class="info-box">
+      <h2>POLICIES</h2>
+      <p>All rights reserved.<br>Website by AUX STUDIO.</p>
+    </div>
+  </section>
 </main>
 
 <script src="shopify.js"></script>
@@ -122,14 +137,78 @@ document.addEventListener('DOMContentLoaded', function () {
   var qty = 1;
   var variant = null;
 
-  Shopify.getProductByHandle(ISSUE1_HANDLE).then(function (product) {
+  var hero = document.getElementById('homeHero');
+
+  // The hero is the newest product in Shopify's "Home page" collection, so a new
+  // issue takes over as soon as it's added there. The markup holds Issue 1 as the
+  // fallback; it keeps its flat cover art, any other issue uses its Shopify photos.
+  Shopify.getCollectionProducts('frontpage', true).then(function (products) {
+    var product = products[0];
     if (!product) return;
+    if (product.handle !== ISSUE1_HANDLE) showIssue(product);
     document.getElementById('issueTitle').textContent = product.title;
     variant = product.variants.edges[0].node;
     priceBox.textContent = Shopify.formatMoney(variant.price.amount, variant.price.currencyCode);
   }).catch(function (err) {
-    console.error('Failed to load Issue 1 product', err);
+    console.error('Failed to load hero issue', err);
+  }).then(function () {
+    hero.classList.remove('is-loading');
   });
+
+  function showIssue(product) {
+    var images = product.images.edges.map(function (e) { return e.node.url; });
+    var cover = document.getElementById('issueCover');
+    cover.href = 'product.html?handle=' + encodeURIComponent(product.handle);
+    document.getElementById('issueCoverImg').src = images[0] || '';
+    document.getElementById('issueCoverImg').alt = product.title + ' cover';
+    document.getElementById('issueCoverHover').src = images[1] || images[0] || '';
+
+    // Shopify description: everything before "Contributors:" is the blurb, the rest is credits
+    var paragraphs = descriptionParagraphs(product.descriptionHtml);
+    var split = -1;
+    paragraphs.forEach(function (lines, i) {
+      if (split < 0 && /^contributors:?$/i.test(lines[0])) split = i;
+    });
+    var blurb = split < 0 ? paragraphs : paragraphs.slice(0, split);
+    var credits = split < 0 ? [] : paragraphs.slice(split);
+    if (credits.length) credits[0] = credits[0].slice(1); // the heading says CONTRIBUTORS already
+
+    var description = document.getElementById('issueDescription');
+    description.innerHTML = '';
+    blurb.forEach(function (lines, i) {
+      if (i) description.appendChild(document.createElement('br'));
+      if (i) description.appendChild(document.createElement('br'));
+      appendLines(description, lines);
+    });
+
+    var creditsBox = document.getElementById('issueCredits');
+    Array.prototype.slice.call(creditsBox.querySelectorAll('p')).forEach(function (p) { p.remove(); });
+    credits.forEach(function (lines) {
+      if (!lines.length) return;
+      var p = document.createElement('p');
+      appendLines(p, lines);
+      creditsBox.appendChild(p);
+    });
+    creditsBox.hidden = !creditsBox.querySelector('p');
+  }
+
+  // descriptionHtml -> [[line, line], [line]]: paragraphs split on blank lines
+  function descriptionParagraphs(html) {
+    var doc = new DOMParser().parseFromString(html || '', 'text/html');
+    doc.querySelectorAll('br').forEach(function (br) { br.replaceWith('\n'); });
+    doc.querySelectorAll('p, div').forEach(function (block) { block.append('\n\n'); });
+    var text = doc.body.textContent.replace(/\u00a0/g, ' ');
+    return text.split(/\n\s*\n/).map(function (para) {
+      return para.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+    }).filter(function (lines) { return lines.length; });
+  }
+
+  function appendLines(el, lines) {
+    lines.forEach(function (line, i) {
+      if (i) el.appendChild(document.createElement('br'));
+      el.appendChild(document.createTextNode(line));
+    });
+  }
 
   document.getElementById('qtyMinus').addEventListener('click', function () {
     qty = Math.max(1, qty - 1);

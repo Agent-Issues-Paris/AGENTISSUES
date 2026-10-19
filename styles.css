@@ -549,6 +549,15 @@ main {
   margin: 0 10px 10px;
 }
 
+/* hidden until Shopify says which issue is the hero, so the old one never flashes */
+.home-hero {
+  transition: opacity 0.3s ease;
+}
+
+.home-hero.is-loading {
+  opacity: 0;
+}
+
 .home-hero__info,
 .home-hero__buy {
   display: flex;

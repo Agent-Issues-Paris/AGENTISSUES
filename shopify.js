@@ -27,17 +27,19 @@
   }
 
   var PRODUCT_FIELDS =
-    'id title handle description ' +
+    'id title handle description descriptionHtml createdAt ' +
     'priceRange { minVariantPrice { amount currencyCode } } ' +
     'images(first: 10) { edges { node { url altText } } } ' +
     'variants(first: 20) { edges { node { id title availableForSale price { amount currencyCode } selectedOptions { name value } } } }';
 
-  function getCollectionProducts(handle) {
+  // newestFirst: sort by creation date, newest at the top
+  function getCollectionProducts(handle, newestFirst) {
+    var sort = newestFirst ? ', sortKey: CREATED, reverse: true' : '';
     var query =
       'query CollectionProducts($handle: String!) {' +
       '  collectionByHandle(handle: $handle) {' +
       '    title' +
-      '    products(first: 20) { edges { node { ' + PRODUCT_FIELDS + ' } } }' +
+      '    products(first: 20' + sort + ') { edges { node { ' + PRODUCT_FIELDS + ' } } }' +
       '  }' +
       '}';
     return shopifyFetch(query, { handle: handle }).then(function (data) {
