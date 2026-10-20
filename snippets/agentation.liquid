@@ -1,0 +1,27 @@
+{%- comment -%}
+  Agentation review toolbar (agentation.com): click any element on the page
+  and leave a note for the developer/agent. Notes go to the local
+  agentation-mcp server on port 4747.
+  Never loads on the published theme: only when Shopify reports a
+  development or unpublished theme (local `shopify theme dev`, preview links).
+{%- endcomment -%}
+<script type="module">
+  var role = window.Shopify && window.Shopify.theme && window.Shopify.theme.role;
+  if (role && role !== 'main') {
+    Promise.all([
+      import('https://esm.sh/react@18.3.1'),
+      import('https://esm.sh/react-dom@18.3.1/client'),
+      import('https://esm.sh/agentation@3.1.2?deps=react@18.3.1,react-dom@18.3.1')
+    ]).then(function (mods) {
+      var React = mods[0].default;
+      var createRoot = mods[1].createRoot;
+      var Agentation = mods[2].Agentation;
+      var root = document.createElement('div');
+      root.id = 'agentation-root';
+      document.body.appendChild(root);
+      createRoot(root).render(React.createElement(Agentation, { endpoint: 'http://localhost:4747' }));
+    }).catch(function (err) {
+      console.error('Agentation failed to load', err);
+    });
+  }
+</script>
