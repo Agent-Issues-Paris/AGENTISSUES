@@ -6,7 +6,8 @@ window.scrollTo(0, 0);
 document.addEventListener('DOMContentLoaded', function () {
   var overlay = document.getElementById('introOverlay');
   var video = document.getElementById('introVideo');
-  if (!overlay || !video) return;
+  var frame = document.getElementById('introFrame');
+  if (!overlay || (!video && !frame)) return;
 
   var STORAGE_KEY = 'agentIntroPlayed';
   var alreadyPlayed = false;
@@ -26,9 +27,54 @@ document.addEventListener('DOMContentLoaded', function () {
     overlay.remove();
   }
 
-  video.addEventListener('ended', dismiss);
   overlay.addEventListener('click', dismiss);
-  video.play().catch(dismiss);
+
+  if (video) {
+    video.addEventListener('ended', dismiss);
+    video.play().catch(dismiss);
+    return;
+  }
+
+  // random reel: a different shuffle of Agent Issues images on every visit
+  var pool = [];
+  try { pool = JSON.parse(overlay.getAttribute('data-intro-images')) || []; } catch (e) {}
+  var count = parseInt(overlay.getAttribute('data-intro-count'), 10) || 16;
+  var speed = parseInt(overlay.getAttribute('data-intro-speed'), 10) || 140;
+
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  var picks = [];
+  for (var k = 0; k < count && pool.length; k++) picks.push(pool[k % pool.length]);
+  if (!picks.length) return dismiss();
+
+  // preload everything first so the cuts stay sharp; give up after 6s
+  var loaded = 0;
+  var started = false;
+  var giveUp = setTimeout(function () { if (!started) dismiss(); }, 6000);
+  picks.forEach(function (src) {
+    var img = new Image();
+    img.onload = img.onerror = function () {
+      loaded += 1;
+      if (loaded === picks.length) play();
+    };
+    img.src = src;
+  });
+
+  function play() {
+    if (started || !overlay.isConnected) return;
+    started = true;
+    clearTimeout(giveUp);
+    var n = 0;
+    (function next() {
+      if (!overlay.isConnected) return;
+      if (n >= picks.length) return dismiss();
+      frame.src = picks[n];
+      n += 1;
+      setTimeout(next, speed);
+    })();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function () {

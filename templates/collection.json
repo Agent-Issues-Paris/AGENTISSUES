@@ -35,12 +35,17 @@
             "heading": "POLICIES",
             "text": "All rights reserved.\nWebsite by AUX STUDIO."
           }
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {}
         }
       },
       "block_order": [
         "box_1",
         "box_2",
-        "box_3"
+        "box_3",
+        "newsletter"
       ]
     }
   },

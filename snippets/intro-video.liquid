@@ -1,18 +1,37 @@
 {%- comment -%}
-  Full-screen reel shown once per browser session (see theme.js).
-  Uses the video picked in Theme settings, or the bundled reel.mp4.
+  Full-screen intro shown once per browser session (see theme.js).
+  "random": a fast cut of random Agent Issues images, different every visit.
+  Pool: images of every product in Theme settings → Issues, the intro
+  collection's products, plus the bundled Issue 1 spreads.
+  "video": the picked video, or the bundled reel.mp4.
 {%- endcomment -%}
 {%- if settings.show_intro -%}
-  {%- liquid
-    assign intro_src = 'reel.mp4' | asset_url
-    if settings.intro_video != blank
-      assign mp4 = settings.intro_video.sources | where: 'mime_type', 'video/mp4' | first
-      if mp4
-        assign intro_src = mp4.url
+  {%- if settings.intro_mode == 'random' -%}
+    {%- capture pool -%}
+      {%- for p in settings.issue_products -%}
+        {%- for image in p.images -%}"{{ image | image_url: width: 1600 }}",{%- endfor -%}
+      {%- endfor -%}
+      {%- for p in settings.intro_collection.products limit: 50 -%}
+        {%- for image in p.images -%}"{{ image | image_url: width: 1600 }}",{%- endfor -%}
+      {%- endfor -%}
+      {%- assign bundled = 'ISSUE1.png,ISSUE1.2.png,spread-nastya.jpg,spread-nastya-mock.jpg,spread-moods.jpg,spread-mokrov.jpg,spread-fake.jpg,spread-raph.jpg' | split: ',' -%}
+      {%- for file in bundled -%}"{{ file | asset_url }}"{% unless forloop.last %},{% endunless %}{%- endfor -%}
+    {%- endcapture -%}
+    <div class="intro-overlay intro-overlay--random" id="introOverlay" data-intro-images="[{{ pool | strip | escape }}]" data-intro-count="{{ settings.intro_count }}" data-intro-speed="{{ settings.intro_speed }}">
+      <img id="introFrame" width="1600" height="1200" alt="">
+    </div>
+  {%- else -%}
+    {%- liquid
+      assign intro_src = 'reel.mp4' | asset_url
+      if settings.intro_video != blank
+        assign mp4 = settings.intro_video.sources | where: 'mime_type', 'video/mp4' | first
+        if mp4
+          assign intro_src = mp4.url
+        endif
       endif
-    endif
-  -%}
-  <div class="intro-overlay" id="introOverlay">
-    <video id="introVideo" src="{{ intro_src }}" autoplay muted playsinline></video>
-  </div>
+    -%}
+    <div class="intro-overlay" id="introOverlay">
+      <video id="introVideo" src="{{ intro_src }}" autoplay muted playsinline></video>
+    </div>
+  {%- endif -%}
 {%- endif -%}

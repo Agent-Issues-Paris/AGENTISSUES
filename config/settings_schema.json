@@ -20,20 +20,61 @@
     ]
   },
   {
-    "name": "Intro video",
+    "name": "Intro",
     "settings": [
       {
         "type": "checkbox",
         "id": "show_intro",
-        "label": "Play intro video on first visit",
+        "label": "Play intro on first visit",
         "default": false,
-        "info": "Off until the random-spreads reel is ready."
+        "info": "Shown once per browser session; a click skips it."
+      },
+      {
+        "type": "select",
+        "id": "intro_mode",
+        "label": "Intro type",
+        "default": "random",
+        "options": [
+          {
+            "value": "random",
+            "label": "Random Agent Issues images"
+          },
+          {
+            "value": "video",
+            "label": "Video"
+          }
+        ]
+      },
+      {
+        "type": "collection",
+        "id": "intro_collection",
+        "label": "Extra images from collection",
+        "info": "Random mode: product photos from this collection join the pool, next to every issue in Theme settings → Issues."
+      },
+      {
+        "type": "range",
+        "id": "intro_count",
+        "label": "Images per intro",
+        "min": 6,
+        "max": 40,
+        "step": 1,
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "intro_speed",
+        "label": "Time per image",
+        "min": 60,
+        "max": 600,
+        "step": 20,
+        "unit": "ms",
+        "default": 140
       },
       {
         "type": "video",
         "id": "intro_video",
-        "label": "Intro video",
-        "info": "Leave empty to use the bundled reel."
+        "label": "Video",
+        "info": "Video mode. Leave empty to use the bundled reel."
       }
     ]
   },
