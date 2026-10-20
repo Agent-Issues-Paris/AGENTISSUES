@@ -1,0 +1,21 @@
+{%- comment -%}
+  Product description as plain lines joined by <br>: every list item,
+  paragraph and <br> becomes its own line, empty lines are dropped.
+  Accepts: html {String}
+{%- endcomment -%}
+{%- liquid
+  assign marked = html | replace: '<br />', '§L§' | replace: '<br/>', '§L§' | replace: '<br>', '§L§' | replace: '</li>', '§L§' | replace: '</p>', '§L§' | replace: '</div>', '§L§' | strip_html | replace: '&nbsp;', ' '
+  assign lines = marked | split: '§L§'
+  assign out = ''
+  for line in lines
+    assign l = line | strip
+    if l == blank
+      continue
+    endif
+    if out != ''
+      assign out = out | append: '<br>'
+    endif
+    assign out = out | append: l
+  endfor
+  echo out
+-%}

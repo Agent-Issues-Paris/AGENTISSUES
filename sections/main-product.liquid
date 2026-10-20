@@ -26,7 +26,7 @@
 
       <div class="info-box">
         <h2>{{ product.title | escape }}</h2>
-        <p>{{ product.description | strip_html }}</p>
+        <p>{% render 'description-lines', html: product.description %}</p>
       </div>
 
       {%- unless product.has_only_default_variant -%}

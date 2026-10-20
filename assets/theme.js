@@ -201,27 +201,47 @@ document.addEventListener('DOMContentLoaded', function () {
   } catch (e) {}
   if (saved) applyLogo(saved);
 
-  // they already drew one: the logo still comes in, but without the sticker
+  // the sticker can be closed for the rest of the visit; after a drawing it
+  // stays as an invitation to redraw
+  var DISMISS_KEY = 'agentStickerDismissed';
+  var dismissed = false;
+  try { dismissed = sessionStorage.getItem(DISMISS_KEY) === '1'; } catch (e) {}
+
   var sticker = null;
-  if (!saved) {
-    sticker = document.createElement('button');
-    sticker.type = 'button';
+  var stickerLabel = null;
+  if (!dismissed) {
+    sticker = document.createElement('div');
     sticker.className = 'draw-sticker';
-    sticker.textContent = 'DRAW UR OWN LOGO!';
+    stickerLabel = document.createElement('button');
+    stickerLabel.type = 'button';
+    stickerLabel.className = 'draw-sticker__label';
+    stickerLabel.textContent = saved ? 'REDRAW UR LOGO!' : 'DRAW UR OWN LOGO!';
+    var stickerClose = document.createElement('button');
+    stickerClose.type = 'button';
+    stickerClose.className = 'draw-sticker__close';
+    stickerClose.setAttribute('aria-label', 'Close');
+    stickerClose.textContent = '×';
+    sticker.appendChild(stickerLabel);
+    sticker.appendChild(stickerClose);
     header.appendChild(sticker);
+
+    stickerClose.addEventListener('click', function () {
+      try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+      sticker.remove();
+    });
   }
 
-  // 5s after the intro reel is gone, the red logo and the sticker come in together
+  // the logo is there as soon as the intro is gone; the sticker follows 5s later
   (function waitForIntro() {
     if (document.getElementById('introOverlay')) return setTimeout(waitForIntro, 250);
+    header.classList.add('show-logo');
     setTimeout(function () {
-      header.classList.add('show-logo');
       if (sticker) sticker.classList.add('is-visible');
     }, 5000);
   })();
 
   var modal = null;
-  if (sticker) sticker.addEventListener('click', function () {
+  if (stickerLabel) stickerLabel.addEventListener('click', function () {
     if (!modal) modal = buildModal();
     modal.open();
   });
@@ -368,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (src) {
         applyLogo(src);
         try { sessionStorage.setItem(STORAGE_KEY, src); } catch (e) {}
-        sticker.remove();
+        if (stickerLabel) stickerLabel.textContent = 'REDRAW UR LOGO!';
       }
       close();
     });
