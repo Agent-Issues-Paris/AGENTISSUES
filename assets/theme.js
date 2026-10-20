@@ -598,16 +598,21 @@ document.addEventListener('DOMContentLoaded', function () {
     banner.hidden = false;
     requestAnimationFrame(function () { banner.classList.add('is-visible'); });
 
+    // hide right away; Shopify's callback doesn't always fire (e.g. on a
+    // local preview), and the visitor shouldn't wait for it
     function answer(granted) {
-      privacy.setTrackingConsent({
-        analytics: granted,
-        marketing: granted,
-        preferences: granted,
-        sale_of_data: granted
-      }, function () {
-        banner.classList.remove('is-visible');
-        setTimeout(function () { banner.hidden = true; }, 300);
-      });
+      banner.classList.remove('is-visible');
+      setTimeout(function () { banner.hidden = true; }, 300);
+      try {
+        privacy.setTrackingConsent({
+          analytics: granted,
+          marketing: granted,
+          preferences: granted,
+          sale_of_data: granted
+        }, function () {});
+      } catch (e) {
+        console.error('Could not save cookie consent', e);
+      }
     }
 
     banner.querySelector('[data-cookie-accept]').addEventListener('click', function () { answer(true); });
