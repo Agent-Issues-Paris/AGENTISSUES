@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '  <div class="product-info">' +
       '    <div class="info-box">' +
       '      <h2>' + title + '</h2>' +
-      '      <p>' + escapeHtml(product.description) + '</p>' +
+      '      <p>' + descriptionLines(product.descriptionHtml) + '</p>' +
       '    </div>' +
       optionsHtml +
       '    <div class="cart-controls">' +
@@ -179,6 +179,18 @@ document.addEventListener('DOMContentLoaded', function () {
         msg.textContent = 'Could not start checkout: ' + err.message;
       });
     });
+  }
+
+  // every list item, paragraph and <br> on its own line, empty lines dropped
+  function descriptionLines(html) {
+    var doc = new DOMParser().parseFromString(html || '', 'text/html');
+    doc.querySelectorAll('br').forEach(function (br) { br.replaceWith('\n'); });
+    doc.querySelectorAll('li, p, div').forEach(function (block) { block.append('\n'); });
+    return doc.body.textContent.replace(/\u00a0/g, ' ').split('\n')
+      .map(function (l) { return l.trim(); })
+      .filter(Boolean)
+      .map(escapeHtml)
+      .join('<br>');
   }
 
   function escapeHtml(str) {
