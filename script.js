@@ -175,10 +175,12 @@ document.addEventListener('DOMContentLoaded', function () {
   })();
 
   var modal = null;
-  if (sticker) sticker.addEventListener('click', function () {
+  function openDrawModal() {
     if (!modal) modal = buildModal();
     modal.open();
-  });
+  }
+  if (sticker) sticker.addEventListener('click', openDrawModal);
+  window.agentOpenDrawLogo = openDrawModal; // the star menu opens it too
 
   function buildModal() {
     var root = document.createElement('div');
@@ -322,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (src) {
         applyLogo(src);
         try { sessionStorage.setItem(STORAGE_KEY, src); } catch (e) {}
-        sticker.remove();
+        if (sticker) sticker.remove();
       }
       close();
     });
@@ -477,4 +479,250 @@ document.addEventListener('DOMContentLoaded', function () {
 
   banner.querySelector('[data-cookie-accept]').addEventListener('click', function () { answer('granted'); });
   banner.querySelector('[data-cookie-decline]').addEventListener('click', function () { answer('denied'); });
+});
+
+/* ---------- star menu ---------- */
+document.addEventListener('DOMContentLoaded', function () {
+  var star = document.querySelector('.site-header .star');
+  if (!star) return;
+
+  star.removeAttribute('aria-hidden');
+  star.setAttribute('role', 'button');
+  star.setAttribute('tabindex', '0');
+  star.setAttribute('aria-label', 'Open menu');
+  star.setAttribute('aria-expanded', 'false');
+
+  var menu = document.createElement('div');
+  menu.className = 'star-menu';
+  menu.innerHTML =
+    '<button type="button" class="star-menu__item" data-star-draw>DRAW UR OWN LOGO!</button>' +
+    '<button type="button" class="star-menu__item" data-star-calc>AGENT CALCULATOR</button>' +
+    '<button type="button" class="star-menu__item">PICTURE SUBMISSION</button>' +
+    '<div class="star-menu__now">' +
+    '  <p data-now-date></p>' +
+    '  <p data-now-time></p>' +
+    '  <p data-now-temp></p>' +
+    '  <div class="star-menu__weather" data-now-icon></div>' +
+    '</div>';
+  document.body.appendChild(menu);
+
+  var dateEl = menu.querySelector('[data-now-date]');
+  var timeEl = menu.querySelector('[data-now-time]');
+  var tempEl = menu.querySelector('[data-now-temp]');
+  var iconEl = menu.querySelector('[data-now-icon]');
+  var clock = null;
+  var weatherFetchedAt = 0;
+
+  // Paris time, written out like "Monday, September 14th" / "2:53:32 P.M."
+  function ordinal(n) {
+    var s = ['th', 'st', 'nd', 'rd'];
+    var v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  function tick() {
+    var parts = {};
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Paris', weekday: 'long', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+    }).formatToParts(new Date()).forEach(function (p) { parts[p.type] = p.value; });
+    dateEl.textContent = parts.weekday + ', ' + parts.month + ' ' + ordinal(+parts.day);
+    timeEl.textContent = parts.hour + ':' + parts.minute + ':' + parts.second + ' ' +
+      (parts.dayPeriod === 'PM' ? 'P.M.' : 'A.M.');
+  }
+
+  var ICONS = {
+    sun: '<svg viewBox="0 0 48 48" width="44" height="44"><circle cx="24" cy="24" r="9" fill="none" stroke-width="3"/>' +
+      Array.apply(null, Array(16)).map(function (_, i) {
+        var a = i * Math.PI / 8, r1 = i % 2 ? 14 : 13, r2 = i % 2 ? 19 : 23;
+        return '<line x1="' + (24 + Math.cos(a) * r1).toFixed(1) + '" y1="' + (24 + Math.sin(a) * r1).toFixed(1) +
+          '" x2="' + (24 + Math.cos(a) * r2).toFixed(1) + '" y2="' + (24 + Math.sin(a) * r2).toFixed(1) + '" stroke-width="1.5"/>';
+      }).join('') + '</svg>',
+    moon: '<svg viewBox="0 0 48 48" width="44" height="44"><path d="M30 8a16 16 0 1 0 10 26A14 14 0 0 1 30 8z" fill="none" stroke-width="3"/></svg>',
+    cloud: '<svg viewBox="0 0 48 48" width="44" height="44"><path d="M14 34h21a8 8 0 0 0 0-16 11 11 0 0 0-21-1 8.5 8.5 0 0 0 0 17z" fill="none" stroke-width="3"/></svg>',
+    rain: '<svg viewBox="0 0 48 48" width="44" height="44"><path d="M14 28h21a8 8 0 0 0 0-16 11 11 0 0 0-21-1 8.5 8.5 0 0 0 0 17z" fill="none" stroke-width="3"/><path d="M17 33l-2 6M25 33l-2 6M33 33l-2 6" stroke-width="2.5"/></svg>',
+    snow: '<svg viewBox="0 0 48 48" width="44" height="44"><path d="M24 6v36M8.4 15l31.2 18M8.4 33l31.2-18" stroke-width="3"/></svg>'
+  };
+
+  // open-meteo WMO codes -> one of the icons above
+  function iconFor(code, isDay) {
+    if (code >= 71 && code <= 77 || code === 85 || code === 86) return ICONS.snow;
+    if (code >= 51) return ICONS.rain;
+    if (code >= 2) return ICONS.cloud;
+    return isDay ? ICONS.sun : ICONS.moon;
+  }
+
+  function loadWeather() {
+    if (Date.now() - weatherFetchedAt < 10 * 60 * 1000) return;
+    weatherFetchedAt = Date.now();
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m,weather_code,is_day')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var c = data.current;
+        tempEl.textContent = Math.round(c.temperature_2m) + '°';
+        iconEl.innerHTML = iconFor(c.weather_code, c.is_day);
+      })
+      .catch(function (err) {
+        weatherFetchedAt = 0;
+        console.error('Failed to load Paris weather', err);
+      });
+  }
+
+  function position() {
+    var rect = star.getBoundingClientRect();
+    menu.style.top = rect.bottom + 12 + 'px';
+    menu.style.right = window.innerWidth - rect.right + 'px';
+  }
+
+  function isOpen() { return menu.classList.contains('is-open'); }
+
+  function open() {
+    position();
+    tick();
+    clock = setInterval(tick, 1000);
+    loadWeather();
+    menu.classList.add('is-open');
+    star.classList.add('is-active');
+    star.setAttribute('aria-expanded', 'true');
+  }
+
+  function close() {
+    clearInterval(clock);
+    menu.classList.remove('is-open');
+    star.classList.remove('is-active');
+    star.setAttribute('aria-expanded', 'false');
+  }
+
+  star.addEventListener('click', function () { isOpen() ? close() : open(); });
+  star.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      isOpen() ? close() : open();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (isOpen() && !menu.contains(e.target) && !star.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen()) close();
+  });
+  window.addEventListener('resize', function () { if (isOpen()) position(); });
+
+  menu.querySelector('[data-star-draw]').addEventListener('click', function () {
+    close();
+    if (window.agentOpenDrawLogo) window.agentOpenDrawLogo();
+  });
+
+  var calc = null;
+  menu.querySelector('[data-star-calc]').addEventListener('click', function (e) {
+    e.stopPropagation(); // don't let the outside-click handler close the calculator we're opening
+    close();
+    if (!calc) calc = buildCalculator();
+    calc.open();
+  });
+
+  function buildCalculator() {
+    var KEYS = [
+      ['back', '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M20 12H5M11 5l-7 7 7 7" fill="none" stroke-width="2.4"/></svg>'],
+      ['clear', 'AC'], ['%', '%'], ['/', '÷'],
+      ['7', '7'], ['8', '8'], ['9', '9'], ['*', '×'],
+      ['4', '4'], ['5', '5'], ['6', '6'], ['-', '−'],
+      ['1', '1'], ['2', '2'], ['3', '3'], ['+', '+'],
+      ['/', '/'], ['0', '0'], ['.', '.'], ['=', '=']
+    ];
+
+    var root = document.createElement('div');
+    root.className = 'calc-modal';
+    root.innerHTML =
+      '<div class="calc" role="dialog" aria-label="Agent calculator">' +
+      '  <div class="calc__title">AGENT CALCULATOR</div>' +
+      '  <div class="calc__body">' +
+      '    <div class="calc__display" aria-live="polite">0</div>' +
+      '    <div class="calc__keys">' +
+      KEYS.map(function (k) {
+        return '<button type="button" class="calc__key" data-key="' + k[0] + '">' + k[1] + '</button>';
+      }).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+    document.body.appendChild(root);
+
+    var display = root.querySelector('.calc__display');
+    var current = '0';   // what's being typed
+    var stored = null;   // left-hand side waiting for an operator
+    var op = null;
+    var fresh = false;   // next digit starts a new number
+
+    function format(n) {
+      if (!isFinite(n)) return 'ERROR';
+      return String(parseFloat(n.toPrecision(12)));
+    }
+
+    function apply(a, b, o) {
+      if (o === '+') return a + b;
+      if (o === '-') return a - b;
+      if (o === '*') return a * b;
+      if (o === '/') return a / b;
+      return b;
+    }
+
+    function press(key) {
+      if (current === 'ERROR' && key !== 'clear') press('clear');
+      if (/^[0-9]$/.test(key)) {
+        current = fresh || current === '0' ? key : current + key;
+        fresh = false;
+      } else if (key === '.') {
+        if (fresh) { current = '0'; fresh = false; }
+        if (current.indexOf('.') < 0) current += '.';
+      } else if (key === 'back') {
+        if (!fresh) current = current.length > 1 ? current.slice(0, -1) : '0';
+        if (current === '-') current = '0';
+      } else if (key === 'clear') {
+        current = '0'; stored = null; op = null; fresh = false;
+      } else if (key === '%') {
+        current = format(parseFloat(current) / 100);
+        fresh = true;
+      } else if (key === '=') {
+        if (op === null) return;
+        current = format(apply(stored, parseFloat(current), op));
+        stored = null; op = null; fresh = true;
+      } else {
+        // + - * /: chain onto whatever is pending
+        if (op !== null && !fresh) current = format(apply(stored, parseFloat(current), op));
+        stored = parseFloat(current);
+        op = key;
+        fresh = true;
+      }
+      display.textContent = current;
+    }
+
+    root.addEventListener('click', function (e) {
+      var btn = e.target.closest('.calc__key');
+      if (btn) return press(btn.dataset.key);
+      if (e.target === root) close();
+    });
+
+    function onKey(e) {
+      if (e.key === 'Escape') return close();
+      var map = { Enter: '=', Backspace: 'back', Delete: 'clear', ',': '.' };
+      var key = map[e.key] || e.key;
+      if (/^[0-9.%+\-*/=]$/.test(key) || key === 'back' || key === 'clear') {
+        e.preventDefault();
+        press(key);
+      }
+    }
+
+    function close() {
+      root.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+    }
+
+    return {
+      open: function () {
+        root.classList.add('is-open');
+        document.addEventListener('keydown', onKey);
+      }
+    };
+  }
 });
