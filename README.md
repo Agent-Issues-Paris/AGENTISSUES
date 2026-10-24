@@ -1,8 +1,8 @@
 # Agent Issues — Shopify theme
 
-A port of the static site on the `gh-pages` branch of this repo to a native Shopify (Online Store 2.0) theme. Same design and CSS, but pages are rendered by Shopify, so link previews, SEO, Shopify apps and analytics all work.
+The Agent Issues shop as a native Shopify (Online Store 2.0) theme. It started as a port of the static site on the `gh-pages` branch, which is now frozen; this branch is the default branch and the source of truth. Pages are rendered by Shopify, so link previews, SEO, Shopify apps and analytics all work.
 
-The existing GitHub Pages site is untouched; this theme can be uploaded unpublished and previewed side by side.
+How to make changes, run previews and open PRs: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Page map
 
