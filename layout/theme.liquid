@@ -38,7 +38,7 @@
   {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
 {%- endif -%}
 {%- liquid
-  assign body_class = 'template-' | append: template.name
+  assign body_class = 'template-' | append: template.name | append: ' page-type-' | append: request.page_type
   if is_issue contains 'true'
     assign body_class = body_class | append: ' no-scroll page-issue1'
   elsif template.name == 'product'
