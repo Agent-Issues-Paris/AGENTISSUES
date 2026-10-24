@@ -155,42 +155,63 @@ document.addEventListener('DOMContentLoaded', function () {
   } catch (e) {}
   if (saved) applyLogo(saved);
 
-  // the sticker can be closed for the rest of the visit; after a drawing it
-  // stays as an invitation to redraw
+  // Before a drawing, the sticker invites to DRAW 5s after load. Once there is
+  // a drawn logo, the sticker stays hidden and shows REDRAW once, the first
+  // time the logo is hovered. Each prompt has its own ×, and a × keeps that
+  // prompt away for the rest of the visit.
   var DISMISS_KEY = 'agentStickerDismissed';
-  var dismissed = false;
-  try { dismissed = sessionStorage.getItem(DISMISS_KEY) === '1'; } catch (e) {}
-
-  var sticker = null;
-  var stickerLabel = null;
-  if (!dismissed) {
-    sticker = document.createElement('div');
-    sticker.className = 'draw-sticker';
-    stickerLabel = document.createElement('button');
-    stickerLabel.type = 'button';
-    stickerLabel.className = 'draw-sticker__label';
-    stickerLabel.textContent = saved ? 'REDRAW UR LOGO!' : 'DRAW UR OWN LOGO!';
-    var stickerClose = document.createElement('button');
-    stickerClose.type = 'button';
-    stickerClose.className = 'draw-sticker__close';
-    stickerClose.setAttribute('aria-label', 'Close');
-    stickerClose.textContent = '×';
-    sticker.appendChild(stickerLabel);
-    sticker.appendChild(stickerClose);
-    header.appendChild(sticker);
-
-    stickerClose.addEventListener('click', function () {
-      try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
-      sticker.remove();
-    });
+  var REDRAW_DISMISS_KEY = 'agentRedrawDismissed';
+  function flag(key) {
+    try { return sessionStorage.getItem(key) === '1'; } catch (e) { return false; }
+  }
+  function setFlag(key) {
+    try { sessionStorage.setItem(key, '1'); } catch (e) {}
   }
 
-  // the logo is there as soon as the intro is gone; the sticker follows 5s later
+  var hasLogo = !!saved;
+  var redrawArmed = hasLogo;
+
+  var sticker = document.createElement('div');
+  sticker.className = 'draw-sticker';
+  var stickerLabel = document.createElement('button');
+  stickerLabel.type = 'button';
+  stickerLabel.className = 'draw-sticker__label';
+  var stickerClose = document.createElement('button');
+  stickerClose.type = 'button';
+  stickerClose.className = 'draw-sticker__close';
+  stickerClose.setAttribute('aria-label', 'Close');
+  stickerClose.textContent = '×';
+  sticker.appendChild(stickerLabel);
+  sticker.appendChild(stickerClose);
+  header.appendChild(sticker);
+
+  function showSticker(text) {
+    stickerLabel.textContent = text;
+    sticker.classList.add('is-visible');
+  }
+  function hideSticker() {
+    sticker.classList.remove('is-visible');
+  }
+
+  stickerClose.addEventListener('click', function () {
+    setFlag(hasLogo ? REDRAW_DISMISS_KEY : DISMISS_KEY);
+    hideSticker();
+  });
+
+  document.querySelectorAll('.logo-overlay').forEach(function (logo) {
+    logo.addEventListener('mouseenter', function () {
+      if (!hasLogo || !redrawArmed || flag(REDRAW_DISMISS_KEY)) return;
+      redrawArmed = false;
+      showSticker('REDRAW UR LOGO!');
+    });
+  });
+
+  // the logo is there as soon as the intro is gone; the DRAW prompt follows 5s later
   (function waitForIntro() {
     if (document.getElementById('introOverlay')) return setTimeout(waitForIntro, 250);
     header.classList.add('show-logo');
     setTimeout(function () {
-      if (sticker) sticker.classList.add('is-visible');
+      if (!hasLogo && !flag(DISMISS_KEY)) showSticker('DRAW UR OWN LOGO!');
     }, 5000);
   })();
 
@@ -199,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!modal) modal = buildModal();
     modal.open();
   }
-  if (stickerLabel) stickerLabel.addEventListener('click', openDrawModal);
+  stickerLabel.addEventListener('click', openDrawModal);
   window.agentOpenDrawLogo = openDrawModal; // the star menu opens it too
 
   function buildModal() {
@@ -344,7 +365,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (src) {
         applyLogo(src);
         try { sessionStorage.setItem(STORAGE_KEY, src); } catch (e) {}
-        if (stickerLabel) stickerLabel.textContent = 'REDRAW UR LOGO!';
+        hasLogo = true;
+        redrawArmed = true; // a new drawing gets one hover prompt again
+        hideSticker();
       }
       close();
     });
@@ -634,15 +657,30 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.agentOpenDrawLogo) window.agentOpenDrawLogo();
   });
 
+  // the calculator is a floating widget: drag it by the title bar, close it
+  // with ×, and it follows the visitor from page to page (position, number,
+  // pending operation) for the rest of the visit
+  var CALC_KEY = 'agentCalc';
   var calc = null;
+
+  function readCalcState() {
+    try { return JSON.parse(sessionStorage.getItem(CALC_KEY)) || null; } catch (e) { return null; }
+  }
+
   menu.querySelector('[data-star-calc]').addEventListener('click', function (e) {
     e.stopPropagation(); // don't let the outside-click handler close the calculator we're opening
     close();
-    if (!calc) calc = buildCalculator();
+    if (!calc) calc = buildCalculator(null);
     calc.open();
   });
 
-  function buildCalculator() {
+  var savedCalc = readCalcState();
+  if (savedCalc && savedCalc.open) {
+    calc = buildCalculator(savedCalc);
+    calc.open();
+  }
+
+  function buildCalculator(saved) {
     var KEYS = [
       ['back', '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M20 12H5M11 5l-7 7 7 7" fill="none" stroke-width="2.4"/></svg>'],
       ['clear', 'AC'], ['%', '%'], ['/', '÷'],
@@ -656,7 +694,10 @@ document.addEventListener('DOMContentLoaded', function () {
     root.className = 'calc-modal';
     root.innerHTML =
       '<div class="calc" role="dialog" aria-label="Agent calculator">' +
-      '  <div class="calc__title">AGENT CALCULATOR</div>' +
+      '  <div class="calc__title">' +
+      '    <span class="calc__title-text">AGENT CALCULATOR</span>' +
+      '    <button type="button" class="calc__close" aria-label="Close calculator">×</button>' +
+      '  </div>' +
       '  <div class="calc__body">' +
       '    <div class="calc__display" aria-live="polite">0</div>' +
       '    <div class="calc__keys">' +
@@ -669,10 +710,46 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(root);
 
     var display = root.querySelector('.calc__display');
+    var title = root.querySelector('.calc__title');
     var current = '0';   // what's being typed
     var stored = null;   // left-hand side waiting for an operator
     var op = null;
     var fresh = false;   // next digit starts a new number
+    var x = null;
+    var y = null;
+    var isShown = false;
+
+    if (saved) {
+      current = saved.current || '0';
+      stored = typeof saved.stored === 'number' ? saved.stored : null;
+      op = saved.op || null;
+      fresh = !!saved.fresh;
+      x = typeof saved.x === 'number' ? saved.x : null;
+      y = typeof saved.y === 'number' ? saved.y : null;
+      display.textContent = current;
+    }
+
+    function save() {
+      try {
+        sessionStorage.setItem(CALC_KEY, JSON.stringify({
+          open: isShown, x: x, y: y, current: current, stored: stored, op: op, fresh: fresh
+        }));
+      } catch (e) {}
+    }
+
+    // keep the whole widget on screen
+    function place() {
+      var w = root.offsetWidth;
+      var h = root.offsetHeight;
+      if (x === null || y === null) {
+        x = window.innerWidth - w - 40;
+        y = Math.max(20, (window.innerHeight - h) / 2);
+      }
+      x = Math.min(Math.max(0, x), Math.max(0, window.innerWidth - w));
+      y = Math.min(Math.max(0, y), Math.max(0, window.innerHeight - h));
+      root.style.left = x + 'px';
+      root.style.top = y + 'px';
+    }
 
     function format(n) {
       if (!isFinite(n)) return 'ERROR';
@@ -715,16 +792,44 @@ document.addEventListener('DOMContentLoaded', function () {
         fresh = true;
       }
       display.textContent = current;
+      save();
     }
 
     root.addEventListener('click', function (e) {
       var btn = e.target.closest('.calc__key');
       if (btn) return press(btn.dataset.key);
-      if (e.target === root) close();
     });
+    root.querySelector('.calc__close').addEventListener('click', function () { hide(); });
 
+    // drag by the title bar (mouse, pen or finger)
+    var drag = null;
+    title.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.calc__close')) return;
+      drag = { dx: e.clientX - x, dy: e.clientY - y };
+      title.setPointerCapture(e.pointerId);
+      root.classList.add('is-dragging');
+    });
+    title.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      x = e.clientX - drag.dx;
+      y = e.clientY - drag.dy;
+      place();
+    });
+    ['pointerup', 'pointercancel'].forEach(function (type) {
+      title.addEventListener(type, function () {
+        if (!drag) return;
+        drag = null;
+        root.classList.remove('is-dragging');
+        save();
+      });
+    });
+    window.addEventListener('resize', function () { if (isShown) place(); });
+
+    // typing works while the widget is open, except inside the site's own fields
     function onKey(e) {
-      if (e.key === 'Escape') return close();
+      var t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key === 'Escape') return hide();
       var map = { Enter: '=', Backspace: 'back', Delete: 'clear', ',': '.' };
       var key = map[e.key] || e.key;
       if (/^[0-9.%+\-*/=]$/.test(key) || key === 'back' || key === 'clear') {
@@ -733,15 +838,20 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    function close() {
+    function hide() {
+      isShown = false;
       root.classList.remove('is-open');
       document.removeEventListener('keydown', onKey);
+      save();
     }
 
     return {
       open: function () {
+        if (!isShown) document.addEventListener('keydown', onKey);
+        isShown = true;
         root.classList.add('is-open');
-        document.addEventListener('keydown', onKey);
+        place();
+        save();
       }
     };
   }

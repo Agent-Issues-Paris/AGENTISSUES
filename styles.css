@@ -1040,18 +1040,17 @@ main {
 
 /* ---------- agent calculator ---------- */
 
+/* floating widget, placed by script.js (left/top) */
 .calc-modal {
   position: fixed;
-  inset: 0;
-  z-index: 900;
+  top: 0;
+  left: 0;
+  z-index: 850;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
 }
 
 .calc-modal.is-open {
-  display: flex;
+  display: block;
 }
 
 .calc {
@@ -1062,12 +1061,40 @@ main {
 }
 
 .calc__title {
-  padding: 8px 6px;
+  position: relative;
+  padding: 8px 24px;
+  white-space: nowrap;
   background: #ed1c24;
   color: #fff;
   font-size: 18px;
   line-height: 1;
   text-align: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.calc-modal.is-dragging .calc__title {
+  cursor: grabbing;
+}
+
+.calc__close {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  padding: 2px 5px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calc__close:hover {
+  color: #000;
 }
 
 .calc__body {
