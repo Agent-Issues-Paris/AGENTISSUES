@@ -829,29 +829,47 @@ main {
 /* ---------- draw ur own logo ---------- */
 
 @keyframes sticker-wiggle {
-  0%, 100% { transform: rotate(-15deg); }
-  25% { transform: rotate(-13.5deg); }
-  75% { transform: rotate(-16.5deg); }
+  0%, 100% { transform: rotate(-6deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(-7deg); }
 }
 
 .draw-sticker {
   position: absolute;
-  top: 40px;
-  left: calc(50% + 140px); /* just right of the 300px centered logo */
+  top: 4px; /* sits in the ticker row so it never covers the nav links */
+  left: calc(50% + 150px); /* just right of the 300px centered logo */
   z-index: 101;
-  padding: 5px;
+  display: flex;
+  align-items: stretch;
   border: 2px solid #ed1c24;
   background: #ed1c24;
   color: #fff;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1;
   white-space: nowrap;
-  cursor: pointer;
-  transform: rotate(-15deg);
+  transform: rotate(-6deg);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
+}
+
+.draw-sticker button {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.draw-sticker__close {
+  border-left: 1px solid rgba(255, 255, 255, 0.6) !important;
+  padding: 5px 7px !important;
+}
+
+.draw-sticker button:hover {
+  color: #000;
 }
 
 /* shows after the 5s delay, whether or not the page has been scrolled */
@@ -1022,18 +1040,17 @@ main {
 
 /* ---------- agent calculator ---------- */
 
+/* floating widget, placed by script.js (left/top) */
 .calc-modal {
   position: fixed;
-  inset: 0;
-  z-index: 900;
+  top: 0;
+  left: 0;
+  z-index: 850;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
 }
 
 .calc-modal.is-open {
-  display: flex;
+  display: block;
 }
 
 .calc {
@@ -1044,12 +1061,40 @@ main {
 }
 
 .calc__title {
-  padding: 8px 6px;
+  position: relative;
+  padding: 8px 24px;
+  white-space: nowrap;
   background: #ed1c24;
   color: #fff;
   font-size: 18px;
   line-height: 1;
   text-align: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.calc-modal.is-dragging .calc__title {
+  cursor: grabbing;
+}
+
+.calc__close {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  padding: 2px 5px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calc__close:hover {
+  color: #000;
 }
 
 .calc__body {
@@ -1341,4 +1386,8 @@ main {
 
 .cookie-banner__actions .info-box:hover button {
   color: red;
+}
+
+.draw-sticker:hover {
+  animation-play-state: paused;
 }
