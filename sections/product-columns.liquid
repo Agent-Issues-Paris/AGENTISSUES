@@ -16,6 +16,7 @@
   endif
   assign pinned = section.settings.pinned_product
 -%}
+{%- if request.page_type == 'collection' -%}<h1 class="visually-hidden">{{ collection.title | escape }}</h1>{%- endif -%}
 <section class="columns">
   {%- if products.size > 0 -%}
     {%- if pinned != blank -%}

@@ -1,0 +1,52 @@
+{%- comment -%}
+  Splits an issue's description into the blurb and the credits.
+  Same rules as the old static site: paragraphs are separated by a blank
+  line (or </p>), lines by <br>. The paragraph that starts with
+  "Contributors:" and everything after it are the credits; the
+  "Contributors:" line itself is dropped (the box has its own heading).
+  Accepts:
+  - html {String} product.description
+  - part {String} 'blurb' (lines joined by <br>, paragraphs by <br><br>)
+                  or 'credits' (one <p> per paragraph)
+{%- endcomment -%}
+{%- liquid
+  assign marked = html | replace: '<br />', '§L§' | replace: '<br/>', '§L§' | replace: '<br>', '§L§' | replace: '</p>', '§L§§L§' | replace: '</div>', '§L§§L§' | replace: '</li>', '§L§' | strip_html | replace: '&nbsp;', ' ' | replace: ' ', ' '
+  assign lines = marked | append: '§L§§L§' | split: '§L§'
+  assign blurb = ''
+  assign credits = ''
+  assign para = ''
+  assign in_credits = false
+  for raw in lines
+    assign l = raw | strip
+    if l != blank
+      if para == ''
+        assign heading = l | downcase | remove: ':' | strip
+        if in_credits == false and heading == 'contributors'
+          assign in_credits = true
+          continue
+        endif
+        assign para = l
+      else
+        assign para = para | append: '<br>' | append: l
+      endif
+      continue
+    endif
+    if para == ''
+      continue
+    endif
+    if in_credits
+      assign credits = credits | append: '<p>' | append: para | append: '</p>'
+    else
+      if blurb != ''
+        assign blurb = blurb | append: '<br><br>'
+      endif
+      assign blurb = blurb | append: para
+    endif
+    assign para = ''
+  endfor
+  if part == 'credits'
+    echo credits
+  else
+    echo blurb
+  endif
+-%}

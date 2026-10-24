@@ -7,14 +7,30 @@
 {%- if is_issue contains 'true' -%}
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
-  assign description = section.settings.description
-  if description == blank
-    assign description = product.description | strip_html
+  # Issue 1 keeps the texts, credits and strip set up in this section;
+  # every other issue uses its own Shopify title, description and photos
+  assign is_legacy = false
+  if section.settings.legacy_product != blank and section.settings.legacy_product.id == product.id
+    assign is_legacy = true
   endif
 -%}
+{%- if is_legacy -%}
+  {%- assign issue_heading = section.settings.heading | default: product.title -%}
+  {%- capture blurb_html -%}{{ section.settings.description | escape | newline_to_br }}{%- endcapture -%}
+  {%- assign credits_html = section.settings.credits -%}
+{%- else -%}
+  {%- assign issue_heading = product.title -%}
+  {%- capture blurb_html -%}{% render 'issue-text', html: product.description, part: 'blurb' %}{%- endcapture -%}
+  {%- capture credits_html -%}{% render 'issue-text', html: product.description, part: 'credits' %}{%- endcapture -%}
+{%- endif -%}
 
 {%- capture strip_images -%}
-  {%- if section.blocks.size > 0 -%}
+  {%- if is_legacy == false -%}
+    {%- for image in product.images -%}
+      {%- capture img_class -%}{% if image.aspect_ratio < 1 %}portrait{% endif %}{%- endcapture -%}
+      {{ image | image_url: width: 2000 | image_tag: class: img_class, alt: image.alt, data-strip-center: forloop.first, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
+    {%- endfor -%}
+  {%- elsif section.blocks.size > 0 -%}
     {%- for block in section.blocks -%}
       {%- if block.settings.image != blank -%}
         {%- capture img_class -%}{% if block.settings.portrait %}portrait{% endif %}{%- endcapture -%}
@@ -44,8 +60,8 @@
 <section class="columns product-grid">
   <div class="product-col">
     <div class="info-box">
-      <h2>{{ section.settings.heading | default: product.title | escape }}</h2>
-      <p>{{ description | escape | newline_to_br }}</p>
+      <h1 class="issue-heading">{{ issue_heading | escape }}</h1>
+      <p>{{ blurb_html }}</p>
     </div>
     <div class="info-box price-box">
       <p data-price-box>{{ current_variant.price | money }}</p>
@@ -58,15 +74,16 @@
     <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}Sold out.{% endunless %}</p>
   {%- endform -%}
 
-  {%- if section.settings.credits != blank -%}
+  {%- if credits_html != blank -%}
     <div class="product-col credits-col">
       <details class="info-box credits-box">
         <summary>{{ section.settings.credits_label | escape }}</summary>
-        {{ section.settings.credits }}
+        {{ credits_html }}
       </details>
     </div>
   {%- endif -%}
 </section>
+<script type="application/ld+json">{{ product | structured_data }}</script>
 {%- endif -%}
 
 {% schema %}
@@ -74,9 +91,15 @@
   "name": "Issue",
   "settings": [
     {
+      "type": "product",
+      "id": "legacy_product",
+      "label": "Issue 1 product",
+      "info": "This product uses the texts, credits and strip images set below. Every other issue uses its own title, description (\"Contributors:\" paragraph = credits) and product photos."
+    },
+    {
       "type": "text",
       "id": "heading",
-      "label": "Heading",
+      "label": "Issue 1 heading",
       "default": "ISSUE 1"
     },
     {

@@ -681,8 +681,10 @@ document.addEventListener('DOMContentLoaded', function () {
   menu.innerHTML =
     '<button type="button" class="star-menu__item" data-star-draw>DRAW UR OWN LOGO!</button>' +
     '<button type="button" class="star-menu__item" data-star-calc>AGENT CALCULATOR</button>' +
-    '<button type="button" class="star-menu__item">PICTURE SUBMISSION</button>' +
+    // no upload backend yet: pictures come in by email
+    '<a class="star-menu__item" href="mailto:agentissuesparis@gmail.com?subject=Picture%20submission">PICTURE SUBMISSION</a>' +
     '<div class="star-menu__now">' +
+    '  <p>PARIS</p>' +
     '  <p data-now-date></p>' +
     '  <p data-now-time></p>' +
     '  <p data-now-temp></p>' +
@@ -767,6 +769,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadWeather();
     menu.classList.add('is-open');
     star.classList.add('is-active');
+    document.body.classList.add('star-menu-open'); // the DRAW sticker steps aside
     star.setAttribute('aria-expanded', 'true');
   }
 
@@ -774,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearInterval(clock);
     menu.classList.remove('is-open');
     star.classList.remove('is-active');
+    document.body.classList.remove('star-menu-open');
     star.setAttribute('aria-expanded', 'false');
   }
 

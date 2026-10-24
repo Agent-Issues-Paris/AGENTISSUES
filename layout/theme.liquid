@@ -20,6 +20,19 @@
 {% render 'meta-tags' %}
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ content_for_header }}
+{%- if request.page_type == 'index' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ shop.url | json }},
+      "logo": {{ 'logo-agent-issues.png' | asset_url | prepend: 'https:' | json }},
+      "email": {{ shop.email | json }},
+      "sameAs": ["https://www.instagram.com/agent.issues/"]
+    }
+  </script>
+{%- endif -%}
 </head>
 {%- if request.page_type == 'product' -%}
   {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}

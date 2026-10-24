@@ -23,58 +23,15 @@
   {%- assign blurb_html = section.settings.description | escape | newline_to_br -%}
   {%- assign credits_html = section.settings.credits -%}
 {%- else -%}
-  {%- liquid
-    # descriptionHtml -> paragraphs of lines, same rules as the old site:
-    # blank lines / </p> split paragraphs, <br> splits lines
-    assign marked = hero.description | replace: '<br />', '§BR§' | replace: '<br/>', '§BR§' | replace: '<br>', '§BR§' | replace: '</p>', '§P§' | replace: '</div>', '§P§' | strip_html | replace: '&nbsp;', ' '
-    assign paragraphs = marked | split: '§P§'
-    assign blurb_html = ''
-    assign credits_html = ''
-    assign in_credits = false
-    for para in paragraphs
-      assign lines = para | split: '§BR§'
-      assign clean = ''
-      assign first_line = ''
-      for line in lines
-        assign l = line | strip
-        if l == blank
-          continue
-        endif
-        if first_line == ''
-          assign first_line = l
-        endif
-        if clean != ''
-          assign clean = clean | append: '<br>'
-        endif
-        assign clean = clean | append: l
-      endfor
-      if clean == ''
-        continue
-      endif
-      assign heading = first_line | downcase | remove: ':' | strip
-      if in_credits == false and heading == 'contributors'
-        assign in_credits = true
-        assign clean = clean | remove_first: first_line | remove_first: '<br>'
-      endif
-      if in_credits
-        if clean != ''
-          assign credits_html = credits_html | append: '<p>' | append: clean | append: '</p>'
-        endif
-      else
-        if blurb_html != ''
-          assign blurb_html = blurb_html | append: '<br><br>'
-        endif
-        assign blurb_html = blurb_html | append: clean
-      endif
-    endfor
-  -%}
+  {%- capture blurb_html -%}{% render 'issue-text', html: hero.description, part: 'blurb' %}{%- endcapture -%}
+  {%- capture credits_html -%}{% render 'issue-text', html: hero.description, part: 'credits' %}{%- endcapture -%}
 {%- endif -%}
 
 {%- if hero != blank -%}
 <section class="home-hero">
   <div class="home-hero__info">
     <div class="info-box">
-      <h2 class="issue-title">{{ hero.title | escape }}</h2>
+      <h1 class="issue-title">{{ hero.title | escape }}</h1>
       <p>{{ blurb_html }}</p>
     </div>
     {%- if credits_html != blank -%}
