@@ -1,7 +1,26 @@
+{%- comment -%}
+  "Only on page" lets one generic page template carry a page-specific row,
+  e.g. the About boxes on /pages/about without assigning a template in admin.
+{%- endcomment -%}
+{%- liquid
+  assign show_row = true
+  if section.settings.only_page != blank
+    if request.page_type != 'page' or page.handle != section.settings.only_page
+      assign show_row = false
+    endif
+  endif
+-%}
+{%- if show_row -%}
 <section class="info-row{% if section.settings.top %} info-row--top{% endif %}{% if section.blocks.size == 4 %} info-row--4{% endif %}">
   {%- for block in section.blocks -%}
     <div class="info-box" {{ block.shopify_attributes }}>
-      <h2>{{ block.settings.heading | escape }}</h2>
+      <h2>
+        {%- if block.settings.link != blank -%}
+          <a href="{{ block.settings.link }}">{{ block.settings.heading | escape }}</a>
+        {%- else -%}
+          {{ block.settings.heading | escape }}
+        {%- endif -%}
+      </h2>
       {%- case block.type -%}
         {%- when 'policies' -%}
           <p class="policy-links">
@@ -31,6 +50,7 @@
     </div>
   {%- endfor -%}
 </section>
+{%- endif -%}
 
 {% schema %}
 {
@@ -41,6 +61,12 @@
       "id": "top",
       "label": "Place at top of page",
       "default": false
+    },
+    {
+      "type": "text",
+      "id": "only_page",
+      "label": "Only on page (handle)",
+      "info": "Leave empty to always show. E.g. \"about\" shows this row only on /pages/about."
     }
   ],
   "blocks": [
@@ -49,6 +75,7 @@
       "name": "Box",
       "settings": [
         { "type": "text", "id": "heading", "label": "Heading", "default": "HEADING" },
+        { "type": "url", "id": "link", "label": "Heading link" },
         { "type": "textarea", "id": "text", "label": "Text", "default": "Text" }
       ]
     },

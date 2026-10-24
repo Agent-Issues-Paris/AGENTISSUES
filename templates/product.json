@@ -2,7 +2,9 @@
   "sections": {
     "issue": {
       "type": "main-product-issue",
-      "settings": {}
+      "settings": {
+        "legacy_product": "aagent-issue-01-i-❤️-inspo-fw25-26"
+      }
     },
     "main": {
       "type": "main-product",

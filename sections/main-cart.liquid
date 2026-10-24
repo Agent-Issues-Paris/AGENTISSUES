@@ -3,6 +3,7 @@
   then reload). Checkout is a normal form submit.
 {%- endcomment -%}
 {%- assign shop_url = collections.shop.url | default: routes.all_products_collection_url -%}
+<h1 class="visually-hidden">Cart</h1>
 <section class="cart-page">
   {%- if cart.item_count == 0 -%}
     <p class="product-loading">Your cart is empty. <a href="{{ shop_url }}">Go to shop</a>.</p>
