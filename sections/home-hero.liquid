@@ -1,9 +1,9 @@
 {%- comment -%}
   The hero is the newest product in the chosen collection ("Home page" by
   default), so a new issue takes over as soon as it's added there.
-  The fallback issue (Issue 1) keeps its flat cover art and the texts below;
-  any other issue uses its Shopify photos, and its description is split at a
-  "Contributors:" paragraph into blurb + credits.
+  Texts come from the product (description split at a "Contributors:"
+  paragraph into blurb + credits). Issue 1 keeps its flat cover art;
+  any other issue uses its Shopify photos.
 {%- endcomment -%}
 {%- liquid
   assign source = section.settings.collection | default: collections.frontpage
@@ -19,13 +19,8 @@
   assign variant = hero.selected_or_first_available_variant
 -%}
 
-{%- if is_fallback -%}
-  {%- assign blurb_html = section.settings.description | escape | newline_to_br -%}
-  {%- assign credits_html = section.settings.credits -%}
-{%- else -%}
-  {%- capture blurb_html -%}{% render 'issue-text', html: hero.description, part: 'blurb' %}{%- endcapture -%}
-  {%- capture credits_html -%}{% render 'issue-text', html: hero.description, part: 'credits' %}{%- endcapture -%}
-{%- endif -%}
+{%- capture blurb_html -%}{% render 'issue-text', html: hero.description, part: 'blurb' %}{%- endcapture -%}
+{%- capture credits_html -%}{% render 'issue-text', html: hero.description, part: 'credits' %}{%- endcapture -%}
 
 {%- if hero != blank -%}
 <section class="home-hero">
@@ -85,19 +80,7 @@
       "type": "product",
       "id": "fallback_product",
       "label": "Issue 1 product",
-      "info": "When this product is the hero it uses the flat cover art and the texts below."
-    },
-    {
-      "type": "textarea",
-      "id": "description",
-      "label": "Issue 1 description",
-      "default": "This issue is dedicated to inspiration as the cultural currency of our time. A force shaping taste, status, and community. 208 pages balancing text and image, tracing how references move through fashion, art, gamedev, and online culture"
-    },
-    {
-      "type": "html",
-      "id": "credits",
-      "label": "Issue 1 credits",
-      "default": "<p>Nastya Livadnova<br>Joseph Hauser<br>Raphael Lugassy<br>Mika Ben Amar<br>Onek4ever<br>Ellie Warnke<br>Cloe Franco<br>Dora Kapus<br>Elizaveta Rakhmankulova<br>Goun Jeong<br>Mizuki Hirano<br>Mery Hoc<br>Patrick Garvey<br>Malene Specht<br>Phoebe Pendergast<br>Sofia Castellon<br>Nika Shulga<br>Teo Cisorio<br>Roman Mokrov<br>GIRLS CARRYING SHIT<br>Gunner Dongieux</p><p>Words by:<br>Ilya Egorov<br>Halle Robbe<br>TEN TODAY (tentoday.net):<br>Eli Harrell<br>Dasha Aksenova<br>Wes Mahony<br>Christine Pang<br>Theo Belci<br>Alex Leeman<br>Max Turner</p><p>Cover photo:<br>Raphael Lugassy<br>AA+ is led by a team of two siblings<br>Ilya Egorov<br>Creative Director, Editor-in-Chief</p><p>Zlata Egorova<br>Art Director, Designer</p>"
+      "info": "When this product is the hero it shows the flat cover art. Texts always come from the product."
     }
   ]
 }
