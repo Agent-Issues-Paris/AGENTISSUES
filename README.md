@@ -20,10 +20,7 @@ The existing GitHub Pages site is untouched; this theme can be uploaded unpublis
 ## One-time setup in Shopify admin
 
 1. **Sales channels → Online Store** must be enabled.
-2. **Upload the theme** (unpublished): Online Store → Themes → Add theme → Connect from GitHub (recommended) or upload a zip of this repo. Or with the CLI:
-   ```bash
-   shopify theme push --unpublished --store p0pt9d-ef.myshopify.com
-   ```
+2. **Theme is connected to GitHub:** the Shopify GitHub app is installed on the `Agent-Issues-Paris` org, and the `shopify-theme` branch is linked to the unpublished theme "AGENTISSUES/shopify-theme". Pushes to the branch update the theme; edits in the theme editor are committed back to the branch by Shopify, so pull before you push.
 3. Magazine issues get the endless-strip layout automatically when listed in Theme settings → Issues (Issue 1 is preselected).
 4. **Online Store → Pages → Add page** titled "About" (handle `about`), template `page.about`.
 5. **Settings → Customer privacy → Cookie banner:** turn off Shopify's own banner. The theme shows its own (Theme settings → Cookie banner), wired to Shopify's Customer Privacy API.
