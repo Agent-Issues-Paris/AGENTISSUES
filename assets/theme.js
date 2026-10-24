@@ -146,6 +146,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function sync() {
     document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+    // how far the centred logo hangs below the top of the window, so text
+    // pages can start under it (see "logo clearance" in styles.css)
+    var logo = header.querySelector('.logo-overlay');
+    if (logo) document.documentElement.style.setProperty('--logo-bottom', (logo.offsetTop + logo.offsetHeight) + 'px');
   }
 
   sync();
