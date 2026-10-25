@@ -23,6 +23,29 @@
   endif
 -%}
 <title>{{ meta_title | escape }}</title>
+{%- comment -%}
+  Safari drops the start of a tab title when it matches the domain
+  (agentissues.net), so "Agent Issues / ..." showed without the brand.
+  An invisible character in front of the tab title keeps the brand in
+  the tab. The HTML <title> above is left as written.
+  ?tt=1..4 tries other variants while we test in Safari.
+{%- endcomment -%}
+<script>
+  (function () {
+    var brand = 'Agent Issues';
+    var t = document.title;
+    if (t.indexOf(brand) !== 0) return;
+    var rest = t.slice(brand.length);
+    var variants = {
+      '1': '\u200B' + t,
+      '2': 'Agent\u00A0Issues' + rest,
+      '3': 'AGENT ISSUES' + rest,
+      '4': '\u2060' + t
+    };
+    var v = new URLSearchParams(location.search).get('tt');
+    document.title = variants[v] || variants['1'];
+  })();
+</script>
 {%- if meta_description != blank -%}
   <meta name="description" content="{{ meta_description | escape }}">
 {%- endif -%}
