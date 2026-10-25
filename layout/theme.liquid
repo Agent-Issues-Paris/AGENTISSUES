@@ -6,7 +6,10 @@
 <link rel="canonical" href="{{ canonical_url }}">
 {%- if settings.favicon != blank -%}
   <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 64, height: 64 }}">
+{%- else -%}
+  <link rel="icon" type="image/png" href="{{ 'favicon.png' | asset_url }}">
 {%- endif -%}
+<link rel="apple-touch-icon" href="{{ 'apple-touch-icon.png' | asset_url }}">
 {%- liquid
   assign meta_title = page_title
   assign meta_description = page_description

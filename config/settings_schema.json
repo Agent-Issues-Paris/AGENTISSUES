@@ -85,7 +85,7 @@
         "type": "text",
         "id": "home_title",
         "label": "Home page title (search results)",
-        "default": "Agent Issues / Independent Fashion & Art Magazine, Paris",
+        "default": "Agent Issues, Independent Fashion & Art Magazine from Paris",
         "info": "About 60 characters. Leave empty to use Online Store → Preferences."
       },
       {
@@ -104,7 +104,8 @@
       {
         "type": "image_picker",
         "id": "favicon",
-        "label": "Favicon"
+        "label": "Favicon",
+        "info": "Leave empty to use the bundled Agent mark."
       }
     ]
   },
