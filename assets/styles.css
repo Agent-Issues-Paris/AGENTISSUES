@@ -529,6 +529,7 @@ main {
   font-weight: 700;
   font-size: 24px;
   line-height: 1.2;
+  text-align: center;
 }
 
 .cart-message {
@@ -754,6 +755,7 @@ main {
   font-size: 15px;
   color: inherit;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 @media (max-width: 700px) {
@@ -1587,11 +1589,13 @@ a.star-menu__item {
 }
 
 /* ---------- quantity stepper ---------- */
-/* a rectangle with filled squares for − and + at its ends */
+/* a rectangle with outlined squares for − and + at its ends; the dividers
+   take the box's border colour, so they turn red with it on hover */
 .qty {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
+  border-color: inherit;
   font-family: 'Times New Roman', Times, serif;
   font-weight: 700;
   font-size: 15px;
@@ -1613,29 +1617,37 @@ a.star-menu__item {
   align-items: center;
   justify-content: center;
   width: 28px;
-  border: none;
+  border: 0 solid;
+  border-color: inherit;
   border-radius: 0;
-  background: #000;
-  color: #fff;
+  background: none;
+  color: #000;
   font-family: 'Times New Roman', Times, serif;
   font-weight: 700;
   font-size: 18px;
   line-height: 1;
   padding: 0;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: color 0.15s ease;
+}
+
+.qty button:first-child {
+  border-right-width: 1px;
+}
+
+.qty button:last-child {
+  border-left-width: 1px;
+}
+
+.home-hero__control:hover .qty button,
+.cart-controls .info-box:hover .qty button {
+  color: #000;
 }
 
 .qty button:hover:not(:disabled),
 .home-hero__control:hover .qty button:hover:not(:disabled),
 .cart-controls .info-box:hover .qty button:hover:not(:disabled) {
-  background: red;
-  color: #fff;
-}
-
-.home-hero__control:hover .qty button,
-.cart-controls .info-box:hover .qty button {
-  color: #fff;
+  color: red;
 }
 
 .qty button:disabled {
@@ -1785,4 +1797,9 @@ a.star-menu__item {
 .is-rerendered .info-box,
 .is-rerendered .column {
   animation: none;
+}
+
+/* CONTINUE SHOPPING is a link, not a button: same red text on hover */
+.cart-controls .info-box:hover .cart-continue {
+  color: red;
 }
