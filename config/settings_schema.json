@@ -85,14 +85,14 @@
         "type": "text",
         "id": "home_title",
         "label": "Home page title (search results)",
-        "default": "Agent Issues | Independent Fashion & Art Magazine, Paris",
+        "default": "Agent Issues / Independent Fashion & Art Magazine, Paris",
         "info": "About 60 characters. Leave empty to use Online Store → Preferences."
       },
       {
         "type": "textarea",
         "id": "home_description",
         "label": "Home page description (search results)",
-        "default": "Agent Issues is an independent print magazine from Paris on fashion, art, games and internet culture. 200+ pages, half text, half image. Issue 01 out now.",
+        "default": "Agent Issues is an independent print magazine from Paris on fashion, art, games and internet culture. 200+ pages, half text, half image. Preorder Issue 02 now!",
         "info": "About 155 characters. Leave empty to use Online Store → Preferences."
       },
       {

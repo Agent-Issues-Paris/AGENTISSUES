@@ -20,14 +20,14 @@
           "type": "box",
           "settings": {
             "heading": "ABOUT US",
-            "text": "Agent Issues is an independent print magazine made in Paris by siblings Ilya Egorov and Zlata Egorova. Twice a year we pick one idea and chase it through fashion, art, music, games and the internet: 200+ pages in English, half text, half image. Issue 01 asked who gets credit for inspo. Our contributors work in Paris, Berlin, Tokyo, Montreal, London and Warsaw."
+            "text": "Agent Issues is an independent print magazine based in Paris. Twice a year we pick one idea and chase it through fashion, art, music, games and the internet: 200+ pages in English, half text, half image. Issue 01 asked who gets credit for inspo. Our contributors work in Paris, Berlin, Tokyo, Montreal, London and Warsaw."
           }
         },
         "box_2": {
           "type": "box",
           "settings": {
             "heading": "CONTACT",
-            "text": "agentissuesparis@gmail.com\n@agent.issues",
+            "text": "Email: agentissuesparis@gmail.com\nInstagram: @agent.issues",
             "link": "shopify://pages/contact"
           }
         },
@@ -35,7 +35,7 @@
           "type": "box",
           "settings": {
             "heading": "STOCKISTS",
-            "text": ". Prophet Vision, Paris\n. Cahier Central, Paris\n. Richter, Moscow"
+            "text": ". Cahier Central, Paris\n. Prophet Vision, Paris\n. Richter, Moscow\nMore to come!"
           }
         }
       },
