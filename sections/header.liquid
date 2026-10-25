@@ -57,7 +57,7 @@
       {%- comment -%} Plain src, no srcset: "draw ur own logo" swaps the src in theme.js {%- endcomment -%}
       <img src="{{ section.settings.logo | image_url: width: 600 }}" width="{{ section.settings.logo.width }}" height="{{ section.settings.logo.height }}" alt="{{ shop.name | escape }} logo">
     {%- else -%}
-      <img src="{{ 'logo-agent-issues.png' | asset_url }}" width="900" height="443" alt="{{ shop.name | escape }} logo">
+      <img src="{{ 'logo-agent-issues.webp' | asset_url }}" width="900" height="443" alt="Agent Issues">
     {%- endif -%}
   </a>
   <nav class="main-nav">

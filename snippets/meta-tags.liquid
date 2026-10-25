@@ -1,13 +1,17 @@
 {%- comment -%}
   Open Graph / Twitter tags so shared links show a title and picture.
+  Accepts:
+  - title {String} the page <title>
+  - description {String} the meta description
 {%- endcomment -%}
 {%- liquid
-  assign og_title = page_title | default: shop.name
+  assign og_title = title | default: page_title | default: shop.name
+  assign og_description = description | default: shop.description | default: shop.name
   assign og_type = 'website'
   assign og_image = settings.share_image
   if request.page_type == 'product'
     assign og_type = 'product'
-    assign og_image = product.featured_image
+    assign og_image = product.featured_image | default: og_image
   elsif request.page_type == 'collection' and collection.image
     assign og_image = collection.image
   endif
@@ -16,7 +20,7 @@
 <meta property="og:url" content="{{ canonical_url }}">
 <meta property="og:title" content="{{ og_title | escape }}">
 <meta property="og:type" content="{{ og_type }}">
-<meta property="og:description" content="{{ page_description | default: shop.description | default: shop.name | escape }}">
+<meta property="og:description" content="{{ og_description | escape }}">
 {%- if og_image -%}
   <meta property="og:image" content="https:{{ og_image | image_url: width: 1200 }}">
   <meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: 1200 }}">
@@ -27,3 +31,8 @@
 {%- endif -%}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ og_title | escape }}">
+<meta name="twitter:description" content="{{ og_description | escape }}">
+{%- if og_image -%}
+  <meta name="twitter:image" content="https:{{ og_image | image_url: width: 1200 }}">
+  <meta property="og:image:alt" content="{{ og_image.alt | default: og_title | escape }}">
+{%- endif -%}

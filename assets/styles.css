@@ -1841,3 +1841,86 @@ a.star-menu__item {
     bottom: 16px;
   }
 }
+
+/* ---------- SPECS box and size guide ---------- */
+.specs-list {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.specs-list div {
+  display: flex;
+  gap: 6px;
+}
+
+.specs-list dt::after {
+  content: ':';
+}
+
+.specs-list dd {
+  margin: 0;
+}
+
+.specs-note,
+.size-guide__note {
+  margin-top: 8px !important;
+}
+
+.specs-box summary,
+.size-guide summary {
+  list-style: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.specs-box summary::-webkit-details-marker,
+.size-guide summary::-webkit-details-marker {
+  display: none;
+}
+
+.specs-box summary:hover,
+.size-guide summary:hover {
+  color: red;
+}
+
+/* issue page: the SPECS heading shows on desktop, the summary on phones */
+.specs-box summary {
+  display: none;
+}
+
+.specs-box__heading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.size-guide table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.size-guide th,
+.size-guide td {
+  padding: 3px 6px 3px 0;
+  border-bottom: 1px solid #000;
+  text-align: left;
+}
+
+@media (max-width: 700px) {
+  .page-issue1 .specs-box {
+    order: 2;
+  }
+
+  .specs-box summary {
+    display: block;
+  }
+
+  .specs-box__heading {
+    display: none;
+  }
+}

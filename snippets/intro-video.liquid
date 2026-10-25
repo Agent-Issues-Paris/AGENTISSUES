@@ -14,7 +14,7 @@
       {%- for p in settings.intro_collection.products limit: 50 -%}
         {%- for image in p.images -%}"{{ image | image_url: width: 1600 }}",{%- endfor -%}
       {%- endfor -%}
-      {%- assign bundled = 'ISSUE1.png,ISSUE1.2.png,spread-nastya.jpg,spread-nastya-mock.jpg,spread-moods.jpg,spread-mokrov.jpg,spread-fake.jpg,spread-raph.jpg' | split: ',' -%}
+      {%- assign bundled = 'issue1-cover.webp,issue1-cover-alt.webp,spread-nastya.webp,spread-nastya-mock.webp,spread-moods.webp,spread-mokrov.webp,spread-fake.webp,spread-raph.webp' | split: ',' -%}
       {%- for file in bundled -%}"{{ file | asset_url }}"{% unless forloop.last %},{% endunless %}{%- endfor -%}
     {%- endcapture -%}
     <div class="intro-overlay intro-overlay--random" id="introOverlay" data-intro-images="[{{ pool | strip | escape }}]" data-intro-count="{{ settings.intro_count }}" data-intro-speed="{{ settings.intro_speed }}">
