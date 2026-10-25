@@ -13,7 +13,7 @@
 {%- if show_row -%}
 <section class="info-row{% if section.settings.top %} info-row--top{% endif %}{% if section.blocks.size == 4 %} info-row--4{% endif %}">
   {%- for block in section.blocks -%}
-    <div class="info-box" {{ block.shopify_attributes }}>
+    <div class="info-box info-box--{{ block.type }}" {{ block.shopify_attributes }}>
       <h2>
         {%- if block.settings.link != blank -%}
           <a href="{{ block.settings.link }}">{{ block.settings.heading | escape }}</a>

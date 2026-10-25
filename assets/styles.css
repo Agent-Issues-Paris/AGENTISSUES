@@ -1469,6 +1469,20 @@ a.ticker:hover .ticker__track span {
   gap: 8px;
 }
 
+/* the email field sits on the bottom edge of the box */
+.info-box--newsletter {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-box--newsletter .newsletter-form {
+  flex: 1;
+}
+
+.info-box--newsletter .newsletter-form__row {
+  margin-top: auto;
+}
+
 .newsletter-form__row {
   display: flex;
   border: 1px solid #000;
