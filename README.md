@@ -19,7 +19,7 @@ How to make changes, run previews and open PRs: see [CONTRIBUTING.md](CONTRIBUTI
 
 ## Texts
 
-Every text on the site (theme texts, SEO titles and descriptions, product descriptions, SPECS, alt text) lives in the Google Sheet [Agent Issues — тексты сайта](https://docs.google.com/spreadsheets/d/1Ew4paADOu_LoEQLEIBzypcaSOeQ_jsTgAg9L8dYKQCM/edit). The sheet is the source of truth: change a text there first, then copy it into the theme or Shopify admin.
+Every text on the site (theme texts, SEO titles and descriptions, product descriptions, SPECS, alt text) lives in the Google Sheet [Agent Issues — тексты сайта](https://docs.google.com/spreadsheets/d/1k2sytR1hYi1cYZafazkjgWl_GLynotWuQq5jatrfC5U/edit). The sheet is the source of truth: change a text there first, then copy it into the theme or Shopify admin.
 
 ## One-time setup in Shopify admin
 
