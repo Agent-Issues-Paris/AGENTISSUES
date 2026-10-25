@@ -163,10 +163,10 @@ Products → product → click a photo → Add alt text. In the order the photos
 **White tee**
 1. `White I ❤️ INSPO t-shirt laid flat, front`
 2. `Model wearing the white I ❤️ INSPO t-shirt`
-3. `White I ❤️ INSPO t-shirt turning, showing the sleeve prints`
+3. `White I ❤️ INSPO t-shirt, animated turn`
 
 **Black tee**
-1. `Black I ❤️ INSPO t-shirt turning, showing the sleeve prints`
+1. `Black I ❤️ INSPO t-shirt, animated turn`
 2. `Black I ❤️ INSPO t-shirt in motion`
 3. `Model wearing the black I ❤️ INSPO t-shirt`
 4. `Black I ❤️ INSPO t-shirt laid flat, front`
