@@ -23,12 +23,12 @@
       </h2>
       {%- case block.type -%}
         {%- when 'policies' -%}
-          <p class="policy-links">
+          <ul class="policy-links">
             {%- for policy in shop.policies -%}
-              <a href="{{ policy.url }}">{{ policy.title | escape }}</a><br>
+              <li><a href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
             {%- endfor -%}
-            {%- if block.settings.text != blank -%}{{ block.settings.text | escape | newline_to_br }}{%- endif -%}
-          </p>
+          </ul>
+          {%- if block.settings.text != blank -%}<p class="policy-note">{{ block.settings.text | escape | newline_to_br }}</p>{%- endif -%}
         {%- when 'newsletter' -%}
           {%- assign form_id = 'newsletter-' | append: block.id -%}
           {%- form 'customer', class: 'newsletter-form', id: form_id -%}

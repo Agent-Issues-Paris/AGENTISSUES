@@ -458,6 +458,8 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.textContent = 'ADDING...';
     agentCartAdd(variantId, 1).then(function () {
       btn.textContent = 'ADDED!';
+      // on the cart page the new line has to show up in the list
+      if (document.querySelector('.cart-page')) window.location.reload();
     }).catch(function (err) {
       console.error('Quick add failed', err);
       btn.textContent = 'TRY AGAIN';

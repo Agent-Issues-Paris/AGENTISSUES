@@ -52,7 +52,7 @@
     <input type="hidden" name="id" value="{{ variant.id }}" data-variant-input>
     <input type="hidden" name="quantity" value="1" data-qty-input>
     <div class="info-box price-box"><p data-price-box>{{ variant.price | money }}</p></div>
-    <div class="info-box home-hero__control">
+    <div class="info-box home-hero__control qty-box">
       <div class="qty">
         <button type="button" data-qty-minus aria-label="Decrease quantity">-</button>
         <span data-qty-value>1</span>
@@ -60,7 +60,7 @@
       </div>
     </div>
     <div class="info-box home-hero__control"><button type="submit" data-add-to-cart>ADD TO CART</button></div>
-    <div class="info-box home-hero__control"><button type="submit" name="return_to" value="/checkout" data-checkout>CHECKOUT</button></div>
+    <div class="info-box home-hero__control info-box--primary"><button type="submit" name="return_to" value="/checkout" data-checkout>CHECKOUT</button></div>
     <p class="cart-message" aria-live="polite" data-cart-message>{% unless variant.available %}Sold out.{% endunless %}</p>
   {%- endform -%}
 </section>

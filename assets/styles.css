@@ -522,11 +522,13 @@ main {
   border-color: #000;
 }
 
-.price-box p {
+.price-box p,
+.info-box.price-box p {
   margin: 0;
   font-family: 'Times New Roman', Times, serif;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 24px;
+  line-height: 1.2;
 }
 
 .cart-message {
@@ -566,14 +568,25 @@ main {
   min-width: 0;
 }
 
+/* the column fits the hero height; a long contributors list scrolls inside
+   its own box, so every box keeps all four borders on screen */
 .home-hero__info {
   max-height: var(--hero-h);
+}
+
+.home-hero__info > .info-box {
+  flex: none;
+}
+
+.home-hero__info > .credits-list {
+  flex: 0 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none; /* still scrolls, just no visible bar */
 }
 
-.home-hero__info::-webkit-scrollbar {
+.home-hero__info > .credits-list::-webkit-scrollbar {
   display: none;
 }
 
@@ -656,7 +669,10 @@ main {
 /* ---------- cart page ---------- */
 
 .cart-page {
-  margin: 0 10px;
+  margin: 30px 10px 0;
+}
+
+.cart-page form {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -670,14 +686,15 @@ main {
 
 .cart-line {
   display: grid;
-  grid-template-columns: 70px 1fr auto auto;
+  grid-template-columns: 90px 1fr auto auto;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
+  padding: 10px;
 }
 
 .cart-line__image {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
   border: 1px solid #000;
 }
@@ -685,7 +702,8 @@ main {
 .cart-line__details {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .cart-line__title {
@@ -700,6 +718,9 @@ main {
   font-family: 'Times New Roman', Times, serif;
   font-weight: 700;
   font-size: 15px;
+  line-height: 1.4;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .cart-line__remove {
@@ -717,8 +738,9 @@ main {
 }
 
 .cart-summary {
+  margin-top: 20px;
   border: 1px solid #000;
-  padding: 8px 15px;
+  padding: 12px 15px;
   display: flex;
   justify-content: space-between;
   font-family: 'Times New Roman', Times, serif;
@@ -753,6 +775,9 @@ main {
   .home-hero__info {
     order: 3;
     max-height: none;
+  }
+
+  .home-hero__info > .credits-list {
     overflow: visible;
   }
 
@@ -762,10 +787,23 @@ main {
 
   .cart-line {
     grid-template-columns: 60px 1fr auto;
+    gap: 12px;
+  }
+
+  .cart-line__image {
+    width: 60px;
+    height: 60px;
   }
 
   .cart-line__price {
     grid-column: 2 / 4;
+    text-align: left;
+  }
+
+  .cart-line__remove {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
   }
 }
 
@@ -1545,5 +1583,191 @@ a.star-menu__item {
   .page-type-404 main,
   .page-type-list-collections main {
     padding-top: calc(max(var(--header-h, 110px), var(--logo-bottom, 150px)) + 14px);
+  }
+}
+
+/* ---------- quantity stepper ---------- */
+/* a rectangle with filled squares for − and + at its ends */
+.qty {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.qty span {
+  flex: 1 1 auto;
+  align-self: center;
+  min-width: 2.2em;
+  text-align: center;
+}
+
+.qty button,
+.home-hero__control .qty button,
+.cart-controls .qty button {
+  flex: none;
+  width: 28px;
+  border: none;
+  border-radius: 0;
+  background: #000;
+  color: #fff;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.qty button:hover:not(:disabled),
+.home-hero__control:hover .qty button:hover:not(:disabled),
+.cart-controls .info-box:hover .qty button:hover:not(:disabled) {
+  background: red;
+  color: #fff;
+}
+
+.home-hero__control:hover .qty button,
+.cart-controls .info-box:hover .qty button {
+  color: #fff;
+}
+
+.qty button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* in a control box the squares sit flush with the box edges */
+.info-box.qty-box {
+  padding: 0;
+  align-items: stretch;
+}
+
+.info-box.qty-box .qty {
+  min-height: 28px;
+}
+
+/* the stepper on its own (cart lines) gets its own frame */
+.cart-line .qty {
+  width: 110px;
+  height: 26px;
+  border: 1px solid #000;
+}
+
+.cart-line .qty button {
+  width: 26px;
+}
+
+/* ---------- main action (checkout) ---------- */
+.info-box.info-box--primary {
+  background: #000;
+  color: #fff;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.info-box.info-box--primary button,
+.info-box.info-box--primary:hover button {
+  color: #fff;
+}
+
+.info-box.info-box--primary:hover {
+  background: red;
+  border-color: red;
+}
+
+/* ---------- issue page: contributors heading ---------- */
+.credits-box__heading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .credits-box__heading {
+    display: none; /* the summary is the heading on phones */
+  }
+}
+
+/* ---------- footer policies ---------- */
+.policy-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.policy-links li + li {
+  margin-top: 3px;
+}
+
+.policy-links a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+
+.policy-links a:hover {
+  color: red;
+}
+
+.info-box p.policy-note {
+  margin-top: 12px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+/* ---------- cart: page buttons, empty cart, picks from the shop ---------- */
+.cart-controls.cart-controls--page {
+  grid-template-columns: 1fr 1fr;
+}
+
+.cart-controls--page .info-box {
+  padding: 12px 5px;
+}
+
+.cart-controls--page button {
+  width: 100%;
+}
+
+.cart-empty {
+  padding: 30px 15px;
+  text-align: center;
+}
+
+.cart-empty h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.info-box.cart-empty p a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cart-picks {
+  margin-top: 80px;
+}
+
+.cart-picks__heading {
+  margin: 0 10px 10px;
+}
+
+.cart-picks__heading h2 {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .cart-controls.cart-controls--page {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-picks {
+    margin-top: 40px;
   }
 }
