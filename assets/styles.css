@@ -815,7 +815,7 @@ main {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin: 160px 10px 10px;
+  margin: 80px 10px 10px;
 }
 
 .info-row.info-row--top {
@@ -1809,4 +1809,35 @@ a.star-menu__item {
 /* CONTINUE SHOPPING is a link, not a button: same red text on hover */
 .cart-controls .info-box:hover .cart-continue {
   color: red;
+}
+
+/* ---------- home hero: SEE MORE sticker on the cover ---------- */
+/* same red sticker as DRAW UR OWN LOGO; the whole cover is the link */
+.see-more-sticker {
+  position: absolute;
+  right: -12px;
+  bottom: 28px;
+  z-index: 2;
+  padding: 5px 8px;
+  border: 2px solid #ed1c24;
+  background: #ed1c24;
+  color: #fff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-6deg);
+  transition: color 0.15s ease;
+}
+
+.home-hero__cover:hover .see-more-sticker {
+  color: #000;
+  animation: sticker-wiggle 0.25s ease-in-out infinite;
+}
+
+@media (max-width: 700px) {
+  .see-more-sticker {
+    right: 8px;
+    bottom: 16px;
+  }
 }
