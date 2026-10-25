@@ -58,7 +58,11 @@
                 {%- assign parts = line | split: ' | ' -%}
                 {%- assign url = parts.last | strip -%}
                 {%- if parts.size > 1 and url contains 'http' -%}
-                  <li><a href="{{ url | escape }}" target="_blank" rel="noopener">{{ parts.first | strip | escape }}</a></li>
+                  {%- comment -%} Only the name is the link: "Name, City" {%- endcomment -%}
+                  {%- assign label = parts.first | strip -%}
+                  {%- assign name = label | split: ', ' | first -%}
+                  {%- assign rest = label | remove_first: name -%}
+                  <li><a href="{{ url | escape }}" rel="noopener">{{ name | escape }}</a>{{ rest | escape }}</li>
                 {%- else -%}
                   <li>{{ line | escape }}</li>
                 {%- endif -%}
