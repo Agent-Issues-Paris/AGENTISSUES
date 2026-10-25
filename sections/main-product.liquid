@@ -9,12 +9,12 @@
     <div class="product-gallery">
       <div class="product-gallery__main">
         {%- if product.featured_image -%}
-          {{ product.featured_image | image_url: width: 1600 | image_tag: data-main-image: '', alt: product.title, sizes: '(max-width: 700px) 100vw, 50vw', widths: '600, 1000, 1600' }}
+          {{ product.featured_image | image_url: width: 1600 | image_tag: data-main-image: '', alt: product.featured_image.alt | default: product.title, sizes: '(max-width: 700px) 100vw, 50vw', widths: '600, 1000, 1600' }}
         {%- endif -%}
       </div>
       <div class="product-gallery__thumbs">
         {%- for image in product.images -%}
-          <button type="button" class="product-thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ image | image_url: width: 1600 }}">
+          <button type="button" class="product-thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ image | image_url: width: 1600 }}" data-alt="{{ image.alt | default: product.title | escape }}" aria-label="Show photo {{ forloop.index }} of {{ product.images.size }}">
             {{ image | image_url: width: 200 | image_tag: alt: '' }}
           </button>
         {%- endfor -%}
@@ -44,12 +44,16 @@
             {%- endfor -%}
           </div>
         </div>
+        {%- assign option_handle = option_name | handleize -%}
+        {%- if option_handle contains 'size' -%}{% render 'size-guide' %}{%- endif -%}
       {%- endunless -%}
 
       {% render 'qty-cart-controls' %}
 
       <div class="info-box price-box"><p data-price-box>{{ current_variant.price | money }}</p></div>
       <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}This option is sold out.{% endunless %}</p>
+
+      {% render 'specs-box', product: product %}
     {%- endform -%}
   </div>
 </section>

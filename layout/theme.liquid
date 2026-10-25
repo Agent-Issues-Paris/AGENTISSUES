@@ -6,18 +6,35 @@
 <link rel="canonical" href="{{ canonical_url }}">
 {%- if settings.favicon != blank -%}
   <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 64, height: 64 }}">
+{%- else -%}
+  <link rel="icon" type="image/png" href="{{ 'favicon.png' | asset_url }}">
 {%- endif -%}
-<title>
-  {%- if template.name == 'index' -%}
-    {{ shop.name }}
-  {%- else -%}
-    {{ page_title }} | {{ shop.name }}
-  {%- endif -%}
-</title>
-{%- if page_description != blank -%}
-  <meta name="description" content="{{ page_description | escape }}">
+<link rel="apple-touch-icon" href="{{ 'apple-touch-icon.png' | asset_url }}">
+{%- liquid
+  assign meta_title = page_title
+  assign meta_description = page_description
+  if template.name == 'index'
+    assign meta_title = settings.home_title | default: page_title | default: shop.name
+    assign meta_description = settings.home_description | default: page_description
+  elsif page_title contains shop.name
+    assign meta_title = page_title
+  else
+    assign meta_title = page_title | append: ' | ' | append: shop.name
+  endif
+-%}
+<title>{{ meta_title | escape }}</title>
+{%- comment -%}
+  Safari drops the start of a tab title when it matches the domain
+  (agentissues.net), so "Agent Issues / ..." showed without the brand.
+  A zero-width space in front of the tab title keeps the brand in the tab.
+{%- endcomment -%}
+<script>
+  if (document.title.indexOf('Agent Issues') === 0) document.title = '\u200B' + document.title;
+</script>
+{%- if meta_description != blank -%}
+  <meta name="description" content="{{ meta_description | escape }}">
 {%- endif -%}
-{% render 'meta-tags' %}
+{% render 'meta-tags', title: meta_title, description: meta_description %}
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ content_for_header }}
 {%- if request.page_type == 'index' -%}
@@ -25,10 +42,12 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": {{ shop.name | json }},
+      "name": "Agent Issues",
       "url": {{ shop.url | json }},
       "logo": {{ 'logo-agent-issues.png' | asset_url | prepend: 'https:' | json }},
       "email": {{ shop.email | json }},
+      "description": {{ meta_description | json }},
+      "address": { "@type": "PostalAddress", "addressLocality": "Paris", "addressCountry": "FR" },
       "sameAs": ["https://www.instagram.com/agent.issues/"]
     }
   </script>

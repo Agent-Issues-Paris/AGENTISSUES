@@ -22,24 +22,26 @@
   {%- if is_legacy == false -%}
     {%- for image in product.images -%}
       {%- capture img_class -%}{% if image.aspect_ratio < 1 %}portrait{% endif %}{%- endcapture -%}
-      {{ image | image_url: width: 2000 | image_tag: class: img_class, alt: image.alt, data-strip-center: forloop.first, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
+      {%- capture image_alt -%}{{ image.alt | default: product.title }}{% if image.alt == blank %}, photo {{ forloop.index }}{% endif %}{%- endcapture -%}
+      {{ image | image_url: width: 2000 | image_tag: class: img_class, alt: image_alt, data-strip-center: forloop.first, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
     {%- endfor -%}
   {%- elsif section.blocks.size > 0 -%}
     {%- for block in section.blocks -%}
       {%- if block.settings.image != blank -%}
         {%- capture img_class -%}{% if block.settings.portrait %}portrait{% endif %}{%- endcapture -%}
-        {{ block.settings.image | image_url: width: 2000 | image_tag: class: img_class, alt: block.settings.image.alt, data-strip-center: block.settings.center, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
+        {{ block.settings.image | image_url: width: 2000 | image_tag: class: img_class, alt: block.settings.image.alt | default: product.title, data-strip-center: block.settings.center, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
       {%- endif -%}
     {%- endfor -%}
   {%- else -%}
-    <img class="portrait" src="{{ 'ISSUE1.png' | asset_url }}" width="912" height="1193" alt="{{ product.title | escape }} cover">
-    <img class="portrait" src="{{ 'ISSUE1.2.png' | asset_url }}" width="918" height="1194" alt="{{ product.title | escape }} cover, alternate crop">
-    <img src="{{ 'spread-nastya.jpg' | asset_url }}" width="1800" height="1349" alt="">
-    <img class="portrait" src="{{ 'spread-nastya-mock.jpg' | asset_url }}" width="1600" height="1828" alt="">
-    <img src="{{ 'spread-moods.jpg' | asset_url }}" width="1800" height="1350" alt="">
-    <img src="{{ 'spread-mokrov.jpg' | asset_url }}" width="1800" height="1350" alt="Issue spread" data-strip-center="true">
-    <img src="{{ 'spread-fake.jpg' | asset_url }}" width="1800" height="1350" alt="">
-    <img class="portrait" src="{{ 'spread-raph.jpg' | asset_url }}" width="1600" height="1828" alt="">
+    {%- comment -%} Bundled Issue 1 art: WebP, full size plus a half-size copy for phones. {%- endcomment -%}
+    <img class="portrait" src="{{ 'issue1-cover.webp' | asset_url }}" srcset="{{ 'issue1-cover-600.webp' | asset_url }} 600w, {{ 'issue1-cover.webp' | asset_url }} 912w" sizes="(max-width: 700px) 100vw, 60vw" width="912" height="1193" alt="Agent Issues Issue 01 'I Heart INSPO' front cover: a man in a patterned shirt walks down a street, photo by Raphaël Lugassy">
+    <img class="portrait" src="{{ 'issue1-cover-alt.webp' | asset_url }}" srcset="{{ 'issue1-cover-alt-600.webp' | asset_url }} 600w, {{ 'issue1-cover-alt.webp' | asset_url }} 918w" sizes="(max-width: 700px) 100vw, 60vw" width="918" height="1194" alt="Agent Issues Issue 01 back cover with a Lewis Dussurget ad">
+    <img src="{{ 'spread-nastya.webp' | asset_url }}" srcset="{{ 'spread-nastya-900.webp' | asset_url }} 900w, {{ 'spread-nastya.webp' | asset_url }} 1800w" sizes="(max-width: 700px) 100vw, 60vw" width="1800" height="1349" alt="Issue 01 spread: photo collage from the Nastya Livadnova story">
+    <img class="portrait" src="{{ 'spread-nastya-mock.webp' | asset_url }}" srcset="{{ 'spread-nastya-mock-900.webp' | asset_url }} 900w, {{ 'spread-nastya-mock.webp' | asset_url }} 1600w" sizes="(max-width: 700px) 100vw, 60vw" width="1600" height="1828" alt="Issue 01 lying open on the Nastya Livadnova story">
+    <img src="{{ 'spread-moods.webp' | asset_url }}" srcset="{{ 'spread-moods-900.webp' | asset_url }} 900w, {{ 'spread-moods.webp' | asset_url }} 1800w" sizes="(max-width: 700px) 100vw, 60vw" width="1800" height="1350" alt="Issue 01 spread: moodboards by stylist Mizuki Hirano and photographer Mery Hoc">
+    <img src="{{ 'spread-mokrov.webp' | asset_url }}" srcset="{{ 'spread-mokrov-900.webp' | asset_url }} 900w, {{ 'spread-mokrov.webp' | asset_url }} 1800w" sizes="(max-width: 700px) 100vw, 60vw" width="1800" height="1350" alt="Issue 01 spread from A School for Fools, photography by Roman Mokrov: three women by a green pond, a man floats on a red mattress" data-strip-center="true">
+    <img src="{{ 'spread-fake.webp' | asset_url }}" srcset="{{ 'spread-fake-900.webp' | asset_url }} 900w, {{ 'spread-fake.webp' | asset_url }} 1800w" sizes="(max-width: 700px) 100vw, 60vw" width="1800" height="1350" alt="Issue 01 spread: step-by-step photos of scissors cutting a paper snowflake. Taken from FAKE NATURE story by Onek">
+    <img class="portrait" src="{{ 'spread-raph.webp' | asset_url }}" srcset="{{ 'spread-raph-900.webp' | asset_url }} 900w, {{ 'spread-raph.webp' | asset_url }} 1600w" sizes="(max-width: 700px) 100vw, 60vw" width="1600" height="1828" alt="Issue 01 lying open on the Raphaël Lugassy story">
   {%- endif -%}
 {%- endcapture -%}
 
@@ -57,6 +59,7 @@
       <h1 class="issue-heading">{{ product.title | escape }}</h1>
       <p>{{ blurb_html }}</p>
     </div>
+    {% render 'specs-box', product: product, collapsible: true %}
     <div class="info-box price-box">
       <p data-price-box>{{ current_variant.price | money }}</p>
     </div>

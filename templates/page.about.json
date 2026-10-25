@@ -19,22 +19,22 @@
           "type": "box",
           "settings": {
             "heading": "ABOUT US",
-            "text": "We are a Paris based magazine about SOLDADOS that cares about the intersection about SOLDADOS and other SOLDADOS that keep saying might as welllll when shit comes up. We gangster asf."
+            "text": "Agent Issues is an independent print magazine based in Paris. Twice a year we pick one idea and follow it through fashion, art, music, games and the internet until it runs out of road.\n\nEach issue runs 200+ pages, 23 × 30 cm, in English. Half of it is text: long interviews, essays and arguments we lost in the group chat. The other half is images: shoots, spreads and moodboards pulled straight off people's desktops.\n\nIssue 01, 'I ❤️ INSPO', looked at inspiration as status currency: who finds the reference, who copies it and who gets the credit. More than 30 contributors from Paris, Berlin, Tokyo, Montreal, London, Warsaw and Moscow worked on it.\n\nIssue 02 is The Food Issue, and you can pre-order it now.\n\nWe call the people who make the magazine our agents: photographers, stylists, writers, designers and game developers. Want to be one? Write to us."
           }
         },
         "box_2": {
           "type": "box",
           "settings": {
             "heading": "CONTACT",
-            "text": "agentissuesparis@gmail.com\n@agent.issues",
+            "text": "Email: agentissuesparis@gmail.com\nInstagram: @agent.issues",
             "link": "shopify://pages/contact"
           }
         },
         "box_3": {
           "type": "box",
           "settings": {
-            "heading": "STOCKIST",
-            "text": ". Soldado store, Rue de Notre Dame 46\n. Piola los Pibes, 9 Rue de Meissioneir"
+            "heading": "STOCKISTS",
+            "text": "Cahier Central, Paris | https://cahiercentral.com\nProphet Vision, Paris | https://prophet.vision\nLebigmag, Moscow | https://lebigmag.ru\nMore to come!"
           }
         }
       },

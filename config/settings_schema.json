@@ -3,7 +3,7 @@
     "name": "theme_info",
     "theme_name": "Agent Issues",
     "theme_version": "0.2.0",
-    "theme_author": "Agent Issues Paris",
+    "theme_author": "Agent Issues",
     "theme_documentation_url": "https://github.com/Agent-Issues-Paris/AGENTISSUES/tree/shopify-theme",
     "theme_support_url": "https://github.com/Agent-Issues-Paris/AGENTISSUES"
   },
@@ -82,6 +82,20 @@
     "name": "Sharing",
     "settings": [
       {
+        "type": "text",
+        "id": "home_title",
+        "label": "Home page title (search results)",
+        "default": "Agent Issues / Independent Fashion & Art Magazine, Paris",
+        "info": "About 60 characters. Leave empty to use Online Store → Preferences."
+      },
+      {
+        "type": "textarea",
+        "id": "home_description",
+        "label": "Home page description (search results)",
+        "default": "Agent Issues is an independent print magazine from Paris on fashion, art, games and internet culture. 200+ pages, half text, half image. Preorder Issue 02 now!",
+        "info": "About 155 characters. Leave empty to use Online Store → Preferences."
+      },
+      {
         "type": "image_picker",
         "id": "share_image",
         "label": "Default social sharing image",
@@ -90,7 +104,36 @@
       {
         "type": "image_picker",
         "id": "favicon",
-        "label": "Favicon"
+        "label": "Favicon",
+        "info": "Leave empty to use the bundled Agent mark."
+      }
+    ]
+  },
+  {
+    "name": "Product pages",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "SPECS box: add a product metafield custom.specs (Multi-line text) and fill it per product, one \"Label: value\" per line."
+      },
+      {
+        "type": "textarea",
+        "id": "shipping_note",
+        "label": "Shipping note under SPECS",
+        "info": "Same for every product. Leave empty to hide."
+      },
+      {
+        "type": "textarea",
+        "id": "size_chart",
+        "label": "Size guide",
+        "default": "SIZE | WIDTH | LENGTH\nS | 46.5 cm | 68.5 cm\nM | 51 cm | 71 cm\nL | 56 cm | 73.5 cm",
+        "info": "One row per line, cells split by |. The first line is the header. Shown on products with a Size option."
+      },
+      {
+        "type": "textarea",
+        "id": "size_chart_note",
+        "label": "Size guide note",
+        "default": "Width: armpit to armpit, laid flat. Length: top of the shoulder to the hem. Fruit of the Loom Heavy Cotton, classic fit. Allow ±2 cm."
       }
     ]
   },
