@@ -1,12 +1,17 @@
 {%- comment -%}
   Quantity and remove buttons are handled by theme.js (POST /cart/change.js,
   then reload). Checkout is a normal form submit.
+  Below the cart (or the empty-cart note): products from the shop that are
+  not in the cart yet.
 {%- endcomment -%}
 {%- assign shop_url = collections.shop.url | default: routes.all_products_collection_url -%}
 <h1 class="visually-hidden">Cart</h1>
 <section class="cart-page">
   {%- if cart.item_count == 0 -%}
-    <p class="product-loading">Your cart is empty. <a href="{{ shop_url }}">Go to shop</a>.</p>
+    <div class="info-box cart-empty">
+      <h2>YOUR CART IS EMPTY</h2>
+      <p><a href="{{ shop_url }}">GO TO SHOP →</a></p>
+    </div>
   {%- else -%}
     <form action="{{ routes.cart_url }}" method="post" novalidate>
       <div class="cart-lines">
@@ -23,12 +28,12 @@
                 {%- unless item.product.has_only_default_variant %} ({{ item.variant.title | escape }}){% endunless -%}
               </p>
               <div class="qty">
-                <button type="button" class="cart-qty-minus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity"{% if item.quantity <= 1 %} disabled{% endif %}>-</button>
+                <button type="button" class="cart-qty-minus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity"{% if item.quantity <= 1 %} disabled{% endif %}>−</button>
                 <span>{{ item.quantity }}</span>
                 <button type="button" class="cart-qty-plus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | plus: 1 }}" aria-label="Increase quantity">+</button>
               </div>
             </div>
-            <p class="cart-line__price">{{ item.final_price | money }}</p>
+            <p class="cart-line__price">{{ item.quantity }} × {{ item.final_price | money }}</p>
             <button type="button" class="cart-line__remove" data-cart-change="{{ forloop.index }}" data-quantity="0" aria-label="Remove">×</button>
           </div>
         {%- endfor -%}
@@ -39,17 +44,57 @@
         <span>{{ cart.total_price | money }}</span>
       </div>
 
-      <div class="cart-controls">
+      <div class="cart-controls cart-controls--page">
         <div class="info-box"><a class="cart-continue" href="{{ shop_url }}">CONTINUE SHOPPING</a></div>
-        <div class="info-box"><button type="submit" name="checkout">CHECKOUT</button></div>
+        <div class="info-box info-box--primary"><button type="submit" name="checkout">CHECKOUT</button></div>
       </div>
     </form>
   {%- endif -%}
 </section>
 
+{%- liquid
+  assign in_cart = cart.items | map: 'product_id' | join: ','
+  assign in_cart = ',' | append: in_cart | append: ','
+  assign picks = collections.all.products | sort: 'created_at' | reverse
+  assign shown = 0
+-%}
+{%- capture pick_cards -%}
+  {%- for product in picks -%}
+    {%- if shown >= section.settings.picks_limit -%}{%- break -%}{%- endif -%}
+    {%- assign key = ',' | append: product.id | append: ',' -%}
+    {%- if in_cart contains key or product.available == false -%}{%- continue -%}{%- endif -%}
+    {% render 'product-card', product: product, tee: true %}
+    {%- assign shown = shown | plus: 1 -%}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if shown > 0 -%}
+  <section class="cart-picks">
+    <div class="info-box cart-picks__heading">
+      <h2><a href="{{ shop_url }}">{{ section.settings.picks_heading | escape }}</a></h2>
+    </div>
+    <div class="columns">{{ pick_cards }}</div>
+  </section>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "Cart",
-  "settings": []
+  "settings": [
+    {
+      "type": "text",
+      "id": "picks_heading",
+      "label": "Heading above products from the shop",
+      "default": "YOU MIGHT LIKE..."
+    },
+    {
+      "type": "range",
+      "id": "picks_limit",
+      "label": "Products from the shop",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    }
+  ]
 }
 {% endschema %}
