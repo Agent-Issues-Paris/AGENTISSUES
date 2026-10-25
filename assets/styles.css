@@ -820,6 +820,7 @@ main {
 
 .info-row.info-row--top {
   margin: 0 10px;
+  align-items: start; /* each box only as tall as its text (About page) */
 }
 
 .info-box {

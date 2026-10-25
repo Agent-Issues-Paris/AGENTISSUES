@@ -48,8 +48,8 @@
       "block_order": [
         "box_1",
         "box_2",
-        "box_3",
-        "newsletter"
+        "newsletter",
+        "box_3"
       ],
       "settings": {
         "top": false
