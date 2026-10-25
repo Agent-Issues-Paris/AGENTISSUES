@@ -1,19 +1,25 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "products": {
       "type": "product-columns",
       "settings": {
-        "limit": 48,
-        "tee_framing": true,
         "all_products": true,
-        "pinned_product": "aagent-issue-01-i-❤️-inspo-fw25-26"
+        "pinned_product": "agent-issues-01-iheartinspo-fw25-26",
+        "limit": 48,
+        "tee_framing": true
       }
     },
     "info": {
       "type": "info-row",
-      "settings": {
-        "top": false
-      },
       "blocks": {
         "box_1": {
           "type": "box",
@@ -26,8 +32,8 @@
           "type": "box",
           "settings": {
             "heading": "CONTACT",
-            "text": "agentissuesparis@gmail.com\n@agent.issues",
-            "link": "shopify://pages/contact"
+            "link": "shopify://pages/contact",
+            "text": "agentissuesparis@gmail.com\n@agent.issues"
           }
         },
         "box_3": {
@@ -47,7 +53,10 @@
         "box_2",
         "box_3",
         "newsletter"
-      ]
+      ],
+      "settings": {
+        "top": false
+      }
     }
   },
   "order": [
