@@ -1628,7 +1628,7 @@ a.star-menu__item {
   line-height: 1;
   padding: 0;
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .qty button:first-child {
@@ -1639,6 +1639,12 @@ a.star-menu__item {
   border-left-width: 1px;
 }
 
+/* hovering the stepper box doesn't light it up; only the square under the
+   pointer fills red */
+.info-box.qty-box:hover {
+  border-color: #000;
+}
+
 .home-hero__control:hover .qty button,
 .cart-controls .info-box:hover .qty button {
   color: #000;
@@ -1647,7 +1653,8 @@ a.star-menu__item {
 .qty button:hover:not(:disabled),
 .home-hero__control:hover .qty button:hover:not(:disabled),
 .cart-controls .info-box:hover .qty button:hover:not(:disabled) {
-  color: red;
+  background: red;
+  color: #fff;
 }
 
 .qty button:disabled {
