@@ -1,0 +1,29 @@
+{%- comment -%}
+  SIZE GUIDE table from Theme settings → Size guide. Each line is one
+  row, cells split by "|"; the first line is the header.
+{%- endcomment -%}
+{%- if settings.size_chart != blank -%}
+  {%- assign rows = settings.size_chart | newline_to_br | split: '<br />' -%}
+  <details class="info-box size-guide">
+    <summary>SIZE GUIDE</summary>
+    <table>
+      {%- for raw in rows -%}
+        {%- assign row = raw | strip -%}
+        {%- if row == blank -%}{%- continue -%}{%- endif -%}
+        {%- assign cells = row | split: '|' -%}
+        <tr>
+          {%- for cell in cells -%}
+            {%- if forloop.parentloop.first -%}
+              <th scope="col">{{ cell | strip | escape }}</th>
+            {%- else -%}
+              <td>{{ cell | strip | escape }}</td>
+            {%- endif -%}
+          {%- endfor -%}
+        </tr>
+      {%- endfor -%}
+    </table>
+    {%- if settings.size_chart_note != blank -%}
+      <p class="size-guide__note">{{ settings.size_chart_note | escape | newline_to_br }}</p>
+    {%- endif -%}
+  </details>
+{%- endif -%}

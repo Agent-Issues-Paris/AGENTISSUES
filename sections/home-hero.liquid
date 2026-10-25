@@ -39,12 +39,12 @@
 
   <a class="home-hero__cover" href="{{ hero.url }}">
     {%- if is_fallback -%}
-      <img class="img-default" src="{{ 'ISSUE1.png' | asset_url }}" width="912" height="1193" alt="{{ hero.title | escape }} cover">
-      <img class="img-hover" src="{{ 'ISSUE1.2.png' | asset_url }}" width="918" height="1194" alt="" aria-hidden="true">
+      <img class="img-default" src="{{ 'issue1-cover.webp' | asset_url }}" srcset="{{ 'issue1-cover-600.webp' | asset_url }} 600w, {{ 'issue1-cover.webp' | asset_url }} 912w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
+      <img class="img-hover" src="{{ 'issue1-cover-alt.webp' | asset_url }}" srcset="{{ 'issue1-cover-alt-600.webp' | asset_url }} 600w, {{ 'issue1-cover-alt.webp' | asset_url }} 918w" sizes="(max-width: 700px) 100vw, 40vw" width="918" height="1194" alt="" aria-hidden="true" loading="lazy">
     {%- else -%}
       {%- assign img2 = hero.images[1] | default: hero.featured_image -%}
-      {{ hero.featured_image | image_url: width: 1600 | image_tag: class: 'img-default', alt: hero.title, widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
-      {{ img2 | image_url: width: 1600 | image_tag: class: 'img-hover', alt: '', aria-hidden: 'true', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
+      {{ hero.featured_image | image_url: width: 1600 | image_tag: class: 'img-default', alt: hero.featured_image.alt | default: hero.title, fetchpriority: 'high', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
+      {{ img2 | image_url: width: 1600 | image_tag: class: 'img-hover', alt: '', aria-hidden: 'true', loading: 'lazy', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
     {%- endif -%}
     {%- comment -%} The whole cover links to the issue page; the sticker says so. {%- endcomment -%}
     <span class="look-inside-sticker">← LOOK INSIDE</span>

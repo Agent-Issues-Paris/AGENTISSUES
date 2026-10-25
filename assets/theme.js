@@ -129,11 +129,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  var credits = document.querySelector('.credits-box');
-  if (!credits) return;
+  // contributors and specs: open on desktop, tap to expand on phones
+  var boxes = document.querySelectorAll('.credits-box, [data-desktop-open]');
+  if (!boxes.length) return;
 
   function sync() {
-    credits.open = window.innerWidth > 700;
+    Array.prototype.forEach.call(boxes, function (box) {
+      box.open = window.innerWidth > 700;
+    });
   }
 
   sync();
@@ -569,6 +572,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (mainImage) {
         mainImage.removeAttribute('srcset');
         mainImage.src = btn.getAttribute('data-src');
+        mainImage.alt = btn.getAttribute('data-alt') || '';
       }
     });
   });
