@@ -1531,3 +1531,19 @@ a.star-menu__item {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* ---------- logo clearance ---------- */
+/* The centred logo hangs below the header. On pages where text sits under
+   it, start the content below the logo (theme.js measures --logo-bottom).
+   Home, shop and issue pages keep images under the logo on purpose. */
+@media (min-width: 701px) {
+  .page-type-product.page-product main,
+  .page-type-cart main,
+  .page-type-page main,
+  .page-type-policy main,
+  .page-type-search main,
+  .page-type-404 main,
+  .page-type-list-collections main {
+    padding-top: calc(max(var(--header-h, 110px), var(--logo-bottom, 150px)) + 14px);
+  }
+}
