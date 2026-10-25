@@ -28,15 +28,12 @@
                 {%- unless item.product.has_only_default_variant %} ({{ item.variant.title | escape }}){% endunless -%}
               </p>
               <div class="qty">
-                <button type="button" class="cart-qty-minus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity"{% if item.quantity <= 1 %} disabled{% endif %}>-</button>
+                <button type="button" class="cart-qty-minus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity"{% if item.quantity <= 1 %} disabled{% endif %}>−</button>
                 <span>{{ item.quantity }}</span>
                 <button type="button" class="cart-qty-plus" data-cart-change="{{ forloop.index }}" data-quantity="{{ item.quantity | plus: 1 }}" aria-label="Increase quantity">+</button>
               </div>
             </div>
-            <p class="cart-line__price">
-              <span class="cart-line__unit">{{ item.quantity }} × {{ item.final_price | money }}</span>
-              {%- if item.quantity > 1 %}<br>{{ item.final_line_price | money }}{% endif -%}
-            </p>
+            <p class="cart-line__price">{{ item.quantity }} × {{ item.final_price | money }}</p>
             <button type="button" class="cart-line__remove" data-cart-change="{{ forloop.index }}" data-quantity="0" aria-label="Remove">×</button>
           </div>
         {%- endfor -%}
@@ -87,7 +84,7 @@
       "type": "text",
       "id": "picks_heading",
       "label": "Heading above products from the shop",
-      "default": "FROM THE SHOP"
+      "default": "YOU MIGHT LIKE..."
     },
     {
       "type": "range",

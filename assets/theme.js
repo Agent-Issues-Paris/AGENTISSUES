@@ -459,7 +459,9 @@ document.addEventListener('DOMContentLoaded', function () {
     agentCartAdd(variantId, 1).then(function () {
       btn.textContent = 'ADDED!';
       // on the cart page the new line has to show up in the list
-      if (document.querySelector('.cart-page')) window.location.reload();
+      if (document.querySelector('.cart-page')) {
+        rerenderCartSection().catch(function () { window.location.reload(); });
+      }
     }).catch(function (err) {
       console.error('Quick add failed', err);
       btn.textContent = 'TRY AGAIN';
@@ -618,20 +620,37 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// Cart page: re-render just the cart section (Shopify Section Rendering API)
+// instead of reloading the page. Resolves false when there is no cart section.
+function rerenderCartSection() {
+  var section = document.querySelector('.cart-page');
+  section = section && section.closest('.shopify-section');
+  if (!section) return Promise.resolve(false);
+  var id = section.id.replace('shopify-section-', '');
+  // no Accept: application/json here, or /cart answers with the cart itself
+  return fetch(agentRoot() + 'cart?sections=' + encodeURIComponent(id))
+    .then(function (res) { return res.json(); })
+    .then(function (json) {
+      var doc = new DOMParser().parseFromString(json[id], 'text/html');
+      var fresh = doc.getElementById(section.id);
+      if (!fresh) throw new Error('No section in response');
+      section.classList.add('is-rerendered'); // no rise-in replay
+      section.innerHTML = fresh.innerHTML;
+      return refreshCartBadge();
+    })
+    .then(function () { return true; });
+}
+
 // Cart page: +/- and remove.
-document.addEventListener('DOMContentLoaded', function () {
-  Array.prototype.forEach.call(document.querySelectorAll('[data-cart-change]'), function (btn) {
-    btn.addEventListener('click', function () {
-      btn.disabled = true;
-      var body = new FormData();
-      body.append('line', btn.getAttribute('data-cart-change'));
-      body.append('quantity', btn.getAttribute('data-quantity'));
-      cartRequest('cart/change.js', body).then(function () {
-        window.location.reload();
-      }).catch(function () {
-        btn.disabled = false;
-      });
-    });
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('[data-cart-change]');
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  var body = new FormData();
+  body.append('line', btn.getAttribute('data-cart-change'));
+  body.append('quantity', btn.getAttribute('data-quantity'));
+  cartRequest('cart/change.js', body).then(rerenderCartSection).catch(function () {
+    window.location.reload();
   });
 });
 
