@@ -4,6 +4,7 @@
   line (or </p>), lines by <br>. The paragraph that starts with
   "Contributors:" and everything after it are the credits; the
   "Contributors:" line itself is dropped (the box has its own heading).
+  @handles in the credits become Instagram links.
   Accepts:
   - html {String} product.description
   - part {String} 'blurb' (lines joined by <br>, paragraphs by <br><br>)
@@ -45,7 +46,7 @@
     assign para = ''
   endfor
   if part == 'credits'
-    echo credits
+    render 'instagram-handles', html: credits
   else
     echo blurb
   endif

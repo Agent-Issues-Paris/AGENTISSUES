@@ -1,13 +1,25 @@
+{%- capture issue_url -%}{% render 'current-issue-url' %}{%- endcapture -%}
+{%- assign shop_url = collections.shop.url | default: routes.all_products_collection_url -%}
+<h1 class="visually-hidden">Page not found</h1>
 <section class="info-row info-row--top">
   <div class="info-box">
     <h2>NOT FOUND</h2>
-    <p>This page does not exist. <a href="{{ routes.root_url }}">Back to home</a>.</p>
+    <p>This page does not exist.</p>
+    <ul class="policy-links not-found-links">
+      {%- if issue_url != blank -%}<li><a href="{{ issue_url }}">{{ section.settings.issue_label | escape }}</a></li>{%- endif -%}
+      <li><a href="{{ shop_url }}">{{ section.settings.shop_label | escape }}</a></li>
+      <li><a href="{{ routes.root_url }}">{{ section.settings.home_label | escape }}</a></li>
+    </ul>
   </div>
 </section>
 
 {% schema %}
 {
   "name": "404",
-  "settings": []
+  "settings": [
+    { "type": "text", "id": "issue_label", "label": "Current issue link", "default": "SEE THE CURRENT ISSUE →" },
+    { "type": "text", "id": "shop_label", "label": "Shop link", "default": "GO TO SHOP →" },
+    { "type": "text", "id": "home_label", "label": "Home link", "default": "BACK TO HOME →" }
+  ]
 }
 {% endschema %}

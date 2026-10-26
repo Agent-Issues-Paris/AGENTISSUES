@@ -1,0 +1,22 @@
+{%- comment -%}
+  A text where lines are written "Name, City | https://..." as a list of
+  links (stockists); only the name is the link. Other lines stay plain.
+  Accepts: text {String}
+{%- endcomment -%}
+{%- assign lines = text | newline_to_br | split: '<br />' -%}
+<ul class="policy-links">
+  {%- for raw in lines -%}
+    {%- assign line = raw | strip | remove_first: '. ' -%}
+    {%- if line == blank -%}{%- continue -%}{%- endif -%}
+    {%- assign parts = line | split: ' | ' -%}
+    {%- assign url = parts.last | strip -%}
+    {%- if parts.size > 1 and url contains 'http' -%}
+      {%- assign label = parts.first | strip -%}
+      {%- assign name = label | split: ', ' | first -%}
+      {%- assign rest = label | remove_first: name -%}
+      <li><a href="{{ url | escape }}" rel="noopener">{{ name | escape }}</a>{{ rest | escape }}</li>
+    {%- else -%}
+      <li>{{ line | escape }}</li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>

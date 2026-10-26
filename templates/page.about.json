@@ -19,7 +19,7 @@
           "type": "box",
           "settings": {
             "heading": "ABOUT US",
-            "text": "Agent Issues is an independent print magazine based in Paris. Twice a year we pick one idea and follow it through fashion, art, music, games and the internet until it runs out of road.\n\nEach issue runs 200+ pages, 23 × 30 cm, in English. Half of it is text: long interviews, essays and arguments we lost in the group chat. The other half is images: shoots, spreads and moodboards pulled straight off people's desktops.\n\nIssue 01, 'I ❤️ INSPO', looked at inspiration as status currency: who finds the reference, who copies it and who gets the credit. More than 30 contributors from Paris, Berlin, Tokyo, Montreal, London, Warsaw and Moscow worked on it.\n\nIssue 02 is The Food Issue, and you can pre-order it now.\n\nWe call the people who make the magazine our agents: photographers, stylists, writers, designers and game developers. Want to be one? Write to us."
+            "text": "Agent Issues is an independent print magazine based in Paris. Twice a year we pick one idea and follow it through fashion, art, music, games and the internet until it runs out of road.\n\nEach issue runs 200+ pages, 23 × 30 cm, in English. Half of it is text: long interviews, essays and arguments we lost in the group chat. The other half is images: shoots, spreads and moodboards pulled straight off people's desktops.\n\nIssue 01, 'I ❤️ INSPO', looked at inspiration as status currency: who finds the reference, who copies it and who gets the credit. More than 30 contributors from Paris, Berlin, Tokyo, Montreal, London, Warsaw and Moscow worked on it.\n\nIssue 02 is The Food Issue, and you can [pre-order it now](issue).\n\nWe call the people who make the magazine our agents: photographers, stylists, writers, designers and game developers. Want to be one? Write to us."
           }
         },
         "box_2": {
@@ -47,10 +47,71 @@
     "main": {
       "type": "main-page",
       "settings": {}
+    },
+    "faq": {
+      "type": "faq",
+      "settings": {
+        "heading": "Q&A",
+        "column": "left",
+        "only_page": ""
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "WHAT IS AGENT ISSUES?",
+            "answer": "A print magazine we make in Paris. Twice a year we pick one idea and follow it through fashion, art, music, games and the internet."
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "WHAT'S IN AN ISSUE?",
+            "answer": "200+ pages, 23 × 30 cm, in English. Half of it is text: long interviews and essays. The other half is images: shoots, spreads and the moodboards behind them."
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "WHERE CAN I BUY IT?",
+            "answer": "Right here, or in person at Cahier Central and Prophet Vision in Paris and Lebigmag in Moscow."
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "DO YOU SHIP TO MY COUNTRY?",
+            "answer": "Put an issue in your cart and go to checkout. You'll see whether we ship to you and what it costs before you pay anything."
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "CAN I CONTRIBUTE?",
+            "answer": "Yes. Send us your work and an idea for the next issue at [agentissuesparis@gmail.com](mailto:agentissuesparis@gmail.com). Photographers, stylists, writers, designers and game developers make the magazine with us."
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "I RUN A SHOP. CAN I STOCK IT?",
+            "answer": "Write to us with your shop's name and city, and we'll send you stockist prices."
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ]
     }
   },
   "order": [
     "info",
-    "main"
+    "main",
+    "faq"
   ]
 }

@@ -1,0 +1,86 @@
+{%- comment -%}
+  Site-wide JSON-LD for search engines and AI search:
+  - home page: Organization (who publishes the magazine) and WebSite
+  - product, collection and content pages: BreadcrumbList (Home → ... → page)
+  Products also get Product data from their own sections, and issues a
+  PublicationIssue (main-product-issue).
+  Accepts: meta_description {String}
+{%- endcomment -%}
+{%- if request.page_type == 'index' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": {{ shop.url | append: '/#organization' | json }},
+          "name": "Agent Issues",
+          "url": {{ shop.url | json }},
+          "logo": {{ 'logo-agent-issues.png' | asset_url | prepend: 'https:' | json }},
+          "email": {{ shop.email | json }},
+          "description": {{ meta_description | json }},
+          "foundingLocation": { "@type": "Place", "name": "Paris, France" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Paris", "addressCountry": "FR" },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "email": {{ shop.email | json }},
+            "availableLanguage": ["English", "French"]
+          },
+          "sameAs": ["https://www.instagram.com/agent.issues/"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": {{ shop.url | append: '/#website' | json }},
+          "name": "Agent Issues",
+          "url": {{ shop.url | json }},
+          "inLanguage": "en",
+          "publisher": { "@id": {{ shop.url | append: '/#organization' | json }} }
+        }
+      ]
+    }
+  </script>
+{%- else -%}
+  {%- liquid
+    assign crumb_name = ''
+    assign crumb_url = ''
+    assign mid_name = ''
+    assign mid_url = ''
+    case request.page_type
+      when 'product'
+        assign crumb_name = product.title
+        assign crumb_url = product.url
+        capture is_issue
+          render 'is-issue', product: product
+        endcapture
+        unless is_issue contains 'true'
+          assign shop_collection = collections.shop
+          if shop_collection != blank
+            assign mid_name = shop_collection.title
+            assign mid_url = shop_collection.url
+          endif
+        endunless
+      when 'collection'
+        assign crumb_name = collection.title
+        assign crumb_url = collection.url
+      when 'page'
+        assign crumb_name = page.title
+        assign crumb_url = page.url
+    endcase
+  -%}
+  {%- if crumb_name != blank -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ shop.url | json }} },
+          {%- if mid_name != blank %}
+          { "@type": "ListItem", "position": 2, "name": {{ mid_name | json }}, "item": {{ shop.url | append: mid_url | json }} },
+          {%- endif %}
+          { "@type": "ListItem", "position": {% if mid_name != blank %}3{% else %}2{% endif %}, "name": {{ crumb_name | json }}, "item": {{ shop.url | append: crumb_url | json }} }
+        ]
+      }
+    </script>
+  {%- endif -%}
+{%- endif -%}

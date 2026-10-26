@@ -3,6 +3,14 @@
   if section.settings.shop_collection != blank
     assign shop_url = section.settings.shop_collection.url
   endif
+  # the ticker follows the home page hero unless a link is set
+  assign ticker_url = section.settings.ticker_link
+  if ticker_url == blank
+    capture ticker_url
+      render 'current-issue-url'
+    endcapture
+  endif
+
   assign about_url = routes.root_url | append: 'pages/about'
   if section.settings.about_page != blank
     assign about_url = section.settings.about_page.url
@@ -35,8 +43,8 @@
   <div class="brand-row">
     {%- if section.settings.ticker_text != blank -%}
       {%- capture ticker_line -%}{% for i in (1..10) %}{{ section.settings.ticker_text | escape }} - {% endfor %}{%- endcapture -%}
-      {%- if section.settings.ticker_link != blank -%}
-        <a class="ticker" href="{{ section.settings.ticker_link }}" aria-label="{{ section.settings.ticker_text | escape }}">
+      {%- if ticker_url != blank -%}
+        <a class="ticker" href="{{ ticker_url }}" aria-label="{{ section.settings.ticker_text | escape }}">
       {%- else -%}
         <div class="ticker" role="marquee" aria-label="{{ section.settings.ticker_text | escape }}">
       {%- endif -%}
@@ -44,7 +52,7 @@
           <span>{{ ticker_line }}</span>
           <span>{{ ticker_line }}</span>
         </div>
-      {%- if section.settings.ticker_link != blank -%}</a>{%- else -%}</div>{%- endif -%}
+      {%- if ticker_url != blank -%}</a>{%- else -%}</div>{%- endif -%}
     {%- else -%}
       <a class="brand-title" href="{{ routes.root_url }}"><span class="brand-title__a">a</span>gent</a>
     {%- endif -%}
@@ -83,7 +91,7 @@
       "type": "url",
       "id": "ticker_link",
       "label": "Ticker link",
-      "info": "Where a click on the ticker goes, e.g. the preorder product."
+      "info": "Leave empty to link to the current issue: the newest product in the Home page collection, the same one the home hero shows."
     },
     {
       "type": "image_picker",

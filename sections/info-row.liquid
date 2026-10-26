@@ -34,7 +34,7 @@
           {%- form 'customer', class: 'newsletter-form', id: form_id -%}
             <input type="hidden" name="contact[tags]" value="newsletter">
             {%- if form.posted_successfully? -%}
-              <p>{{ block.settings.success | escape }}</p>
+              <p data-newsletter-success>{{ block.settings.success | escape }}</p>
             {%- else -%}
               {%- if block.settings.text != blank -%}<p>{{ block.settings.text | escape | newline_to_br }}</p>{%- endif -%}
               <div class="newsletter-form__row">
@@ -50,26 +50,9 @@
             list of links (stockists); plain text stays a paragraph.
           {%- endcomment -%}
           {%- if block.settings.text contains ' | http' -%}
-            {%- assign lines = block.settings.text | newline_to_br | split: '<br />' -%}
-            <ul class="policy-links">
-              {%- for raw in lines -%}
-                {%- assign line = raw | strip | remove_first: '. ' -%}
-                {%- if line == blank -%}{%- continue -%}{%- endif -%}
-                {%- assign parts = line | split: ' | ' -%}
-                {%- assign url = parts.last | strip -%}
-                {%- if parts.size > 1 and url contains 'http' -%}
-                  {%- comment -%} Only the name is the link: "Name, City" {%- endcomment -%}
-                  {%- assign label = parts.first | strip -%}
-                  {%- assign name = label | split: ', ' | first -%}
-                  {%- assign rest = label | remove_first: name -%}
-                  <li><a href="{{ url | escape }}" rel="noopener">{{ name | escape }}</a>{{ rest | escape }}</li>
-                {%- else -%}
-                  <li>{{ line | escape }}</li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
+            {% render 'link-list', text: block.settings.text %}
           {%- else -%}
-            <p>{{ block.settings.text | escape | newline_to_br }}</p>
+            <p>{% render 'box-text', text: block.settings.text %}</p>
           {%- endif -%}
       {%- endcase -%}
     </div>
@@ -101,7 +84,7 @@
       "settings": [
         { "type": "text", "id": "heading", "label": "Heading", "default": "HEADING" },
         { "type": "url", "id": "link", "label": "Heading link" },
-        { "type": "textarea", "id": "text", "label": "Text", "default": "Text", "info": "Lines written \"Name, City | https://...\" show as a list of links." }
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Text", "info": "Lines written \"Name, City | https://...\" show as a list of links. [words](https://...) makes a link; [words](issue) links to the current issue. @handles link to Instagram." }
       ]
     },
     {

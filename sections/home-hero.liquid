@@ -22,11 +22,14 @@
 {%- capture blurb_html -%}{% render 'issue-text', html: hero.description, part: 'blurb' %}{%- endcapture -%}
 {%- capture credits_html -%}{% render 'issue-text', html: hero.description, part: 'credits' %}{%- endcapture -%}
 
+{%- comment -%} Kept for search engines and screen readers, not shown {%- endcomment -%}
+<h1 class="visually-hidden">{{ section.settings.heading | escape }}</h1>
+
 {%- if hero != blank -%}
 <section class="home-hero">
   <div class="home-hero__info">
     <div class="info-box">
-      <h1 class="issue-title">{{ hero.title | escape }}</h1>
+      <h2 class="issue-title">{{ hero.title | escape }}</h2>
       <p>{{ blurb_html }}</p>
     </div>
     {%- if credits_html != blank -%}
@@ -72,6 +75,13 @@
 {
   "name": "Issue hero",
   "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Page heading (hidden)",
+      "default": "Agent Issues: independent fashion and art print magazine from Paris",
+      "info": "Not shown on the page. Search engines and screen readers read it as the main heading of the home page."
+    },
     {
       "type": "collection",
       "id": "collection",

@@ -1,0 +1,88 @@
+{%- comment -%}
+  Q&A box. On the About page it sits at the bottom of the window, mirroring
+  the boxes at the top, and grows upward as a question opens. Answers
+  also go out as FAQPage structured data for search engines and AI search.
+{%- endcomment -%}
+{%- liquid
+  assign show_row = true
+  if section.settings.only_page != blank
+    if request.page_type != 'page' or page.handle != section.settings.only_page
+      assign show_row = false
+    endif
+  endif
+-%}
+{%- if show_row and section.blocks.size > 0 -%}
+<section class="info-row faq-row">
+  <div class="info-box faq-box faq-box--{{ section.settings.column }}">
+    <h2>{{ section.settings.heading | escape }}</h2>
+    {%- for block in section.blocks -%}
+      <details class="accordion-item" name="faq-{{ section.id }}" {{ block.shopify_attributes }}>
+        <summary>{{ block.settings.question | escape }}</summary>
+        <div class="accordion-item__body"><p>{% render 'box-text', text: block.settings.answer %}</p></div>
+      </details>
+    {%- endfor -%}
+  </div>
+</section>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {%- for block in section.blocks -%}
+        {%- capture answer -%}{% render 'box-text', text: block.settings.answer %}{%- endcapture -%}
+        {
+          "@type": "Question",
+          "name": {{ block.settings.question | json }},
+          "acceptedAnswer": { "@type": "Answer", "text": {{ answer | replace: '<br />', ' ' | strip_html | json }} }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Q&A",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Q&A" },
+    {
+      "type": "select",
+      "id": "column",
+      "label": "Column",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Centre" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "only_page",
+      "label": "Only on page (handle)",
+      "info": "Leave empty to always show. E.g. \"about\" shows the box only on /pages/about."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "QUESTION?" },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Answer.",
+          "info": "[words](https://...) makes a link; [words](issue) links to the current issue. @handles link to Instagram."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    { "name": "Q&A", "blocks": [{ "type": "question" }, { "type": "question" }] }
+  ]
+}
+{% endschema %}

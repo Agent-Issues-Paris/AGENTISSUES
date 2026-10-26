@@ -1237,7 +1237,7 @@ main {
     width: 100%;
     height: auto;
     z-index: auto;
-    padding-bottom: 220px;
+    padding-bottom: 260px; /* clears the bar pinned to the bottom (INFO + buttons) */
   }
 
   .page-issue1 .hero-strip__track {
@@ -1857,7 +1857,7 @@ a.star-menu__item {
   }
 }
 
-/* ---------- SPECS box and size guide ---------- */
+/* ---------- SPECS list and size guide ---------- */
 .specs-list {
   margin: 0;
   font-size: 15px;
@@ -1878,37 +1878,22 @@ a.star-menu__item {
   margin: 0;
 }
 
-.specs-note,
 .size-guide__note {
   margin-top: 8px !important;
 }
 
-.specs-box summary,
 .size-guide summary {
   list-style: none;
   font-weight: 700;
   cursor: pointer;
 }
 
-.specs-box summary::-webkit-details-marker,
 .size-guide summary::-webkit-details-marker {
   display: none;
 }
 
-.specs-box summary:hover,
 .size-guide summary:hover {
   color: red;
-}
-
-/* issue page: the SPECS heading shows on desktop, the summary on phones */
-.specs-box summary {
-  display: none;
-}
-
-.specs-box__heading {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 700;
 }
 
 .size-guide table {
@@ -1926,16 +1911,256 @@ a.star-menu__item {
   text-align: left;
 }
 
+/* ---------- rows that open on tap (product box, Q&A) ---------- */
+/* a line between rows, + / − on the right; the open row's text sits under it */
+.accordion-item + .accordion-item {
+  border-top: 1px solid #000;
+}
+
+.accordion-item summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.accordion-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-item summary::after {
+  content: '+';
+  flex: none;
+}
+
+.accordion-item[open] summary::after {
+  content: '−';
+}
+
+.accordion-item summary:hover {
+  color: red;
+}
+
+.accordion-item__body {
+  padding: 2px 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.accordion-item__body p + p,
+.accordion-item__body p + ul {
+  margin-top: 8px;
+}
+
+/* ---------- product box: specs, delivery, where to buy, contact, policies ---------- */
+.product-box {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.product-box__toggle {
+  display: none; /* phones only: the whole box folds into one INFO row */
+  list-style: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.product-box__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.product-box__toggle::after {
+  content: '+';
+  flex: none;
+}
+
+.product-box[open] > .product-box__toggle::after {
+  content: '−';
+}
+
+.product-box__toggle:hover {
+  color: red;
+}
+
+@media (min-width: 701px) {
+  /* issue page: pinned to the bottom-right corner, as wide as the
+     contributors box above it; it grows upward as a row opens and the
+     contributors box gives up the room (theme.js sets --product-box-h) */
+  .page-issue1 .product-box {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    z-index: 30;
+    width: calc((100vw - 40px) / 3 * 0.66);
+    max-height: calc(100vh - var(--header-h, 110px) - 160px);
+  }
+
+  .page-issue1 .credits-box {
+    max-height: calc(100vh - var(--header-h, 110px) - 20px - var(--product-box-h, 0px));
+  }
+
+  /* regular product page: the box closes the right-hand column, level with
+     the bottom of the photo, so it grows upward too */
+  .page-product .product-layout {
+    align-items: stretch;
+  }
+
+  .page-product .product-box {
+    margin-top: auto;
+  }
+}
+
 @media (max-width: 700px) {
-  .page-issue1 .specs-box {
-    order: 2;
+  .product-box__toggle {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
   }
 
-  .specs-box summary {
-    display: block;
+  .product-box[open] > .product-box__toggle {
+    margin-bottom: 4px;
   }
 
-  .specs-box__heading {
-    display: none;
+  /* issue page: sits above the buttons in the bar pinned to the bottom */
+  .page-issue1 .product-box {
+    max-height: 50vh;
+  }
+}
+
+/* ---------- links written into box texts ([words](url), @handles) ---------- */
+.info-box a.text-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+
+.info-box a.text-link:hover {
+  color: red;
+}
+
+.not-found-links {
+  margin-top: 8px;
+}
+
+/* ---------- Q&A: pinned to the bottom of the window ---------- */
+/* mirrors the boxes at the top of the About page; when the page is shorter
+   than the window the box rests on the bottom edge and grows upward */
+main:has(.faq-row) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main:has(.faq-row) > .shopify-section:has(.faq-row) {
+  margin-top: auto;
+}
+
+.info-row.faq-row {
+  margin: 10px;
+  align-items: end;
+}
+
+.faq-box--left { grid-column: 1; }
+.faq-box--center { grid-column: 2; }
+.faq-box--right { grid-column: 3; }
+
+/* ---------- contact form ---------- */
+.info-row.contact-row {
+  margin-top: 10px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 4px 5px;
+  border: 1px solid #000;
+  border-radius: 0;
+  outline: none;
+  background: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.contact-form input:hover,
+.contact-form input:focus,
+.contact-form textarea:hover,
+.contact-form textarea:focus {
+  border-color: red;
+}
+
+.contact-form__send button {
+  width: 100%;
+  padding: 6px 5px;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.contact-form__send button:hover {
+  background: red;
+  border-color: red;
+}
+
+@media (max-width: 700px) {
+  .faq-box--left,
+  .faq-box--center,
+  .faq-box--right {
+    grid-column: auto;
+  }
+}
+
+/* ---------- keyboard focus ---------- */
+/* only shows when moving with the keyboard (Tab), never on a mouse click */
+:focus-visible {
+  outline: 2px solid red;
+  outline-offset: 2px;
+}
+
+/* ---------- reduced motion ---------- */
+/* visitors who turned on "reduce motion" in their system settings get a
+   still page: no load-in rise, no running ticker, no wiggling stickers */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ticker__track {
+    animation: none !important;
   }
 }

@@ -17,6 +17,10 @@ How to make changes, run previews and open PRs: see [CONTRIBUTING.md](CONTRIBUTI
 
 `shopify.js` (Storefront API client) is gone: product data comes from Liquid, and the cart uses Shopify's own cart (`/cart/add.js`, `/cart/change.js`). Everything else from `script.js` (intro reel, endless issue strip, header scroll) lives in `assets/theme.js`.
 
+## Links in texts
+
+In any box text (About, Contact, Q&A, product box), `[words](https://...)` makes a link and `[words](issue)` links to the current issue: the newest product in the Home page collection, the one the home hero shows. The ticker links there too unless it has its own link. `@handle` becomes an Instagram link, also inside an issue's "Contributors:" credits.
+
 ## Texts
 
 Every text on the site (theme texts, SEO titles and descriptions, product descriptions, SPECS, alt text) lives in the Google Sheet [Agent Issues — тексты сайта](https://docs.google.com/spreadsheets/d/1k2sytR1hYi1cYZafazkjgWl_GLynotWuQq5jatrfC5U/edit). The sheet is the source of truth: change a text there first, then copy it into the theme or Shopify admin.
@@ -29,8 +33,11 @@ Every text on the site (theme texts, SEO titles and descriptions, product descri
 4. **Online Store → Pages → Add page** titled "About" (handle `about`), template `page.about`.
 5. **Settings → Customer privacy → Cookie banner:** turn off Shopify's own banner. The theme shows its own (Theme settings → Cookie banner), wired to Shopify's Customer Privacy API.
 6. **Settings → Policies:** fill in refund, privacy, terms and shipping. They are linked from the POLICIES box and render inside the site frame.
-7. **Settings → Custom data → Products:** add a definition `custom.specs` (Multi-line text) for the SPECS box. One spec per line; "Label: value" lines show with a label.
-8. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
+7. **Settings → Custom data → Products:** add a definition `custom.specs` (Multi-line text) for the SPECS row of the product box. One spec per line; "Label: value" lines show with a label.
+8. **Theme settings → Product info box:** the DELIVERY text (where you ship, how long, when pre-orders go out), WHERE TO BUY and CONTACT rows shown on every product page.
+9. **Online Store → Pages → Add page** titled "Contact" (handle `contact`), default template. The contact form appears on it by itself; messages go to the store email.
+10. **Analytics:** see [docs/analytics](docs/analytics/README.md) for the GA4 custom pixel, the Meta app, Microsoft Clarity and UTM links.
+11. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
 
 ## Local development
 
