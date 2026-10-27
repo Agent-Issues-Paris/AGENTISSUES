@@ -502,13 +502,19 @@ main {
   border: 1px solid #000;
   background: none;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.size-option:hover,
 .size-option.is-selected {
   color: red;
   border-color: red;
+}
+
+/* fills red on hover, like the − / + squares */
+.size-option:hover {
+  background: red;
+  border-color: red;
+  color: #fff;
 }
 
 .size-option.is-disabled {
@@ -518,6 +524,7 @@ main {
 }
 
 .size-option.is-disabled:hover {
+  background: none;
   color: #000;
   border-color: #000;
 }
