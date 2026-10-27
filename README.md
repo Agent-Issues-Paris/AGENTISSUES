@@ -25,6 +25,17 @@ In any box text (About, Contact, Q&A, product box), `[words](https://...)` makes
 
 Every text on the site (theme texts, SEO titles and descriptions, product descriptions, SPECS, alt text) lives in the Google Sheet [Agent Issues — тексты сайта](https://docs.google.com/spreadsheets/d/1k2sytR1hYi1cYZafazkjgWl_GLynotWuQq5jatrfC5U/edit). The sheet is the source of truth: change a text there first, then copy it into the theme or Shopify admin.
 
+Columns on the "Тексты" tab:
+
+| Column | Meaning |
+|---|---|
+| Сейчас на сайте | The text the theme or Shopify admin holds right now, nothing else |
+| Новая версия | A pending change; empty when there is none |
+| Статус | `на сайте`, `ждёт вставки в админку`, `ждёт правки в теме` or `черновик` |
+| Где менять | Theme editor path, admin path or theme file |
+
+When a change ships, move the text from Новая версия to Сейчас на сайте, clear Новая версия and set Статус to `на сайте`. A text added to the theme gets its own row in the same commit.
+
 ## One-time setup in Shopify admin
 
 1. **Sales channels → Online Store** must be enabled.
