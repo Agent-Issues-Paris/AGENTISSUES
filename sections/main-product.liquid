@@ -57,8 +57,6 @@
 
       <div class="info-box price-box"><p data-price-box>{{ current_variant.price | money }}</p></div>
       <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}This option is sold out.{% endunless %}</p>
-
-      {% render 'product-box', product: product %}
     {%- endform -%}
   </div>
 </section>
