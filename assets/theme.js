@@ -653,42 +653,70 @@ document.addEventListener('DOMContentLoaded', function () {
     renders.push(render);
     render();
 
+    var checkoutButton = form.querySelector('[data-checkout]');
+    var checkoutLabel = checkoutButton.textContent;
+
+    // a few words on the clicked button itself, then its own label again
+    function flash(button, text) {
+      var label = button.getAttribute('data-label') || button.textContent;
+      button.setAttribute('data-label', label);
+      button.textContent = text;
+      clearTimeout(button.flashTimer);
+      button.flashTimer = setTimeout(function () { button.textContent = label; }, 1500);
+    }
+
     // product pages start with no size picked
-    function sizePicked() {
+    function sizePicked(button) {
       if (variantInput.value) return true;
       msg.textContent = 'Choose a size first.';
       if (sizeBox) sizeBox.classList.add('is-missing');
+      flash(button, 'CHOOSE A SIZE');
       return false;
     }
 
-    function add(goToCheckout) {
-      if (busy || !sizePicked()) return;
+    function add() {
+      if (busy || !sizePicked(addButton)) return;
       var variantId = variantInput.value;
-      // checkout with the size already in the cart: nothing to add
-      if (goToCheckout && cartQty[variantId]) {
-        agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] });
-        window.location.href = agentRoot() + 'checkout';
-        return;
-      }
       busy = true;
-      msg.textContent = goToCheckout ? 'Preparing checkout...' : 'Adding...';
+      msg.textContent = 'Adding...';
       agentCartAdd(variantId, 1).then(function (item) {
-        agentTrack(goToCheckout ? 'checkout_click' : 'add_to_cart', {
-          source: source, variant_id: String(variantId), quantity: 1
-        });
-        if (goToCheckout) {
-          window.location.href = agentRoot() + 'checkout';
-          return;
-        }
+        agentTrack('add_to_cart', { source: source, variant_id: String(variantId), quantity: 1 });
         cartQty[variantId] = item.quantity;
         renders.forEach(function (r) { r(); });
         msg.textContent = 'Added to cart.';
       }).catch(function (err) {
-        msg.textContent = (goToCheckout ? 'Could not start checkout: ' : 'Could not add to cart: ') + err.message;
+        msg.textContent = 'Could not add to cart: ' + err.message;
       }).then(function () { busy = false; });
     }
 
-    form.querySelector('[data-qty-plus]').addEventListener('click', function () { add(false); });
+    // CHECKOUT is one plain navigation: with the size already in the cart
+    // straight to /checkout, otherwise the form itself posts to /cart/add with
+    // return_to=/checkout. The button says so at once and ignores more clicks
+    // while Shopify's checkout loads (it takes a few seconds).
+    function checkout(e) {
+      if (busy || !sizePicked(checkoutButton)) {
+        e.preventDefault();
+        return;
+      }
+      var variantId = variantInput.value;
+      agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] || 1 });
+      busy = true;
+      checkoutButton.textContent = 'OPENING CHECKOUT...';
+      msg.textContent = '';
+      if (cartQty[variantId]) {
+        e.preventDefault();
+        window.location.href = agentRoot() + 'checkout';
+      }
+    }
+
+    // back from checkout: the page comes from the browser cache, unlock it
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      busy = false;
+      checkoutButton.textContent = checkoutLabel;
+    });
+
+    form.querySelector('[data-qty-plus]').addEventListener('click', add);
 
     form.querySelector('[data-qty-minus]').addEventListener('click', function () {
       if (busy) return;
@@ -718,8 +746,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     form.addEventListener('submit', function (e) {
+      if (e.submitter && e.submitter.hasAttribute('data-checkout')) {
+        checkout(e);
+        return;
+      }
       e.preventDefault();
-      add(Boolean(e.submitter && e.submitter.hasAttribute('data-checkout')));
+      add();
     });
   });
 
