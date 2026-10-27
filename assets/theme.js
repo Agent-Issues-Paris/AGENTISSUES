@@ -581,9 +581,13 @@ function cartRequest(path, body) {
   });
 }
 
+function fetchCart() {
+  return fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+    .then(function (res) { return res.json(); });
+}
+
 function refreshCartBadge() {
-  return fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' } })
-    .then(function (res) { return res.json(); })
+  return fetchCart()
     .then(function (cart) { updateCartBadge(cart.item_count); })
     .catch(function () {});
 }
@@ -689,27 +693,31 @@ document.addEventListener('DOMContentLoaded', function () {
       }).then(function () { busy = false; });
     }
 
-    // CHECKOUT is one plain navigation: with the size already in the cart
-    // straight to /checkout, otherwise the form itself posts to /cart/add with
-    // return_to=/checkout. The button says so at once and ignores more clicks
+    // CHECKOUT reads the real cart first (this page's idea of it can be stale,
+    // e.g. after Back from the cart page), adds the size if it isn't there,
+    // then opens checkout. The button says so at once and ignores more clicks
     // while Shopify's checkout loads (it takes a few seconds).
-    function checkout(e) {
-      if (busy || !sizePicked(checkoutButton)) {
-        e.preventDefault();
-        return;
-      }
+    function checkout() {
+      if (busy || !sizePicked(checkoutButton)) return;
       var variantId = variantInput.value;
-      agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] || 1 });
       busy = true;
       checkoutButton.textContent = 'OPENING CHECKOUT...';
       msg.textContent = '';
-      if (cartQty[variantId]) {
-        e.preventDefault();
+      fetchCart().then(function (cart) {
+        var inCart = cart.items.some(function (item) { return String(item.variant_id) === String(variantId); });
+        return inCart ? cart : agentCartAdd(variantId, 1);
+      }).then(function () {
+        agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] || 1 });
         window.location.href = agentRoot() + 'checkout';
-      }
+      }).catch(function (err) {
+        busy = false;
+        checkoutButton.textContent = checkoutLabel;
+        msg.textContent = 'Could not start checkout: ' + err.message;
+      });
     }
 
-    // back from checkout: the page comes from the browser cache, unlock it
+    // back from checkout or the cart page: the page comes from the browser
+    // cache, so unlock it (the cart itself is re-read below)
     window.addEventListener('pageshow', function (e) {
       if (!e.persisted) return;
       busy = false;
@@ -746,21 +754,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     form.addEventListener('submit', function (e) {
-      if (e.submitter && e.submitter.hasAttribute('data-checkout')) {
-        checkout(e);
-        return;
-      }
       e.preventDefault();
-      add();
+      if (e.submitter && e.submitter.hasAttribute('data-checkout')) checkout();
+      else add();
     });
   });
 
-  // what is already in the cart, so a returning visitor sees the counter
+  // what is already in the cart, so a returning visitor sees the counter;
+  // again on Back, when the page comes from the browser cache
+  function loadCartQty() {
+    fetchCart().then(setCartQty).catch(function () {});
+  }
   if (renders.length) {
-    fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' } })
-      .then(function (res) { return res.json(); })
-      .then(setCartQty)
-      .catch(function () {});
+    loadCartQty();
+    window.addEventListener('pageshow', function (e) { if (e.persisted) loadCartQty(); });
   }
 });
 

@@ -1786,6 +1786,8 @@ a.star-menu__item {
 }
 
 .cart-empty {
+  max-width: 420px; /* a neat box in the middle, not a full-width band */
+  margin: 0 auto;
   padding: 30px 15px;
   text-align: center;
 }
