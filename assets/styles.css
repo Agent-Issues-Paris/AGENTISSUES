@@ -2185,8 +2185,9 @@ main:has(.faq-row) > .shopify-section:has(.faq-row) {
   }
 }
 
-/* ---------- product page: title, size still to pick ---------- */
-.info-box h1.product-title {
+/* ---------- product and issue pages: title, size still to pick ---------- */
+.info-box h1.product-title,
+.info-box h1.issue-heading {
   font-size: 28px;
   line-height: 1.1;
 }
