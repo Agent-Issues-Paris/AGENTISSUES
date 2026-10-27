@@ -3,6 +3,11 @@
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
   assign option_name = product.options.first
+  # No size is picked up front (unless the link names a ?variant=); ADD TO CART asks for one.
+  assign picked_variant = product.selected_variant
+  if product.has_only_default_variant
+    assign picked_variant = current_variant
+  endif
 -%}
 <section class="product-detail">
   <div class="product-layout">
@@ -22,21 +27,21 @@
     </div>
 
     {%- form 'product', product, class: 'product-info', data-product-form: '' -%}
-      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-input>
+      <input type="hidden" name="id" value="{{ picked_variant.id }}" data-variant-input>
 
       <div class="info-box">
-        <h1>{{ product.title | escape }}</h1>
+        <h1 class="product-title">{{ product.title | escape }}</h1>
         <p>{% render 'description-lines', html: product.description %}</p>
       </div>
 
       {%- unless product.has_only_default_variant -%}
-        <div class="info-box">
+        <div class="info-box" data-size-box>
           <h2>{{ option_name | escape }}</h2>
           <div class="size-options" role="radiogroup" aria-label="{{ option_name | escape }}">
             {%- for variant in product.variants -%}
               <button
                 type="button"
-                class="size-option{% if variant.id == current_variant.id %} is-selected{% endif %}{% unless variant.available %} is-disabled{% endunless %}"
+                class="size-option{% if variant.id == picked_variant.id %} is-selected{% endif %}{% unless variant.available %} is-disabled{% endunless %}"
                 data-variant-id="{{ variant.id }}"
                 data-price="{{ variant.price | money | escape }}"
                 {% unless variant.available %}disabled{% endunless %}

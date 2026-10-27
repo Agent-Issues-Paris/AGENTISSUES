@@ -1,16 +1,9 @@
 {%- comment -%}
-  Quantity stepper + ADD TO CART + CHECKOUT, wired up by theme.js.
+  ADD TO CART (turns into a − N IN CART + stepper once the selected variant
+  is in the cart) + CHECKOUT, wired up by theme.js.
   Must sit inside a product form (form 'product').
 {%- endcomment -%}
 <div class="cart-controls">
-  <div class="info-box qty-box">
-    <div class="qty">
-      <button type="button" data-qty-minus aria-label="Decrease quantity">−</button>
-      <span data-qty-value>1</span>
-      <button type="button" data-qty-plus aria-label="Increase quantity">+</button>
-    </div>
-    <input type="hidden" name="quantity" value="1" data-qty-input>
-  </div>
-  <div class="info-box"><button type="submit" data-add-to-cart>ADD TO CART</button></div>
+  {% render 'add-box' %}
   <div class="info-box info-box--primary"><button type="submit" name="return_to" value="/checkout" data-checkout>CHECKOUT</button></div>
 </div>

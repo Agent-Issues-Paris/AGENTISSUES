@@ -329,7 +329,7 @@ main {
 
 .cart-controls {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -1883,9 +1883,22 @@ a.star-menu__item {
 }
 
 .size-guide summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
   list-style: none;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* + / − on the right says the box opens, as in the INFO rows */
+.size-guide summary::after {
+  content: '+';
+  flex: none;
+}
+
+.size-guide[open] summary::after {
+  content: '−';
 }
 
 .size-guide summary::-webkit-details-marker {
@@ -2162,5 +2175,40 @@ main:has(.faq-row) > .shopify-section:has(.faq-row) {
 
   .ticker__track {
     animation: none !important;
+  }
+}
+
+/* ---------- product page: title, size still to pick ---------- */
+.info-box h1.product-title {
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.info-box.is-missing {
+  border-color: red;
+}
+
+/* ---------- ADD TO CART that turns into the in-cart stepper ---------- */
+.add-box [hidden] {
+  display: none !important;
+}
+
+.add-box__add {
+  width: 100%;
+  align-self: stretch;
+}
+
+.add-box .qty span {
+  white-space: nowrap;
+}
+
+/* ---------- issue page: SPECS box in the bottom-right corner ---------- */
+.specs-box__heading {
+  margin: 0 0 8px;
+}
+
+@media (max-width: 700px) {
+  .specs-box__heading {
+    display: none; /* the SPECS row is the heading on phones */
   }
 }

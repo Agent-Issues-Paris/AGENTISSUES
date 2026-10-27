@@ -1,0 +1,15 @@
+{%- comment -%}
+  Issue page: a SPECS box in the bottom-right corner (where regular product
+  pages have the INFO box). Specs come from the product metafield
+  custom.specs; `fallback` is used while that is empty. Open on desktop,
+  one SPECS row to tap on phones. Renders nothing without specs.
+  Accepts: product {Product}, fallback {String}
+{%- endcomment -%}
+{%- assign specs = product.metafields.custom.specs.value | default: product.metafields.custom.specs | default: fallback -%}
+{%- if specs != blank -%}
+  <details class="info-box product-box specs-box" data-desktop-open>
+    <summary class="product-box__toggle">SPECS</summary>
+    <h2 class="specs-box__heading">SPECS</h2>
+    {% render 'specs-list', specs: specs %}
+  </details>
+{%- endif -%}

@@ -614,23 +614,95 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // variant id -> quantity in the cart, shared by every buy box on the page
+  var cartQty = {};
+  var renders = [];
+  function setCartQty(cart) {
+    cartQty = {};
+    cart.items.forEach(function (item) {
+      cartQty[item.variant_id] = (cartQty[item.variant_id] || 0) + item.quantity;
+    });
+    updateCartBadge(cart.item_count);
+    renders.forEach(function (render) { render(); });
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('[data-product-form]'), function (form) {
     var variantInput = form.querySelector('[data-variant-input]');
-    var qtyInput = form.querySelector('[data-qty-input]');
+    var addBox = form.querySelector('[data-add-box]');
+    var addButton = form.querySelector('[data-add-to-cart]');
+    var stepper = form.querySelector('[data-cart-qty]');
     var qtyValue = form.querySelector('[data-qty-value]');
     var msg = form.querySelector('[data-cart-message]');
     var priceBox = document.querySelector('[data-price-box]');
+    var sizeBox = form.querySelector('[data-size-box]');
     var sizeButtons = form.querySelectorAll('.size-option');
-    var qty = 1;
+    var busy = false;
 
-    function setQty(n) {
-      qty = Math.max(1, n);
-      qtyValue.textContent = qty;
-      qtyInput.value = qty;
+    // where the purchase started: home hero, issue page or product page
+    var source = form.closest('.home-hero') ? 'home_hero'
+      : document.body.classList.contains('page-issue1') ? 'issue_page' : 'product_page';
+
+    // ADD TO CART until the selected variant is in the cart, then − N IN CART +
+    function render() {
+      var n = cartQty[variantInput.value] || 0;
+      addButton.hidden = n > 0;
+      stepper.hidden = n === 0;
+      addBox.classList.toggle('qty-box', n > 0);
+      qtyValue.textContent = n + ' IN CART';
+    }
+    renders.push(render);
+    render();
+
+    // product pages start with no size picked
+    function sizePicked() {
+      if (variantInput.value) return true;
+      msg.textContent = 'Choose a size first.';
+      if (sizeBox) sizeBox.classList.add('is-missing');
+      return false;
     }
 
-    form.querySelector('[data-qty-minus]').addEventListener('click', function () { setQty(qty - 1); });
-    form.querySelector('[data-qty-plus]').addEventListener('click', function () { setQty(qty + 1); });
+    function add(goToCheckout) {
+      if (busy || !sizePicked()) return;
+      var variantId = variantInput.value;
+      // checkout with the size already in the cart: nothing to add
+      if (goToCheckout && cartQty[variantId]) {
+        agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] });
+        window.location.href = agentRoot() + 'checkout';
+        return;
+      }
+      busy = true;
+      msg.textContent = goToCheckout ? 'Preparing checkout...' : 'Adding...';
+      agentCartAdd(variantId, 1).then(function (item) {
+        agentTrack(goToCheckout ? 'checkout_click' : 'add_to_cart', {
+          source: source, variant_id: String(variantId), quantity: 1
+        });
+        if (goToCheckout) {
+          window.location.href = agentRoot() + 'checkout';
+          return;
+        }
+        cartQty[variantId] = item.quantity;
+        renders.forEach(function (r) { r(); });
+        msg.textContent = 'Added to cart.';
+      }).catch(function (err) {
+        msg.textContent = (goToCheckout ? 'Could not start checkout: ' : 'Could not add to cart: ') + err.message;
+      }).then(function () { busy = false; });
+    }
+
+    form.querySelector('[data-qty-plus]').addEventListener('click', function () { add(false); });
+
+    form.querySelector('[data-qty-minus]').addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      var body = new FormData();
+      body.append('id', variantInput.value);
+      body.append('quantity', Math.max(0, (cartQty[variantInput.value] || 0) - 1));
+      cartRequest('cart/change.js', body).then(function (cart) {
+        setCartQty(cart);
+        msg.textContent = cartQty[variantInput.value] ? '' : 'Removed from cart.';
+      }).catch(function (err) {
+        msg.textContent = 'Could not update the cart: ' + err.message;
+      }).then(function () { busy = false; });
+    });
 
     Array.prototype.forEach.call(sizeButtons, function (btn) {
       btn.addEventListener('click', function () {
@@ -639,33 +711,25 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.classList.add('is-selected');
         variantInput.value = btn.getAttribute('data-variant-id');
         if (priceBox) priceBox.textContent = btn.getAttribute('data-price');
+        if (sizeBox) sizeBox.classList.remove('is-missing');
         msg.textContent = '';
+        render();
       });
     });
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var goToCheckout = e.submitter && e.submitter.hasAttribute('data-checkout');
-      msg.textContent = goToCheckout ? 'Preparing checkout...' : 'Adding...';
-
-      // where the purchase started: home hero, issue page or product page
-      var source = form.closest('.home-hero') ? 'home_hero'
-        : document.body.classList.contains('page-issue1') ? 'issue_page' : 'product_page';
-
-      agentCartAdd(variantInput.value, qty).then(function () {
-        agentTrack(goToCheckout ? 'checkout_click' : 'add_to_cart', {
-          source: source, variant_id: String(variantInput.value), quantity: qty
-        });
-        if (goToCheckout) {
-          window.location.href = agentRoot() + 'checkout';
-          return;
-        }
-        msg.textContent = 'Added to cart.';
-      }).catch(function (err) {
-        msg.textContent = (goToCheckout ? 'Could not start checkout: ' : 'Could not add to cart: ') + err.message;
-      });
+      add(Boolean(e.submitter && e.submitter.hasAttribute('data-checkout')));
     });
   });
+
+  // what is already in the cart, so a returning visitor sees the counter
+  if (renders.length) {
+    fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' } })
+      .then(function (res) { return res.json(); })
+      .then(setCartQty)
+      .catch(function () {});
+  }
 });
 
 // Cart page: re-render just the cart section (Shopify Section Rendering API)

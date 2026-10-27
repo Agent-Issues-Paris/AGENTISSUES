@@ -12,7 +12,8 @@
     "main": {
       "type": "main-product-issue",
       "settings": {
-        "legacy_product": "agent-issues-01-iheartinspo-fw25-26"
+        "legacy_product": "agent-issues-01-iheartinspo-fw25-26",
+        "legacy_specs": "Language: English\nFormat: 23 × 30 cm\nPages: 208\nWeight: 850 g\nPerfect binding\nLimited run"
       }
     }
   },

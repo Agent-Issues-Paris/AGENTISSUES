@@ -84,7 +84,13 @@
   {%- form 'product', product, class: 'product-col product-col--hero', data-product-form: '' -%}
     <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-input>
     {%- comment -%} Fixed to the bottom-right corner on desktop, above the buttons on phones {%- endcomment -%}
-    {% render 'product-box', product: product %}
+    {%- liquid
+      assign specs_fallback = ''
+      if is_legacy
+        assign specs_fallback = section.settings.legacy_specs
+      endif
+    -%}
+    {% render 'specs-box', product: product, fallback: specs_fallback %}
     {% render 'qty-cart-controls' %}
     <p class="cart-message" aria-live="polite" data-cart-message>{% unless current_variant.available %}Sold out.{% endunless %}</p>
   {%- endform -%}
@@ -145,6 +151,13 @@
       "id": "legacy_product",
       "label": "Issue 1 product",
       "info": "Uses the strip images below. Every other issue uses its own product photos. Texts always come from the product: title, description, and a paragraph starting with \"Contributors:\" for the credits."
+    },
+    {
+      "type": "textarea",
+      "id": "legacy_specs",
+      "label": "Issue 1 SPECS",
+      "info": "Shown while the product's Specs metafield (custom.specs) is empty. One spec per line; \"Label: value\" lines show with a label.",
+      "default": "Language: English\nFormat: 23 × 30 cm\nPages: 208\nWeight: 850 g\nPerfect binding\nLimited run"
     },
     {
       "type": "text",
