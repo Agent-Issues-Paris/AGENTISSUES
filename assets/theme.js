@@ -640,7 +640,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var priceBox = document.querySelector('[data-price-box]');
     var sizeBox = form.querySelector('[data-size-box]');
     var sizeButtons = form.querySelectorAll('.size-option');
-    var busy = false;
+    var busy = false; // a +/−/ADD TO CART request is running
+    var pending = Promise.resolve(); // that request, for CHECKOUT to wait on
+    var leaving = false; // CHECKOUT clicked, checkout is opening
 
     // where the purchase started: home hero, issue page or product page
     var source = form.closest('.home-hero') ? 'home_hero'
@@ -683,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var variantId = variantInput.value;
       busy = true;
       msg.textContent = 'Adding...';
-      agentCartAdd(variantId, 1).then(function (item) {
+      pending = agentCartAdd(variantId, 1).then(function (item) {
         agentTrack('add_to_cart', { source: source, variant_id: String(variantId), quantity: 1 });
         cartQty[variantId] = item.quantity;
         renders.forEach(function (r) { r(); });
@@ -698,19 +700,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // then opens checkout. The button says so at once and ignores more clicks
     // while Shopify's checkout loads (it takes a few seconds).
     function checkout() {
-      if (busy || !sizePicked(checkoutButton)) return;
+      if (leaving || !sizePicked(checkoutButton)) return;
       var variantId = variantInput.value;
-      busy = true;
+      leaving = true;
       checkoutButton.textContent = 'OPENING CHECKOUT...';
       msg.textContent = '';
-      fetchCart().then(function (cart) {
+      // after any + / − / ADD TO CART still on its way
+      pending.then(fetchCart).then(function (cart) {
         var inCart = cart.items.some(function (item) { return String(item.variant_id) === String(variantId); });
         return inCart ? cart : agentCartAdd(variantId, 1);
       }).then(function () {
         agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] || 1 });
         window.location.href = agentRoot() + 'checkout';
       }).catch(function (err) {
-        busy = false;
+        leaving = false;
         checkoutButton.textContent = checkoutLabel;
         msg.textContent = 'Could not start checkout: ' + err.message;
       });
@@ -720,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // cache, so unlock it (the cart itself is re-read below)
     window.addEventListener('pageshow', function (e) {
       if (!e.persisted) return;
-      busy = false;
+      leaving = false;
       checkoutButton.textContent = checkoutLabel;
     });
 
@@ -732,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var body = new FormData();
       body.append('id', variantInput.value);
       body.append('quantity', Math.max(0, (cartQty[variantInput.value] || 0) - 1));
-      cartRequest('cart/change.js', body).then(function (cart) {
+      pending = cartRequest('cart/change.js', body).then(function (cart) {
         setCartQty(cart);
         msg.textContent = cartQty[variantInput.value] ? '' : 'Removed from cart.';
       }).catch(function (err) {
@@ -753,11 +756,11 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (e.submitter && e.submitter.hasAttribute('data-checkout')) checkout();
-      else add();
-    });
+    // each button has its own handler (no form submit, so nothing depends on
+    // how a browser reports which button submitted the form)
+    addButton.addEventListener('click', add);
+    checkoutButton.addEventListener('click', checkout);
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
   });
 
   // what is already in the cart, so a returning visitor sees the counter;

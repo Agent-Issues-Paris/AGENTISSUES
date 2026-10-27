@@ -2222,3 +2222,27 @@ main:has(.faq-row) > .shopify-section:has(.faq-row) {
     display: none; /* the SPECS row is the heading on phones */
   }
 }
+
+/* ---------- buy buttons fill their whole box ---------- */
+/* the box is the button: a click anywhere inside it counts, not only on the word */
+.cart-controls .info-box,
+.home-hero__control {
+  padding: 0;
+  align-items: stretch;
+}
+
+.cart-controls .info-box > button,
+.cart-controls .info-box > a,
+.home-hero__control > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+  padding: 5px;
+}
+
+.cart-controls--page .info-box > button,
+.cart-controls--page .info-box > a {
+  padding: 12px 5px;
+}
