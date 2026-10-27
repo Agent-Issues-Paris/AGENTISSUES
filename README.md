@@ -19,7 +19,7 @@ How to make changes, run previews and open PRs: see [CONTRIBUTING.md](CONTRIBUTI
 
 ## Links in texts
 
-In any box text (About, Contact, Q&A, product box), `[words](https://...)` makes a link and `[words](issue)` links to the current issue: the newest product in the Home page collection, the one the home hero shows. The ticker links there too unless it has its own link. `@handle` becomes an Instagram link, also inside an issue's "Contributors:" credits.
+In any box text (About, Contact, Q&A), `[words](https://...)` makes a link and `[words](issue)` links to the current issue: the newest product in the Home page collection, the one the home hero shows. The ticker links there too unless it has its own link. `@handle` becomes an Instagram link, also inside an issue's "Contributors:" credits.
 
 ## Texts
 
@@ -44,11 +44,20 @@ When a change ships, move the text from Новая версия to Сейчас 
 4. **Online Store → Pages → Add page** titled "About" (handle `about`), template `page.about`.
 5. **Settings → Customer privacy → Cookie banner:** turn off Shopify's own banner. The theme shows its own (Theme settings → Cookie banner), wired to Shopify's Customer Privacy API.
 6. **Settings → Policies:** fill in refund, privacy, terms and shipping. They are linked from the POLICIES box and render inside the site frame.
-7. **Settings → Custom data → Products:** add a definition `custom.specs` (Multi-line text) for the SPECS row of the product box. One spec per line; "Label: value" lines show with a label.
-8. **Theme settings → Product info box:** the DELIVERY text (where you ship, how long, when pre-orders go out), WHERE TO BUY and CONTACT rows shown on every product page.
+7. **Settings → Custom data → Products:** add a definition `custom.specs` (Multi-line text) for the SPECS box on issue pages. One spec per line; "Label: value" lines show with a label. Until Issue 1's metafield is filled, its SPECS come from Customize → Issue → "Issue 1 SPECS".
+8. **Theme settings → Product info box** is not shown on any page since 2026-10-27 (Ilya: not relevant for selling); its settings are kept in case the box comes back.
 9. **Online Store → Pages → Add page** titled "Contact" (handle `contact`), default template. The contact form appears on it by itself; messages go to the store email.
 10. **Analytics:** see [docs/analytics](docs/analytics/README.md) for the GA4 custom pixel, the Meta app, Microsoft Clarity and UTM links.
 11. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
+
+## Buy box
+
+Product, issue and home pages share one buy box (`snippets/qty-cart-controls.liquid`, `snippets/add-box.liquid`, `assets/theme.js`):
+
+- ADD TO CART turns into `− N IN CART +` once the selected variant is in the cart; the stepper changes the cart directly.
+- Product pages start with no size picked. ADD TO CART or CHECKOUT without a size says CHOOSE A SIZE on the button and marks the Size box red.
+- CHECKOUT reads the real cart (`/cart.js`), adds the picked size if it isn't there, and opens checkout. It waits for an ADD TO CART still on its way, and says OPENING CHECKOUT... at once.
+- Each button fills its whole box, so a click anywhere in the box counts.
 
 ## Local development
 
