@@ -17,8 +17,10 @@
   if hero == blank
     assign hero = fallback
   endif
+  assign flat_w = 912
   if hero.handle contains 'issue-02'
     assign flat = 'issue2'
+    assign flat_w = 1824
   endif
   assign variant = hero.selected_or_first_available_variant
 -%}
@@ -46,8 +48,8 @@
 
   <a class="home-hero__cover" href="{{ hero.url }}">
     {%- if flat != '' -%}
-      <img class="img-default" src="{{ flat | append: '-cover.webp' | asset_url }}" srcset="{{ flat | append: '-cover-600.webp' | asset_url }} 600w, {{ flat | append: '-cover.webp' | asset_url }} 912w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
-      <img class="img-hover" src="{{ flat | append: '-cover-alt.webp' | asset_url }}" srcset="{{ flat | append: '-cover-alt-600.webp' | asset_url }} 600w, {{ flat | append: '-cover-alt.webp' | asset_url }} 912w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="" aria-hidden="true" loading="lazy">
+      <img class="img-default" src="{{ flat | append: '-cover.webp' | asset_url }}" srcset="{{ flat | append: '-cover-600.webp' | asset_url }} 600w, {{ flat | append: '-cover.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
+      <img class="img-hover" src="{{ flat | append: '-cover-alt.webp' | asset_url }}" srcset="{{ flat | append: '-cover-alt-600.webp' | asset_url }} 600w, {{ flat | append: '-cover-alt.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="" aria-hidden="true" loading="lazy">
     {%- else -%}
       {%- assign img2 = hero.images[1] | default: hero.featured_image -%}
       {{ hero.featured_image | image_url: width: 1600 | image_tag: class: 'img-default', alt: hero.featured_image.alt | default: hero.title, fetchpriority: 'high', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
