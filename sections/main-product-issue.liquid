@@ -26,7 +26,7 @@
 {%- capture strip_images -%}
   {%- if is_legacy == false -%}
     {%- for image in product.images -%}
-      {%- capture img_class -%}{% if image.aspect_ratio < 1 %}portrait{% endif %}{%- endcapture -%}
+      {%- capture img_class -%}{% if image.aspect_ratio < 1 %}portrait{% else %}whole{% endif %}{%- endcapture -%}
       {%- capture image_alt -%}{{ image.alt | default: product.title }}{% if image.alt == blank %}, photo {{ forloop.index }}{% endif %}{%- endcapture -%}
       {%- liquid
         assign img_loading = 'lazy'

@@ -322,6 +322,12 @@ main {
   background: #fff;
 }
 
+/* product photos (spread mockups, screenshots) are shown whole: width follows the image */
+.hero-strip img.whole {
+  width: auto;
+  object-fit: contain;
+}
+
 .product-col--hero {
   height: calc(100vh - 120px);
   justify-content: flex-end;
@@ -1260,7 +1266,8 @@ main {
     aspect-ratio: 4 / 3;
   }
 
-  .page-issue1 .hero-strip img.portrait {
+  .page-issue1 .hero-strip img.portrait,
+  .page-issue1 .hero-strip img.whole {
     aspect-ratio: auto;
   }
 
