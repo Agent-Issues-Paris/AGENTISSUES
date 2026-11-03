@@ -25,16 +25,35 @@
 {%- endcomment -%}
 {%- capture strip_images -%}
   {%- if is_legacy == false -%}
-    {%- for image in product.images -%}
+    {%- comment -%}
+      Issues with strip covers in assets (issueN-strip / issueN-strip-alt, the
+      flat cover drawn at the size and margins of the window screenshots) show
+      them in place of the first two product photos, the cover mockups.
+    {%- endcomment -%}
+    {%- liquid
+      assign strip_flat = ''
+      if product.handle contains 'issue-02'
+        assign strip_flat = 'issue2'
+      endif
+      assign photo_offset = 0
+    -%}
+    {%- if strip_flat != '' -%}
+      {%- assign photo_offset = 2 -%}
+      <img class="whole" src="{{ strip_flat | append: '-strip.webp' | asset_url }}" srcset="{{ strip_flat | append: '-strip-900.webp' | asset_url }} 724w, {{ strip_flat | append: '-strip.webp' | asset_url }} 1608w" sizes="(max-width: 700px) 100vw, 60vw" width="1608" height="2034" loading="eager" data-strip-center="true" alt="{{ product.images[0].alt | default: product.title | escape }}">
+      <img class="whole" src="{{ strip_flat | append: '-strip-alt.webp' | asset_url }}" srcset="{{ strip_flat | append: '-strip-alt-900.webp' | asset_url }} 724w, {{ strip_flat | append: '-strip-alt.webp' | asset_url }} 1608w" sizes="(max-width: 700px) 100vw, 60vw" width="1608" height="2034" loading="lazy" alt="{{ product.images[1].alt | default: product.title | escape }}">
+    {%- endif -%}
+    {%- for image in product.images offset: photo_offset -%}
       {%- capture img_class -%}{% if image.aspect_ratio < 1 %}portrait{% else %}whole{% endif %}{%- endcapture -%}
       {%- capture image_alt -%}{{ image.alt | default: product.title }}{% if image.alt == blank %}, photo {{ forloop.index }}{% endif %}{%- endcapture -%}
       {%- liquid
         assign img_loading = 'lazy'
-        if forloop.first
+        assign is_center = false
+        if forloop.first and strip_flat == ''
           assign img_loading = 'eager'
+          assign is_center = true
         endif
       -%}
-      {{ image | image_url: width: 2000 | image_tag: class: img_class, alt: image_alt, data-strip-center: forloop.first, loading: img_loading, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
+      {{ image | image_url: width: 2000 | image_tag: class: img_class, alt: image_alt, data-strip-center: is_center, loading: img_loading, widths: '800, 1400, 2000', sizes: '(max-width: 700px) 100vw, 60vw' }}
     {%- endfor -%}
   {%- elsif section.blocks.size > 0 -%}
     {%- for block in section.blocks -%}
