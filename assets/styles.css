@@ -1798,6 +1798,11 @@ a.star-menu__item {
   margin-top: 3px;
 }
 
+.policy-links li.policy-links__gap {
+  height: 1em;
+  margin-top: 0;
+}
+
 .policy-links a {
   color: inherit;
   text-decoration: underline;
