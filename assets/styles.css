@@ -1218,7 +1218,9 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .draw-sticker {
+  .logo-overlay,
+  .draw-sticker,
+  .star {
     display: none;
   }
 
@@ -1230,7 +1232,7 @@ main {
      top of the photos. Spreads first as a swipe gallery, then title, price
      and buttons, then the description, SPECS and contributors (tap to open). */
   .page-issue1.no-scroll {
-    overflow: auto;
+    overflow: visible; /* a scrolling body would stop the nav from sticking */
     height: auto;
   }
 
@@ -2373,23 +2375,18 @@ main:has(.info-row--page-about) .info-row {
   }
 }
 
-/* ---------- phones: small logo between the ticker and the nav ---------- */
-/* The desktop overlay, scaled down: it fills the gap between Shop and Cart and
-   sits on the line between the ticker and the nav box. It lets taps through so
-   it never blocks Shop, Cart or the ticker link. */
+/* ---------- phones: only the nav stays on screen ---------- */
+/* The header is fixed on desktop. On phones its parts join the page flow: the
+   ticker scrolls away and .main-nav sticks to the top (it is already sticky).
+   Nothing overlays the page any more, so main needs no room for a header. */
 @media (max-width: 700px) {
-  .logo-overlay {
-    top: calc(47px - 4.7vw);
-    left: 40.5vw;
-    width: 19vw;
+  :root {
+    --header-h: 0px;
   }
 
-  .site-header.show-logo .logo-overlay {
-    pointer-events: none;
-  }
-
-  .logo-overlay img.is-custom {
-    height: 9.4vw;
+  #shopify-section-header,
+  .site-header {
+    display: contents;
   }
 }
 
