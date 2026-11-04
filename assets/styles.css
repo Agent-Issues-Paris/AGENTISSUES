@@ -322,6 +322,12 @@ main {
   background: #fff;
 }
 
+/* product photos (spread mockups, screenshots) are shown whole: width follows the image */
+.hero-strip img.whole {
+  width: auto;
+  object-fit: contain;
+}
+
 .product-col--hero {
   height: calc(100vh - 120px);
   justify-content: flex-end;
@@ -329,7 +335,7 @@ main {
 
 .cart-controls {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -502,13 +508,19 @@ main {
   border: 1px solid #000;
   background: none;
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.size-option:hover,
 .size-option.is-selected {
   color: red;
   border-color: red;
+}
+
+/* fills red on hover, like the − / + squares */
+.size-option:hover {
+  background: red;
+  border-color: red;
+  color: #fff;
 }
 
 .size-option.is-disabled {
@@ -518,6 +530,7 @@ main {
 }
 
 .size-option.is-disabled:hover {
+  background: none;
   color: #000;
   border-color: #000;
 }
@@ -1218,7 +1231,9 @@ main {
     transform: scale(1.2);
   }
 
-  /* product page: normal page scroll, images stacked in the flow */
+  /* issue page on phones: an ordinary page in the flow, nothing pinned on
+     top of the photos. Spreads first as a swipe gallery, then title, price
+     and buttons, then the description, SPECS and contributors (tap to open). */
   .page-issue1.no-scroll {
     overflow: auto;
     height: auto;
@@ -1234,82 +1249,101 @@ main {
 
   .page-issue1 .hero-strip {
     position: static;
-    width: 100%;
+    width: auto;
     height: auto;
+    margin: 0 0 10px;
     z-index: auto;
-    padding-bottom: 220px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    animation: none;
+  }
+
+  .page-issue1 .hero-strip::-webkit-scrollbar {
+    display: none;
   }
 
   .page-issue1 .hero-strip__track {
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+    height: min(80vw, 52vh);
+    padding: 0 10px;
     transform: none !important;
   }
 
-  .page-issue1 .hero-strip img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-  }
-
-  .page-issue1 .hero-strip img.portrait {
-    aspect-ratio: auto;
+  .page-issue1 .hero-strip img,
+  .page-issue1 .hero-strip img.portrait,
+  .page-issue1 .hero-strip img.whole {
+    width: auto;
+    height: 100%;
+    max-width: calc(100vw - 50px); /* the next spread peeks in, so it reads as swipeable */
+    object-fit: contain;
+    scroll-snap-align: center;
+    background: none;
   }
 
   .page-issue1 .hero-strip img[aria-hidden="true"] {
     display: none;
   }
 
-  /* title/description, contributors (tap to expand), and price overlay the
-     images just like the cart bar does, pinned 10px below the nav */
   .page-issue1 .columns.product-grid {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    position: fixed;
-    top: calc(var(--header-h, 110px) + 10px);
-    left: 10px;
-    right: 10px;
-    margin: 0;
-    z-index: 30;
+    gap: 10px;
+    margin: 0 10px 10px;
   }
 
-  .page-issue1 .product-col:not(.product-col--hero),
+  .page-issue1 .product-col,
+  .page-issue1 .product-col--hero,
   .page-issue1 .credits-col {
     display: contents;
   }
 
+  .page-issue1 .info-box {
+    opacity: 1;
+    --rise-opacity: 1;
+    background: none;
+  }
+
+  .page-issue1 .title-box { order: 1; }
+  .page-issue1 .price-box { order: 2; }
+  .page-issue1 .cart-controls { order: 3; }
+  .page-issue1 .cart-message { order: 4; margin: 0; }
+  .page-issue1 .cart-message:empty { display: none; }
+  .page-issue1 .about-box { order: 5; display: block; }
+  .page-issue1 .credits-box { order: 6; }
+  .page-issue1 .specs-box { order: 7; max-height: none; }
+
+  .page-issue1 .title-box .issue-blurb {
+    display: none; /* shown in its own box under the buttons */
+  }
+
+  .page-issue1 .info-box h1.issue-heading {
+    font-size: 22px;
+    margin: 0;
+  }
+
   .page-issue1 .credits-box {
-    order: 2;
     width: 100%;
     margin-left: 0;
     height: auto;
-    max-height: 45vh;
-  }
-
-  .page-issue1 .price-box {
-    order: 3;
+    max-height: none;
   }
 
   .page-issue1 .credits-box summary {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     cursor: pointer;
   }
 
-  .page-issue1 .credits-box summary:hover {
-    color: red;
+  .page-issue1 .credits-box summary::after {
+    content: '+';
   }
 
-  .page-issue1 .product-col--hero {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    height: auto;
-    justify-content: flex-start;
-    background-color: #fff;
-    z-index: 30;
+  .page-issue1 .credits-box[open] > summary::after {
+    content: '−';
   }
 }
 
@@ -1394,8 +1428,7 @@ main {
   flex-direction: column;
   gap: 10px;
   width: min(420px, calc(100% - 20px));
-  background: #fff;
-  opacity: 0;
+  opacity: 0; /* no fill of its own: the boxes float, the page shows between them */
   transform: translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -1409,8 +1442,19 @@ main {
   transform: translateY(0);
 }
 
-.cookie-banner .info-box {
+.cookie-banner .info-box,
+.page-issue1 .cookie-banner .info-box,
+.page-product .cookie-banner .info-box {
   background: #fff;
+  opacity: 1;
+  --rise-opacity: 1;
+}
+
+/* the policy link reads as a link: underlined, red on hover */
+.cookie-banner .info-box p a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
 }
 
 .cookie-banner__actions {
@@ -1444,6 +1488,11 @@ main {
 
 .cookie-banner__actions .info-box:hover button {
   color: red;
+}
+
+@media (hover: none) {
+  .cookie-banner__actions .info-box:hover { border-color: #000; }
+  .cookie-banner__actions .info-box:hover button { color: #000; }
 }
 
 /* ticker as a link (e.g. to the preorder) */
@@ -1749,6 +1798,11 @@ a.star-menu__item {
   margin-top: 3px;
 }
 
+.policy-links li.policy-links__gap {
+  height: 1em;
+  margin-top: 0;
+}
+
 .policy-links a {
   color: inherit;
   text-decoration: underline;
@@ -1779,6 +1833,8 @@ a.star-menu__item {
 }
 
 .cart-empty {
+  max-width: 420px; /* a neat box in the middle, not a full-width band */
+  margin: 0 auto;
   padding: 30px 15px;
   text-align: center;
 }
@@ -1857,7 +1913,7 @@ a.star-menu__item {
   }
 }
 
-/* ---------- SPECS box and size guide ---------- */
+/* ---------- SPECS list and size guide ---------- */
 .specs-list {
   margin: 0;
   font-size: 15px;
@@ -1878,37 +1934,35 @@ a.star-menu__item {
   margin: 0;
 }
 
-.specs-note,
 .size-guide__note {
   margin-top: 8px !important;
 }
 
-.specs-box summary,
 .size-guide summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
   list-style: none;
   font-weight: 700;
   cursor: pointer;
 }
 
-.specs-box summary::-webkit-details-marker,
+/* + / − on the right says the box opens, as in the INFO rows */
+.size-guide summary::after {
+  content: '+';
+  flex: none;
+}
+
+.size-guide[open] summary::after {
+  content: '−';
+}
+
 .size-guide summary::-webkit-details-marker {
   display: none;
 }
 
-.specs-box summary:hover,
 .size-guide summary:hover {
   color: red;
-}
-
-/* issue page: the SPECS heading shows on desktop, the summary on phones */
-.specs-box summary {
-  display: none;
-}
-
-.specs-box__heading {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 700;
 }
 
 .size-guide table {
@@ -1926,16 +1980,378 @@ a.star-menu__item {
   text-align: left;
 }
 
+/* ---------- rows that open on tap (product box, Q&A) ---------- */
+/* a line between rows, + / − on the right; the open row's text sits under it */
+.accordion-item + .accordion-item {
+  border-top: 1px solid #000;
+}
+
+.accordion-item summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.accordion-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-item summary::after {
+  content: '+';
+  flex: none;
+}
+
+.accordion-item[open] summary::after {
+  content: '−';
+}
+
+.accordion-item summary:hover {
+  color: red;
+}
+
+.accordion-item__body {
+  padding: 2px 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.accordion-item__body p + p,
+.accordion-item__body p + ul {
+  margin-top: 8px;
+}
+
+/* ---------- product box: specs, delivery, where to buy, contact, policies ---------- */
+.product-box {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.product-box__toggle {
+  display: none; /* phones only: the whole box folds into one INFO row */
+  list-style: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.product-box__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.product-box__toggle::after {
+  content: '+';
+  flex: none;
+}
+
+.product-box[open] > .product-box__toggle::after {
+  content: '−';
+}
+
+.product-box__toggle:hover {
+  color: red;
+}
+
+@media (min-width: 701px) {
+  /* issue page: pinned to the bottom-right corner, as wide as the
+     contributors box above it; it grows upward as a row opens and the
+     contributors box gives up the room (theme.js sets --product-box-h) */
+  .page-issue1 .product-box {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    z-index: 30;
+    width: calc((100vw - 40px) / 3 * 0.66);
+    max-height: calc(100vh - var(--header-h, 110px) - 160px);
+  }
+
+  .page-issue1 .credits-box {
+    max-height: calc(100vh - var(--header-h, 110px) - 20px - var(--product-box-h, 0px));
+  }
+
+  /* regular product page: the box closes the right-hand column, level with
+     the bottom of the photo, so it grows upward too */
+  .page-product .product-layout {
+    align-items: stretch;
+  }
+
+  .page-product .product-box {
+    margin-top: auto;
+  }
+}
+
 @media (max-width: 700px) {
-  .page-issue1 .specs-box {
-    order: 2;
+  .product-box__toggle {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
   }
 
-  .specs-box summary {
-    display: block;
+  .product-box[open] > .product-box__toggle {
+    margin-bottom: 4px;
   }
 
+  .page-issue1 .product-box {
+    max-height: none;
+  }
+}
+
+/* ---------- links written into box texts ([words](url), @handles) ---------- */
+.info-box a.text-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+
+.info-box a.text-link:hover {
+  color: red;
+}
+
+.not-found-links {
+  margin-top: 8px;
+}
+
+/* ---------- Q&A: pinned to the bottom of the window ---------- */
+/* mirrors the boxes at the top of the About page; when the page is shorter
+   than the window the box rests on the bottom edge and grows upward */
+main:has(.faq-row) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main:has(.faq-row) > .shopify-section:has(.faq-row) {
+  margin-top: auto;
+}
+
+.info-row.faq-row {
+  margin: 10px;
+  align-items: end;
+}
+
+.faq-box--left { grid-column: 1; }
+.faq-box--center { grid-column: 2; }
+.faq-box--right { grid-column: 3; }
+
+/* ---------- contact form ---------- */
+.info-row.contact-row {
+  margin-top: 10px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 4px 5px;
+  border: 1px solid #000;
+  border-radius: 0;
+  outline: none;
+  background: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.contact-form input:hover,
+.contact-form input:focus,
+.contact-form textarea:hover,
+.contact-form textarea:focus {
+  border-color: red;
+}
+
+.contact-form__send button {
+  width: 100%;
+  padding: 6px 5px;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.contact-form__send button:hover {
+  background: red;
+  border-color: red;
+}
+
+@media (max-width: 700px) {
+  .faq-box--left,
+  .faq-box--center,
+  .faq-box--right {
+    grid-column: auto;
+  }
+}
+
+/* ---------- keyboard focus ---------- */
+/* only shows when moving with the keyboard (Tab), never on a mouse click */
+:focus-visible {
+  outline: 2px solid red;
+  outline-offset: 2px;
+}
+
+/* ---------- reduced motion ---------- */
+/* visitors who turned on "reduce motion" in their system settings get a
+   still page: no load-in rise, no running ticker, no wiggling stickers */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ticker__track {
+    animation: none !important;
+  }
+}
+
+/* ---------- product and issue pages: title, size still to pick ---------- */
+.info-box h1.product-title,
+.info-box h1.issue-heading {
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.info-box.is-missing {
+  border-color: red;
+}
+
+/* ---------- ADD TO CART that turns into the in-cart stepper ---------- */
+.add-box [hidden] {
+  display: none !important;
+}
+
+.add-box__add {
+  width: 100%;
+  align-self: stretch;
+}
+
+.add-box .qty span {
+  white-space: nowrap;
+}
+
+/* ---------- issue page: SPECS box in the bottom-right corner ---------- */
+.specs-box__heading {
+  margin: 0 0 8px;
+}
+
+@media (max-width: 700px) {
   .specs-box__heading {
-    display: none;
+    display: none; /* the SPECS row is the heading on phones */
+  }
+}
+
+/* ---------- buy buttons fill their whole box ---------- */
+/* the box is the button: a click anywhere inside it counts, not only on the word */
+.cart-controls .info-box,
+.home-hero__control {
+  padding: 0;
+  align-items: stretch;
+}
+
+.cart-controls .info-box > button,
+.cart-controls .info-box > a,
+.home-hero__control > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+  padding: 5px;
+}
+
+.cart-controls--page .info-box > button,
+.cart-controls--page .info-box > a {
+  padding: 12px 5px;
+}
+
+
+/* ---------- issue page: description box, phones only ---------- */
+.about-box {
+  display: none;
+}
+
+.about-box p {
+  margin: 0;
+}
+
+/* ---------- buttons: no system colours, no stuck hover on touch ---------- */
+/* iOS Safari paints button text its system blue unless a colour is set */
+button {
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* on touch screens :hover sticks after a tap, so the red hover states
+   (border, text) only apply where there is a real pointer */
+@media (hover: none) {
+  .cart-controls .info-box:hover {
+    border-color: #000;
+  }
+
+  .cart-controls .info-box:hover button,
+  .cart-controls button:hover {
+    color: inherit;
+  }
+
+  .info-box.info-box--primary:hover {
+    background: #000;
+    border-color: #000;
+  }
+
+  .info-box.info-box--primary:hover button {
+    color: #fff;
+  }
+
+  .cart-controls .info-box:active {
+    border-color: red;
+  }
+
+  .cart-controls .info-box:active button {
+    color: red;
+  }
+
+  .info-box.info-box--primary:active {
+    background: red;
+    border-color: red;
+  }
+}
+
+/* ---------- phones: breathing room at the end of every page ---------- */
+/* Safari's toolbar floats over the bottom of the page; without this the
+   last box (SPECS, POLICIES) sits right on the screen edge */
+@media (max-width: 700px) {
+  main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 }

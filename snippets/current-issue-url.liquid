@@ -1,0 +1,15 @@
+{%- comment -%}
+  URL of the current issue: the newest product in the "Home page"
+  collection, the same rule the home hero uses. Links built on it (ticker,
+  About, 404) follow the hero as soon as a new issue is added there.
+  Falls back to the first product in Theme settings → Issues.
+{%- endcomment -%}
+{%- liquid
+  assign current = collections.frontpage.products | sort: 'created_at' | reverse | first
+  if current == blank
+    assign current = settings.issue_products | first
+  endif
+  if current != blank
+    echo current.url
+  endif
+-%}

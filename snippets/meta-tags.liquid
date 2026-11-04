@@ -15,6 +15,12 @@
   elsif request.page_type == 'collection' and collection.image
     assign og_image = collection.image
   endif
+  # no sharing image set in Theme settings: show the current issue's cover
+  # (newest product in the Home page collection, like the hero)
+  if og_image == blank
+    assign current_issue = collections.frontpage.products | sort: 'created_at' | reverse | first
+    assign og_image = current_issue.featured_image
+  endif
 -%}
 <meta property="og:site_name" content="{{ shop.name }}">
 <meta property="og:url" content="{{ canonical_url }}">

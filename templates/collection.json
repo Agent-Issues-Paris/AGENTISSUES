@@ -13,7 +13,6 @@
       "type": "product-columns",
       "settings": {
         "all_products": true,
-        "pinned_product": "issue01-iheartinspo-fw26",
         "limit": 48,
         "tee_framing": true
       }

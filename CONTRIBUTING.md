@@ -5,6 +5,7 @@ This branch (`shopify-theme`) is the source of truth for the Agent Issues shop. 
 ## How the branches map to Shopify
 
 - `shopify-theme` is connected to the unpublished theme **AGENTISSUES/shopify-theme** in Shopify admin. Every push to it updates that theme within about a minute.
+- `shopify-theme-test` is connected to **AGENTISSUES/shopify-theme-test**. Changes go there first; once Ilya has checked its preview, open a PR `shopify-theme-test` → `shopify-theme`.
 - The live store still runs Shopify's default theme. This theme gets published only once it has been finished and tested.
 - The connection is two-way: changes made in the Shopify theme editor (texts, images, settings) are committed back to the branch by Shopify. **Always pull before you push.**
 
@@ -47,4 +48,6 @@ AGENTATION_CORS_ORIGINS=http://127.0.0.1:9292,https://p0pt9d-ef.myshopify.com np
 
 - **Every preview talks to the real store.** An order placed in a preview is a real order unless payments are in test mode.
 - Check the theme before opening a PR: `shopify theme check`.
+- **Test checkout on a Shopify preview link, not on 127.0.0.1.** The local CLI server proxies checkout badly: the checkout page stays blank, and a redirect through `/cart/add` can crash it ("Theme ID mismatch").
+- **The GitHub sync can skip a push.** On 2026-10-27 a CSS-only commit never reached the connected theme while later commits did. If a preview doesn't show a change after a few minutes, compare the theme's `styles.css` / `theme.js` with the branch; the next push of that file brings it up to date.
 - Where things live: layout and header in `layout/` and `sections/header.liquid`, page sections in `sections/`, page setup in `templates/*.json`, behaviour in `assets/theme.js`, styles in `assets/styles.css`. See `README.md` for the page map and one-time admin setup.

@@ -1,5 +1,11 @@
-{%- if page.content == blank -%}<h1 class="visually-hidden">{{ page.title | escape }}</h1>{%- endif -%}
-{%- if page.content != blank -%}
+{%- liquid
+  assign show_content = true
+  if section.settings.hide_on_page != blank and page.handle == section.settings.hide_on_page
+    assign show_content = false
+  endif
+-%}
+{%- if page.content == blank or show_content == false -%}<h1 class="visually-hidden">{{ page.title | escape }}</h1>{%- endif -%}
+{%- if page.content != blank and show_content -%}
   <section class="info-row info-row--top">
     <div class="info-box">
       <h1>{{ page.title | escape }}</h1>
@@ -11,6 +17,13 @@
 {% schema %}
 {
   "name": "Page content",
-  "settings": []
+  "settings": [
+    {
+      "type": "text",
+      "id": "hide_on_page",
+      "label": "Hide page text on page (handle)",
+      "info": "E.g. \"about\" hides the text written in Shopify admin on /pages/about (the title stays in the page for search engines)."
+    }
+  ]
 }
 {% endschema %}

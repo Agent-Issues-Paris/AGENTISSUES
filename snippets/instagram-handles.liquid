@@ -1,0 +1,29 @@
+{%- comment -%}
+  Turns @handles into Instagram links that open in a new tab, so a reader
+  keeps the shop open. Only an @ at the start of a word (after a space or
+  a tag) counts: e-mail addresses stay as they are.
+  Accepts: html {String}
+{%- endcomment -%}
+{%- liquid
+  assign pieces = html | split: '@'
+  assign out = pieces.first
+  for piece in pieces offset: 1
+    assign before = out | slice: -1, 1
+    assign handle = piece | replace: ' ', '§' | replace: '<', '§' | replace: ',', '§' | replace: ')', '§' | replace: '&', '§' | replace: ';', '§' | replace: ':', '§' | replace: '/', '§' | replace: '"', '§' | replace: "'", '§' | replace: '!', '§' | replace: '?', '§' | split: '§' | first
+    assign last = handle | slice: -1, 1
+    if last == '.'
+      assign handle = handle | remove_last: '.'
+    endif
+    assign starts_word = false
+    if before == '' or before == ' ' or before == '>'
+      assign starts_word = true
+    endif
+    if handle != blank and starts_word
+      assign tail = piece | remove_first: handle
+      assign out = out | append: '<a class="text-link" href="https://www.instagram.com/' | append: handle | append: '/" target="_blank" rel="noopener">@' | append: handle | append: '</a>' | append: tail
+    else
+      assign out = out | append: '@' | append: piece
+    endif
+  endfor
+  echo out
+-%}

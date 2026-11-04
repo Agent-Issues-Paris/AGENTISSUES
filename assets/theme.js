@@ -1,7 +1,11 @@
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
+// Desktop issue pages are a fixed screen that always opens at the top. On
+// phones every page scrolls normally, and Back must return to where you were.
+if (window.innerWidth > 700) {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
 }
-window.scrollTo(0, 0);
 
 document.addEventListener('DOMContentLoaded', function () {
   var overlay = document.getElementById('introOverlay');
@@ -15,7 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
     alreadyPlayed = sessionStorage.getItem(STORAGE_KEY) === '1';
   } catch (e) {}
 
-  if (alreadyPlayed) {
+  // "reduce motion" in the system settings: no flashing reel
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (alreadyPlayed || reduceMotion) {
     overlay.remove();
     return;
   }
@@ -103,8 +110,40 @@ document.addEventListener('DOMContentLoaded', function () {
     offset = centerImg.offsetLeft + centerImg.offsetWidth / 2 - window.innerWidth / 2;
   }
 
+  // analytics: how much of the strip a visitor has seen, in quarters of one
+  // full loop (100 = every spread has passed by once)
+  var travelled = 0;
+  var depthSent = 0;
+  function trackDepth(delta) {
+    if (!halfWidth) return;
+    travelled += Math.abs(delta);
+    var quarter = Math.min(4, Math.floor(travelled / halfWidth * 4));
+    while (depthSent < quarter) {
+      depthSent += 1;
+      agentTrack('issue_strip_depth', { percent: depthSent * 25 });
+    }
+  }
+
+  // phones: the strip is a native swipe gallery (styles.css); page scrolling
+  // must not move it, and depth is measured from the gallery's own scroll
+  function isPhone() { return window.innerWidth <= 700; }
+  var strip = track.parentElement;
+  strip.addEventListener('scroll', function () {
+    if (!isPhone()) return;
+    var max = strip.scrollWidth - strip.clientWidth;
+    if (max <= 0) return;
+    var seen = strip.scrollLeft / max;
+    var quarter = Math.min(4, Math.floor(seen * 4 + 0.02));
+    while (depthSent < quarter) {
+      depthSent += 1;
+      agentTrack('issue_strip_depth', { percent: depthSent * 25 });
+    }
+  }, { passive: true });
+
   window.addEventListener('wheel', function (e) {
+    if (isPhone()) return;
     offset += e.deltaY * SPEED;
+    trackDepth(e.deltaY * SPEED);
     render();
   }, { passive: true });
 
@@ -114,9 +153,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { passive: true });
 
   window.addEventListener('touchmove', function (e) {
-    if (touchY === null || e.touches.length !== 1) return;
+    if (touchY === null || e.touches.length !== 1 || isPhone()) return;
     var y = e.touches[0].clientY;
     offset += (touchY - y) * SPEED;
+    trackDepth((touchY - y) * SPEED);
     touchY = y;
     render();
   }, { passive: true });
@@ -129,13 +169,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  // contributors and specs: open on desktop, tap to expand on phones
+  // contributors and the product box: open on desktop, tap to expand on phones
   var boxes = document.querySelectorAll('.credits-box, [data-desktop-open]');
   if (!boxes.length) return;
 
+  // only when crossing the phone/desktop line: phones fire resize while the
+  // address bar hides, which would otherwise shut a box the visitor opened
+  var wasDesktop = null;
   function sync() {
+    var isDesktop = window.innerWidth > 700;
+    if (isDesktop === wasDesktop) return;
+    wasDesktop = isDesktop;
     Array.prototype.forEach.call(boxes, function (box) {
-      box.open = window.innerWidth > 700;
+      box.open = isDesktop;
     });
   }
 
@@ -157,29 +203,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   sync();
   window.addEventListener('resize', sync);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-  var track = document.querySelector('.hero-strip__track');
-  if (!track) return;
-
-  var MOBILE_BREAKPOINT = 700;
-  var setHeight = 0;
-
-  function measure() {
-    setHeight = window.innerWidth <= MOBILE_BREAKPOINT ? track.scrollHeight / 2 : 0;
-  }
-
-  function loop() {
-    if (!setHeight) return;
-    if (window.scrollY >= setHeight) {
-      window.scrollTo(0, window.scrollY - setHeight);
-    }
-  }
-
-  measure();
-  window.addEventListener('resize', measure);
-  window.addEventListener('scroll', loop, { passive: true });
 });
 
 /* ---------- draw ur own logo ---------- */
@@ -270,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var modal = null;
   function openDrawModal() {
+    agentTrack('logo_draw_open');
     if (!modal) modal = buildModal();
     modal.open();
   }
@@ -416,6 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
     root.querySelector('.draw-modal__done').addEventListener('click', function () {
       var src = exportDrawing();
       if (src) {
+        agentTrack('logo_drawn');
         applyLogo(src);
         try { sessionStorage.setItem(STORAGE_KEY, src); } catch (e) {}
         hasLogo = true;
@@ -435,14 +460,23 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-/* ---------- contributors list scrolls on its own ---------- */
+/* ---------- contributors list and product box scroll on their own ---------- */
 document.addEventListener('DOMContentLoaded', function () {
-  var credits = document.querySelector('.credits-box');
-  if (!credits) return;
-  // keep the wheel/touch from also driving the hero strip behind it
-  ['wheel', 'touchstart', 'touchmove'].forEach(function (type) {
-    credits.addEventListener(type, function (e) { e.stopPropagation(); }, { passive: true });
+  // keep the wheel/touch from also driving the hero strip behind them
+  document.querySelectorAll('.credits-box, .product-box').forEach(function (box) {
+    ['wheel', 'touchstart', 'touchmove'].forEach(function (type) {
+      box.addEventListener(type, function (e) { e.stopPropagation(); }, { passive: true });
+    });
   });
+
+  // the contributors box gives up as much room as the product box takes
+  // under it in the bottom-right corner (see styles.css)
+  var productBox = document.querySelector('.page-issue1 .product-box');
+  if (!productBox || !window.ResizeObserver) return;
+  new ResizeObserver(function () {
+    var h = productBox.offsetHeight ? productBox.offsetHeight + 10 : 0;
+    document.documentElement.style.setProperty('--product-box-h', h + 'px');
+  }).observe(productBox);
 });
 
 /* ---------- quick add to cart on product grids ---------- */
@@ -461,6 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.textContent = 'ADDING...';
     agentCartAdd(variantId, 1).then(function () {
       btn.textContent = 'ADDED!';
+      agentTrack('add_to_cart', { source: 'quick_add', variant_id: String(variantId), quantity: 1 });
       // on the cart page the new line has to show up in the list
       if (document.querySelector('.cart-page')) {
         rerenderCartSection().catch(function () { window.location.reload(); });
@@ -544,9 +579,13 @@ function cartRequest(path, body) {
   });
 }
 
+function fetchCart() {
+  return fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+    .then(function (res) { return res.json(); });
+}
+
 function refreshCartBadge() {
-  return fetch(agentRoot() + 'cart.js', { headers: { 'Accept': 'application/json' } })
-    .then(function (res) { return res.json(); })
+  return fetchCart()
     .then(function (cart) { updateCartBadge(cart.item_count); })
     .catch(function () {});
 }
@@ -577,23 +616,130 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // variant id -> quantity in the cart, shared by every buy box on the page
+  var cartQty = {};
+  var renders = [];
+  function setCartQty(cart) {
+    cartQty = {};
+    cart.items.forEach(function (item) {
+      cartQty[item.variant_id] = (cartQty[item.variant_id] || 0) + item.quantity;
+    });
+    updateCartBadge(cart.item_count);
+    renders.forEach(function (render) { render(); });
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('[data-product-form]'), function (form) {
     var variantInput = form.querySelector('[data-variant-input]');
-    var qtyInput = form.querySelector('[data-qty-input]');
+    var addBox = form.querySelector('[data-add-box]');
+    var addButton = form.querySelector('[data-add-to-cart]');
+    var stepper = form.querySelector('[data-cart-qty]');
     var qtyValue = form.querySelector('[data-qty-value]');
     var msg = form.querySelector('[data-cart-message]');
     var priceBox = document.querySelector('[data-price-box]');
+    var sizeBox = form.querySelector('[data-size-box]');
     var sizeButtons = form.querySelectorAll('.size-option');
-    var qty = 1;
+    var busy = false; // a +/−/ADD TO CART request is running
+    var pending = Promise.resolve(); // that request, for CHECKOUT to wait on
+    var leaving = false; // CHECKOUT clicked, checkout is opening
 
-    function setQty(n) {
-      qty = Math.max(1, n);
-      qtyValue.textContent = qty;
-      qtyInput.value = qty;
+    // where the purchase started: home hero, issue page or product page
+    var source = form.closest('.home-hero') ? 'home_hero'
+      : document.body.classList.contains('page-issue1') ? 'issue_page' : 'product_page';
+
+    // ADD TO CART until the selected variant is in the cart, then − N IN CART +
+    function render() {
+      var n = cartQty[variantInput.value] || 0;
+      addButton.hidden = n > 0;
+      stepper.hidden = n === 0;
+      addBox.classList.toggle('qty-box', n > 0);
+      qtyValue.textContent = n + ' IN CART';
+    }
+    renders.push(render);
+    render();
+
+    var checkoutButton = form.querySelector('[data-checkout]');
+    var checkoutLabel = checkoutButton.textContent;
+
+    // a few words on the clicked button itself, then its own label again
+    function flash(button, text) {
+      var label = button.getAttribute('data-label') || button.textContent;
+      button.setAttribute('data-label', label);
+      button.textContent = text;
+      clearTimeout(button.flashTimer);
+      button.flashTimer = setTimeout(function () { button.textContent = label; }, 1500);
     }
 
-    form.querySelector('[data-qty-minus]').addEventListener('click', function () { setQty(qty - 1); });
-    form.querySelector('[data-qty-plus]').addEventListener('click', function () { setQty(qty + 1); });
+    // product pages start with no size picked
+    function sizePicked(button) {
+      if (variantInput.value) return true;
+      msg.textContent = 'Choose a size first.';
+      if (sizeBox) sizeBox.classList.add('is-missing');
+      flash(button, 'CHOOSE A SIZE');
+      return false;
+    }
+
+    function add() {
+      if (busy || !sizePicked(addButton)) return;
+      var variantId = variantInput.value;
+      busy = true;
+      msg.textContent = 'Adding...';
+      pending = agentCartAdd(variantId, 1).then(function (item) {
+        agentTrack('add_to_cart', { source: source, variant_id: String(variantId), quantity: 1 });
+        cartQty[variantId] = item.quantity;
+        renders.forEach(function (r) { r(); });
+        msg.textContent = 'Added to cart.';
+      }).catch(function (err) {
+        msg.textContent = 'Could not add to cart: ' + err.message;
+      }).then(function () { busy = false; });
+    }
+
+    // CHECKOUT reads the real cart first (this page's idea of it can be stale,
+    // e.g. after Back from the cart page), adds the size if it isn't there,
+    // then opens checkout. The button says so at once and ignores more clicks
+    // while Shopify's checkout loads (it takes a few seconds).
+    function checkout() {
+      if (leaving || !sizePicked(checkoutButton)) return;
+      var variantId = variantInput.value;
+      leaving = true;
+      checkoutButton.textContent = 'OPENING CHECKOUT...';
+      msg.textContent = '';
+      // after any + / − / ADD TO CART still on its way
+      pending.then(fetchCart).then(function (cart) {
+        var inCart = cart.items.some(function (item) { return String(item.variant_id) === String(variantId); });
+        return inCart ? cart : agentCartAdd(variantId, 1);
+      }).then(function () {
+        agentTrack('checkout_click', { source: source, variant_id: String(variantId), quantity: cartQty[variantId] || 1 });
+        window.location.href = agentRoot() + 'checkout';
+      }).catch(function (err) {
+        leaving = false;
+        checkoutButton.textContent = checkoutLabel;
+        msg.textContent = 'Could not start checkout: ' + err.message;
+      });
+    }
+
+    // back from checkout or the cart page: the page comes from the browser
+    // cache, so unlock it (the cart itself is re-read below)
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      leaving = false;
+      checkoutButton.textContent = checkoutLabel;
+    });
+
+    form.querySelector('[data-qty-plus]').addEventListener('click', add);
+
+    form.querySelector('[data-qty-minus]').addEventListener('click', function () {
+      if (busy) return;
+      busy = true;
+      var body = new FormData();
+      body.append('id', variantInput.value);
+      body.append('quantity', Math.max(0, (cartQty[variantInput.value] || 0) - 1));
+      pending = cartRequest('cart/change.js', body).then(function (cart) {
+        setCartQty(cart);
+        msg.textContent = cartQty[variantInput.value] ? '' : 'Removed from cart.';
+      }).catch(function (err) {
+        msg.textContent = 'Could not update the cart: ' + err.message;
+      }).then(function () { busy = false; });
+    });
 
     Array.prototype.forEach.call(sizeButtons, function (btn) {
       btn.addEventListener('click', function () {
@@ -602,26 +748,28 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.classList.add('is-selected');
         variantInput.value = btn.getAttribute('data-variant-id');
         if (priceBox) priceBox.textContent = btn.getAttribute('data-price');
+        if (sizeBox) sizeBox.classList.remove('is-missing');
         msg.textContent = '';
+        render();
       });
     });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var goToCheckout = e.submitter && e.submitter.hasAttribute('data-checkout');
-      msg.textContent = goToCheckout ? 'Preparing checkout...' : 'Adding...';
-
-      agentCartAdd(variantInput.value, qty).then(function () {
-        if (goToCheckout) {
-          window.location.href = agentRoot() + 'checkout';
-          return;
-        }
-        msg.textContent = 'Added to cart.';
-      }).catch(function (err) {
-        msg.textContent = (goToCheckout ? 'Could not start checkout: ' : 'Could not add to cart: ') + err.message;
-      });
-    });
+    // each button has its own handler (no form submit, so nothing depends on
+    // how a browser reports which button submitted the form)
+    addButton.addEventListener('click', add);
+    checkoutButton.addEventListener('click', checkout);
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
   });
+
+  // what is already in the cart, so a returning visitor sees the counter;
+  // again on Back, when the page comes from the browser cache
+  function loadCartQty() {
+    fetchCart().then(setCartQty).catch(function () {});
+  }
+  if (renders.length) {
+    loadCartQty();
+    window.addEventListener('pageshow', function (e) { if (e.persisted) loadCartQty(); });
+  }
 });
 
 // Cart page: re-render just the cart section (Shopify Section Rendering API)
@@ -660,6 +808,17 @@ document.addEventListener('click', function (e) {
 
 // Cookie banner: Shopify's Customer Privacy API decides whether consent is
 // needed (e.g. EU visitors) and stores the answer.
+var ANSWER_KEY = 'agentCookieAnswer';
+
+function hasAnswered(privacy) {
+  try {
+    var consent = privacy.getTrackingConsent && privacy.getTrackingConsent();
+    if (consent === 'yes' || consent === 'no') return true;
+  } catch (e) {}
+  // backup for when Shopify's answer callback doesn't land (local preview)
+  try { return !!localStorage.getItem(ANSWER_KEY); } catch (e) { return false; }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   var banner = document.querySelector('[data-cookie-banner]');
   if (!banner || !window.Shopify || !window.Shopify.loadFeatures) return;
@@ -668,6 +827,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (error) return;
     var privacy = window.Shopify.customerPrivacy;
     if (!privacy || !privacy.shouldShowBanner()) return;
+    // shouldShowBanner() only says the visitor's region needs consent; it
+    // stays true after they answer. Show the banner only until they choose.
+    if (hasAnswered(privacy)) return;
 
     banner.hidden = false;
     requestAnimationFrame(function () { banner.classList.add('is-visible'); });
@@ -675,6 +837,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // hide right away; Shopify's callback doesn't always fire (e.g. on a
     // local preview), and the visitor shouldn't wait for it
     function answer(granted) {
+      try { localStorage.setItem(ANSWER_KEY, granted ? 'yes' : 'no'); } catch (e) {}
       banner.classList.remove('is-visible');
       setTimeout(function () { banner.hidden = true; }, 300);
       try {
@@ -1029,4 +1192,133 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     };
   }
+});
+
+/* ---------- analytics: the site's own events ---------- */
+// Published to Shopify's Customer events (Settings → Customer events), where
+// the custom pixel in docs/analytics forwards them to Google Analytics.
+// Shopify holds them back until the visitor's cookie choice allows it.
+// Every name gets the "agent_" prefix, e.g. agent_ticker_click.
+function agentTrack(name, data) {
+  try {
+    if (window.Shopify && Shopify.analytics && Shopify.analytics.publish) {
+      Shopify.analytics.publish('agent_' + name, data || {});
+    }
+  } catch (e) {}
+}
+
+function agentPageType() {
+  var m = document.body.className.match(/page-type-([\w-]+)/);
+  return m ? m[1] : '';
+}
+
+// which part of the page something sits in: header, a section, or the page
+function agentArea(el) {
+  if (el.closest('.site-header')) return 'header';
+  if (el.closest('.star-menu')) return 'star_menu';
+  if (el.closest('.product-box')) return 'product_box';
+  var section = el.closest('.shopify-section');
+  return section ? section.id.replace('shopify-section-', '').replace(/^template--\d+__/, '') : 'page';
+}
+
+function agentLabel(el) {
+  return (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+}
+
+// every click on a link or button, plus named events for the ones we watch
+document.addEventListener('click', function (e) {
+  var el = e.target.closest && e.target.closest('a, button, summary, [role="button"]');
+  if (!el) return;
+  var data = {
+    label: agentLabel(el),
+    href: el.getAttribute('href') || '',
+    area: agentArea(el),
+    page_type: agentPageType()
+  };
+  agentTrack('click', data);
+  if (el.closest('.ticker')) agentTrack('ticker_click', { href: data.href, page_type: data.page_type });
+  if (el.closest('.home-hero__cover')) agentTrack('look_inside_click', { href: data.href });
+  if (el.closest('.cart-picks')) agentTrack('cart_pick_click', { label: data.label, href: data.href });
+}, true);
+
+// rows that open on tap: product box, Q&A, contributors, size guide
+document.addEventListener('toggle', function (e) {
+  var details = e.target;
+  if (!details.open || !details.querySelector) return;
+  var summary = details.querySelector('summary');
+  if (!summary) return;
+  // on desktop the script opens these itself; that's not the visitor
+  var autoOpened = details.hasAttribute('data-desktop-open') || details.classList.contains('credits-box');
+  if (autoOpened && window.innerWidth > 700) return;
+  agentTrack('details_open', { label: agentLabel(summary), area: agentArea(details), page_type: agentPageType() });
+}, true);
+
+// newsletter and contact form: the attempt, then the thank-you after reload
+document.addEventListener('submit', function (e) {
+  var form = e.target;
+  if (form.classList.contains('newsletter-form')) agentTrack('newsletter_submit', { area: agentArea(form) });
+  if (form.classList.contains('contact-form')) agentTrack('contact_submit');
+}, true);
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (document.querySelector('[data-newsletter-success]')) agentTrack('newsletter_subscribed', { page_type: agentPageType() });
+  if (document.querySelector('[data-contact-success]')) agentTrack('contact_sent');
+});
+
+// how far down a page people read: 25 / 50 / 75 / 100 %
+// (the issue page on desktop doesn't scroll; its strip reports instead)
+document.addEventListener('DOMContentLoaded', function () {
+  var sent = 0;
+  function check() {
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    if (scrollable < 50) return;
+    var quarter = Math.min(4, Math.floor((window.scrollY / scrollable) * 4 + 0.02));
+    while (sent < quarter) {
+      sent += 1;
+      agentTrack('scroll_depth', { percent: sent * 25, page_type: agentPageType() });
+    }
+  }
+  window.addEventListener('scroll', check, { passive: true });
+});
+
+/* ---------- issue strip: load the rest of the spreads after the page ---------- */
+// The strip starts with only its first and centre images (see
+// main-product-issue.liquid); the others follow once everything else is in.
+window.addEventListener('load', function () {
+  document.querySelectorAll('.hero-strip img[loading="lazy"]').forEach(function (img) {
+    img.loading = 'eager';
+  });
+});
+
+/* ---------- Microsoft Clarity (heatmaps, session recordings) ---------- */
+// Only when a project ID is set in Theme settings → Analytics, and only
+// after the visitor allows analytics cookies (or isn't asked, outside the EU).
+document.addEventListener('DOMContentLoaded', function () {
+  var id = document.body.getAttribute('data-clarity-id');
+  if (!id || !window.Shopify || !window.Shopify.loadFeatures) return;
+  // never in the theme editor, so our own clicks aren't recorded
+  if (window.Shopify.designMode) return;
+
+  var loaded = false;
+  function load() {
+    if (loaded) return;
+    loaded = true;
+    window.clarity = window.clarity || function () { (window.clarity.q = window.clarity.q || []).push(arguments); };
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.clarity.ms/tag/' + encodeURIComponent(id);
+    document.head.appendChild(script);
+  }
+
+  window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (error) {
+    if (error) return;
+    var privacy = window.Shopify.customerPrivacy;
+    if (!privacy) return;
+    function check() {
+      if (privacy.analyticsProcessingAllowed()) load();
+    }
+    check();
+    document.addEventListener('visitorConsentCollected', check);
+  });
 });

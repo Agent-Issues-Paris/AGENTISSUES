@@ -99,7 +99,7 @@
         "type": "image_picker",
         "id": "share_image",
         "label": "Default social sharing image",
-        "info": "Shown when a non-product page is shared (Instagram, Telegram, iMessage...)."
+        "info": "Shown when a non-product page is shared (Instagram, Telegram, iMessage...). Leave empty to use the current issue's cover."
       },
       {
         "type": "image_picker",
@@ -113,16 +113,6 @@
     "name": "Product pages",
     "settings": [
       {
-        "type": "paragraph",
-        "content": "SPECS box: add a product metafield custom.specs (Multi-line text) and fill it per product, one \"Label: value\" per line."
-      },
-      {
-        "type": "textarea",
-        "id": "shipping_note",
-        "label": "Shipping note under SPECS",
-        "info": "Same for every product. Leave empty to hide."
-      },
-      {
         "type": "textarea",
         "id": "size_chart",
         "label": "Size guide",
@@ -134,6 +124,42 @@
         "id": "size_chart_note",
         "label": "Size guide note",
         "default": "Width: armpit to armpit, laid flat. Length: top of the shoulder to the hem. Fruit of the Loom Heavy Cotton, classic fit. Allow ±2 cm."
+      }
+    ]
+  },
+  {
+    "name": "Product info box",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "product_box",
+        "label": "Show the info box on product pages",
+        "default": true,
+        "info": "One box with rows that open on tap: SPECS, DELIVERY, WHERE TO BUY, CONTACT, POLICIES. Issue pages pin it to the bottom-right corner. A row with no text is left out."
+      },
+      {
+        "type": "paragraph",
+        "content": "SPECS: add a product metafield custom.specs (Multi-line text) and fill it per product, one \"Label: value\" per line."
+      },
+      {
+        "type": "textarea",
+        "id": "shipping_note",
+        "label": "DELIVERY text",
+        "info": "Same for every product: where you ship, how long it takes, when pre-orders go out. Links to the shipping and refund policies are added underneath. [words](https://...) makes a link."
+      },
+      {
+        "type": "textarea",
+        "id": "product_box_stockists",
+        "label": "WHERE TO BUY",
+        "default": "Cahier Central, Paris | https://cahiercentral.com\nProphet Vision, Paris | https://prophet.vision\nLebigmag, Moscow | https://lebigmag.ru",
+        "info": "One shop per line: \"Name, City | https://...\". Leave empty to hide the row."
+      },
+      {
+        "type": "textarea",
+        "id": "product_box_contact",
+        "label": "CONTACT",
+        "default": "Email: agentissuesparis@gmail.com\nInstagram: @agent.issues",
+        "info": "@handles link to Instagram; [words](/pages/contact) makes a link."
       }
     ]
   },
@@ -164,6 +190,21 @@
         "id": "cookie_decline_label",
         "label": "Decline button",
         "default": "DECLINE"
+      }
+    ]
+  },
+  {
+    "name": "Analytics",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "The theme sends its own events (ticker, LOOK INSIDE, clicks, strip depth, quick add, newsletter...) to Settings → Customer events. The custom pixel that forwards them to Google Analytics is in docs/analytics in the repository."
+      },
+      {
+        "type": "text",
+        "id": "clarity_id",
+        "label": "Microsoft Clarity project ID",
+        "info": "Free heatmaps and session recordings (clarity.microsoft.com). Loads only after a visitor accepts analytics cookies. Leave empty to turn off."
       }
     ]
   }

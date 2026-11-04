@@ -9,7 +9,7 @@
     <div class="info-box">
       <p>
         {{- settings.cookie_text | escape | newline_to_br -}}
-        {%- if shop.privacy_policy %} <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title | escape }}</a>{% endif -%}
+        {%- if shop.privacy_policy %} <a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title | escape }}</a>.{% endif -%}
       </p>
     </div>
     <div class="cookie-banner__actions">

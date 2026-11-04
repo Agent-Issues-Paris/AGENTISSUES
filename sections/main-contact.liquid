@@ -1,0 +1,73 @@
+{%- comment -%}
+  Contact form. Messages arrive at the store email (Settings → Store
+  details) and show up in Shopify admin. "Only on page" lets the generic
+  page template carry it on /pages/contact without assigning a template.
+{%- endcomment -%}
+{%- liquid
+  assign show_row = true
+  if section.settings.only_page != blank
+    if request.page_type != 'page' or page.handle != section.settings.only_page
+      assign show_row = false
+    endif
+  endif
+-%}
+{%- if show_row -%}
+<section class="info-row info-row--top contact-row">
+  <div class="info-box contact-box">
+    <h2>{{ section.settings.heading | escape }}</h2>
+    {%- form 'contact', id: 'ContactForm', class: 'contact-form' -%}
+      {%- if form.posted_successfully? -%}
+        <p data-contact-success>{{ section.settings.success | escape }}</p>
+      {%- else -%}
+        <label class="contact-form__field">
+          <span>NAME</span>
+          <input type="text" name="contact[name]" autocomplete="name" value="{{ form.name }}">
+        </label>
+        <label class="contact-form__field">
+          <span>EMAIL</span>
+          <input type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+        </label>
+        <label class="contact-form__field">
+          <span>MESSAGE</span>
+          <textarea name="contact[body]" rows="6" required>{{ form.body }}</textarea>
+        </label>
+        <div class="contact-form__send"><button type="submit">{{ section.settings.button | escape }}</button></div>
+        {%- if form.errors -%}<div class="newsletter-form__error">{{ form.errors | default_errors }}</div>{%- endif -%}
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+  {%- if section.settings.text != blank -%}
+    <div class="info-box">
+      <h2>{{ section.settings.text_heading | escape }}</h2>
+      <p>{% render 'box-text', text: section.settings.text %}</p>
+    </div>
+  {%- endif -%}
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Contact form",
+  "settings": [
+    {
+      "type": "text",
+      "id": "only_page",
+      "label": "Only on page (handle)",
+      "default": "contact",
+      "info": "Leave empty to show on every page that uses this template."
+    },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "WRITE TO US" },
+    { "type": "text", "id": "button", "label": "Button", "default": "SEND" },
+    { "type": "text", "id": "success", "label": "Thank-you text", "default": "Thanks, we got your message and will write back." },
+    { "type": "text", "id": "text_heading", "label": "Second box heading", "default": "CONTACT" },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Second box text",
+      "default": "Email: agentissuesparis@gmail.com\nInstagram: @agent.issues",
+      "info": "Leave empty to hide the box. @handles link to Instagram."
+    }
+  ],
+  "presets": [{ "name": "Contact form" }]
+}
+{% endschema %}

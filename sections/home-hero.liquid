@@ -2,19 +2,25 @@
   The hero is the newest product in the chosen collection ("Home page" by
   default), so a new issue takes over as soon as it's added there.
   Texts come from the product (description split at a "Contributors:"
-  paragraph into blurb + credits). Issue 1 keeps its flat cover art;
-  any other issue uses its Shopify photos.
+  paragraph into blurb + credits). Issues with flat cover art in assets
+  (issueN-cover / issueN-cover-alt, cropped to the magazine so they fill
+  the box) use it; any other product uses its Shopify photos.
 {%- endcomment -%}
 {%- liquid
   assign source = section.settings.collection | default: collections.frontpage
   assign hero = source.products | sort: 'created_at' | reverse | first
   assign fallback = section.settings.fallback_product
-  assign is_fallback = false
+  assign flat = ''
   if hero == blank or fallback != blank and hero.id == fallback.id
-    assign is_fallback = true
+    assign flat = 'issue1'
   endif
   if hero == blank
     assign hero = fallback
+  endif
+  assign flat_w = 912
+  if hero.handle contains 'issue-02'
+    assign flat = 'issue2'
+    assign flat_w = 1824
   endif
   assign variant = hero.selected_or_first_available_variant
 -%}
@@ -22,11 +28,14 @@
 {%- capture blurb_html -%}{% render 'issue-text', html: hero.description, part: 'blurb' %}{%- endcapture -%}
 {%- capture credits_html -%}{% render 'issue-text', html: hero.description, part: 'credits' %}{%- endcapture -%}
 
+{%- comment -%} Kept for search engines and screen readers, not shown {%- endcomment -%}
+<h1 class="visually-hidden">{{ section.settings.heading | escape }}</h1>
+
 {%- if hero != blank -%}
 <section class="home-hero">
   <div class="home-hero__info">
     <div class="info-box">
-      <h1 class="issue-title">{{ hero.title | escape }}</h1>
+      <h2 class="issue-title">{% render 'product-title', product: hero %}</h2>
       <p>{{ blurb_html }}</p>
     </div>
     {%- if credits_html != blank -%}
@@ -38,9 +47,9 @@
   </div>
 
   <a class="home-hero__cover" href="{{ hero.url }}">
-    {%- if is_fallback -%}
-      <img class="img-default" src="{{ 'issue1-cover.webp' | asset_url }}" srcset="{{ 'issue1-cover-600.webp' | asset_url }} 600w, {{ 'issue1-cover.webp' | asset_url }} 912w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
-      <img class="img-hover" src="{{ 'issue1-cover-alt.webp' | asset_url }}" srcset="{{ 'issue1-cover-alt-600.webp' | asset_url }} 600w, {{ 'issue1-cover-alt.webp' | asset_url }} 918w" sizes="(max-width: 700px) 100vw, 40vw" width="918" height="1194" alt="" aria-hidden="true" loading="lazy">
+    {%- if flat != '' -%}
+      <img class="img-default" src="{{ flat | append: '-cover.webp' | asset_url }}" srcset="{{ flat | append: '-cover-600.webp' | asset_url }} 600w, {{ flat | append: '-cover.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
+      <img class="img-hover" src="{{ flat | append: '-cover-alt.webp' | asset_url }}" srcset="{{ flat | append: '-cover-alt-600.webp' | asset_url }} 600w, {{ flat | append: '-cover-alt.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="" aria-hidden="true" loading="lazy">
     {%- else -%}
       {%- assign img2 = hero.images[1] | default: hero.featured_image -%}
       {{ hero.featured_image | image_url: width: 1600 | image_tag: class: 'img-default', alt: hero.featured_image.alt | default: hero.title, fetchpriority: 'high', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
@@ -52,17 +61,9 @@
 
   {%- form 'product', hero, class: 'home-hero__buy', data-product-form: '' -%}
     <input type="hidden" name="id" value="{{ variant.id }}" data-variant-input>
-    <input type="hidden" name="quantity" value="1" data-qty-input>
     <div class="info-box price-box"><p data-price-box>{{ variant.price | money }}</p></div>
-    <div class="info-box home-hero__control qty-box">
-      <div class="qty">
-        <button type="button" data-qty-minus aria-label="Decrease quantity">−</button>
-        <span data-qty-value>1</span>
-        <button type="button" data-qty-plus aria-label="Increase quantity">+</button>
-      </div>
-    </div>
-    <div class="info-box home-hero__control"><button type="submit" data-add-to-cart>ADD TO CART</button></div>
-    <div class="info-box home-hero__control info-box--primary"><button type="submit" name="return_to" value="/checkout" data-checkout>CHECKOUT</button></div>
+    {% render 'add-box', class: 'home-hero__control' %}
+    <div class="info-box home-hero__control info-box--primary"><button type="button" data-checkout>CHECKOUT</button></div>
     <p class="cart-message" aria-live="polite" data-cart-message>{% unless variant.available %}Sold out.{% endunless %}</p>
   {%- endform -%}
 </section>
@@ -72,6 +73,13 @@
 {
   "name": "Issue hero",
   "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Page heading (hidden)",
+      "default": "Agent Issues: independent fashion and art print magazine from Paris",
+      "info": "Not shown on the page. Search engines and screen readers read it as the main heading of the home page."
+    },
     {
       "type": "collection",
       "id": "collection",

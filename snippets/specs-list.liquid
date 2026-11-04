@@ -1,0 +1,19 @@
+{%- comment -%}
+  The product metafield custom.specs (multi-line text, one "Label: value"
+  per line) as a definition list.
+  Accepts: specs {String}
+{%- endcomment -%}
+<dl class="specs-list">
+  {%- assign lines = specs | newline_to_br | split: '<br />' -%}
+  {%- for raw in lines -%}
+    {%- assign line = raw | strip -%}
+    {%- if line == blank -%}{%- continue -%}{%- endif -%}
+    {%- assign label = line | split: ':' | first | strip -%}
+    {%- assign value = line | remove_first: label | remove_first: ':' | strip -%}
+    {%- if value == blank -%}
+      <div><dd>{{ label | escape }}</dd></div>
+    {%- else -%}
+      <div><dt>{{ label | escape }}</dt><dd>{{ value | escape }}</dd></div>
+    {%- endif -%}
+  {%- endfor -%}
+</dl>

@@ -37,21 +37,7 @@
 {% render 'meta-tags', title: meta_title, description: meta_description %}
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ content_for_header }}
-{%- if request.page_type == 'index' -%}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Agent Issues",
-      "url": {{ shop.url | json }},
-      "logo": {{ 'logo-agent-issues.png' | asset_url | prepend: 'https:' | json }},
-      "email": {{ shop.email | json }},
-      "description": {{ meta_description | json }},
-      "address": { "@type": "PostalAddress", "addressLocality": "Paris", "addressCountry": "FR" },
-      "sameAs": ["https://www.instagram.com/agent.issues/"]
-    }
-  </script>
-{%- endif -%}
+{% render 'structured-data', meta_description: meta_description %}
 </head>
 {%- if request.page_type == 'product' -%}
   {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
@@ -64,7 +50,7 @@
     assign body_class = body_class | append: ' page-product'
   endif
 -%}
-<body class="{{ body_class }}">
+<body class="{{ body_class }}"{% if settings.clarity_id != blank %} data-clarity-id="{{ settings.clarity_id | escape }}"{% endif %}>
 
 {% render 'intro-video' %}
 

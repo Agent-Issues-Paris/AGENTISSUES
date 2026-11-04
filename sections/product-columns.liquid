@@ -22,9 +22,20 @@
     {%- if pinned != blank -%}
       {% render 'product-card', product: pinned, tee: section.settings.tee_framing %}
     {%- endif -%}
+    {%- comment -%} Magazine issues come first (in the list's order, so newest first when it is sorted that way), then everything else {%- endcomment -%}
     {%- for product in products limit: section.settings.limit -%}
       {%- if pinned != blank and product.id == pinned.id -%}{%- continue -%}{%- endif -%}
-      {% render 'product-card', product: product, tee: section.settings.tee_framing %}
+      {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
+      {%- if is_issue contains 'true' -%}
+        {% render 'product-card', product: product, tee: section.settings.tee_framing %}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- for product in products limit: section.settings.limit -%}
+      {%- if pinned != blank and product.id == pinned.id -%}{%- continue -%}{%- endif -%}
+      {%- capture is_issue -%}{% render 'is-issue', product: product %}{%- endcapture -%}
+      {%- unless is_issue contains 'true' -%}
+        {% render 'product-card', product: product, tee: section.settings.tee_framing %}
+      {%- endunless -%}
     {%- endfor -%}
   {%- else -%}
     <p class="product-loading">No products yet.</p>
@@ -50,7 +61,8 @@
     {
       "type": "product",
       "id": "pinned_product",
-      "label": "Pin this product first"
+      "label": "Pin this product first",
+      "info": "Magazine issues already come first, newest first. Use this only to put something else at the very front."
     },
     {
       "type": "range",

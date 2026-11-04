@@ -1,0 +1,30 @@
+{%- comment -%}
+  Plain text from a theme setting as HTML: escaped, line breaks kept.
+  [label](url) in the text becomes a link; [label](issue) links to the
+  current issue (see current-issue-url), so the text never needs editing
+  when a new issue comes out. @handles become Instagram links.
+  Accepts: text {String}
+{%- endcomment -%}
+{%- liquid
+  assign parts = text | escape | split: '['
+  assign out = parts.first
+  for part in parts offset: 1
+    if part contains '](' and part contains ')'
+      assign label = part | split: '](' | first
+      assign rest = part | remove_first: label | remove_first: ']('
+      assign url = rest | split: ')' | first
+      assign after = rest | remove_first: url | remove_first: ')'
+      if url == 'issue'
+        capture url
+          render 'current-issue-url'
+        endcapture
+      endif
+      assign out = out | append: '<a class="text-link" href="' | append: url | append: '">' | append: label | append: '</a>' | append: after
+    else
+      assign out = out | append: '[' | append: part
+    endif
+  endfor
+  # line breaks first, so an @handle at the start of a line follows a tag
+  assign out = out | newline_to_br | strip_newlines
+  render 'instagram-handles', html: out
+-%}
