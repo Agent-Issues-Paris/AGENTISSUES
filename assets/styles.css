@@ -1231,7 +1231,9 @@ main {
     transform: scale(1.2);
   }
 
-  /* product page: normal page scroll, images stacked in the flow */
+  /* issue page on phones: an ordinary page in the flow, nothing pinned on
+     top of the photos. Spreads first as a swipe gallery, then title, price
+     and buttons, then the description, SPECS and contributors (tap to open). */
   .page-issue1.no-scroll {
     overflow: auto;
     height: auto;
@@ -1247,83 +1249,101 @@ main {
 
   .page-issue1 .hero-strip {
     position: static;
-    width: 100%;
+    width: auto;
     height: auto;
+    margin: 0 0 10px;
     z-index: auto;
-    padding-bottom: 260px; /* clears the bar pinned to the bottom (INFO + buttons) */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    animation: none;
+  }
+
+  .page-issue1 .hero-strip::-webkit-scrollbar {
+    display: none;
   }
 
   .page-issue1 .hero-strip__track {
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+    height: min(80vw, 52vh);
+    padding: 0 10px;
     transform: none !important;
   }
 
-  .page-issue1 .hero-strip img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-  }
-
+  .page-issue1 .hero-strip img,
   .page-issue1 .hero-strip img.portrait,
   .page-issue1 .hero-strip img.whole {
-    aspect-ratio: auto;
+    width: auto;
+    height: 100%;
+    max-width: calc(100vw - 50px); /* the next spread peeks in, so it reads as swipeable */
+    object-fit: contain;
+    scroll-snap-align: center;
+    background: none;
   }
 
   .page-issue1 .hero-strip img[aria-hidden="true"] {
     display: none;
   }
 
-  /* title/description, contributors (tap to expand), and price overlay the
-     images just like the cart bar does, pinned 10px below the nav */
   .page-issue1 .columns.product-grid {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    position: fixed;
-    top: calc(var(--header-h, 110px) + 10px);
-    left: 10px;
-    right: 10px;
-    margin: 0;
-    z-index: 30;
+    gap: 10px;
+    margin: 0 10px 10px;
   }
 
-  .page-issue1 .product-col:not(.product-col--hero),
+  .page-issue1 .product-col,
+  .page-issue1 .product-col--hero,
   .page-issue1 .credits-col {
     display: contents;
   }
 
+  .page-issue1 .info-box {
+    opacity: 1;
+    --rise-opacity: 1;
+    background: none;
+  }
+
+  .page-issue1 .title-box { order: 1; }
+  .page-issue1 .price-box { order: 2; }
+  .page-issue1 .cart-controls { order: 3; }
+  .page-issue1 .cart-message { order: 4; margin: 0; }
+  .page-issue1 .cart-message:empty { display: none; }
+  .page-issue1 .about-box { order: 5; display: block; }
+  .page-issue1 .specs-box { order: 6; max-height: none; }
+  .page-issue1 .credits-box { order: 7; }
+
+  .page-issue1 .title-box .issue-blurb {
+    display: none; /* shown in its own box under the buttons */
+  }
+
+  .page-issue1 .info-box h1.issue-heading {
+    font-size: 22px;
+    margin: 0;
+  }
+
   .page-issue1 .credits-box {
-    order: 2;
     width: 100%;
     margin-left: 0;
     height: auto;
-    max-height: 45vh;
-  }
-
-  .page-issue1 .price-box {
-    order: 3;
+    max-height: none;
   }
 
   .page-issue1 .credits-box summary {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     cursor: pointer;
   }
 
-  .page-issue1 .credits-box summary:hover {
-    color: red;
+  .page-issue1 .credits-box summary::after {
+    content: '+';
   }
 
-  .page-issue1 .product-col--hero {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    height: auto;
-    justify-content: flex-start;
-    background-color: #fff;
-    z-index: 30;
+  .page-issue1 .credits-box[open] > summary::after {
+    content: '−';
   }
 }
 
@@ -2057,9 +2077,8 @@ a.star-menu__item {
     margin-bottom: 4px;
   }
 
-  /* issue page: sits above the buttons in the bar pinned to the bottom */
   .page-issue1 .product-box {
-    max-height: 50vh;
+    max-height: none;
   }
 }
 
@@ -2252,4 +2271,58 @@ main:has(.faq-row) > .shopify-section:has(.faq-row) {
 .cart-controls--page .info-box > button,
 .cart-controls--page .info-box > a {
   padding: 12px 5px;
+}
+
+
+/* ---------- issue page: description box, phones only ---------- */
+.about-box {
+  display: none;
+}
+
+.about-box p {
+  margin: 0;
+}
+
+/* ---------- buttons: no system colours, no stuck hover on touch ---------- */
+/* iOS Safari paints button text its system blue unless a colour is set */
+button {
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* on touch screens :hover sticks after a tap, so the red hover states
+   (border, text) only apply where there is a real pointer */
+@media (hover: none) {
+  .cart-controls .info-box:hover {
+    border-color: #000;
+  }
+
+  .cart-controls .info-box:hover button,
+  .cart-controls button:hover {
+    color: inherit;
+  }
+
+  .info-box.info-box--primary:hover {
+    background: #000;
+    border-color: #000;
+  }
+
+  .info-box.info-box--primary:hover button {
+    color: #fff;
+  }
+
+  .cart-controls .info-box:active {
+    border-color: red;
+  }
+
+  .cart-controls .info-box:active button {
+    color: red;
+  }
+
+  .info-box.info-box--primary:active {
+    background: red;
+    border-color: red;
+  }
 }
