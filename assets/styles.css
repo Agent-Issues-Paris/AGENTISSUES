@@ -2341,3 +2341,12 @@ button {
     border-color: red;
   }
 }
+
+/* ---------- phones: breathing room at the end of every page ---------- */
+/* Safari's toolbar floats over the bottom of the page; without this the
+   last box (SPECS, POLICIES) sits right on the screen edge */
+@media (max-width: 700px) {
+  main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
