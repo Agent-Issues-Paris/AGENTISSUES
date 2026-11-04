@@ -1313,8 +1313,8 @@ main {
   .page-issue1 .cart-message { order: 4; margin: 0; }
   .page-issue1 .cart-message:empty { display: none; }
   .page-issue1 .about-box { order: 5; display: block; }
-  .page-issue1 .specs-box { order: 6; max-height: none; }
-  .page-issue1 .credits-box { order: 7; }
+  .page-issue1 .credits-box { order: 6; }
+  .page-issue1 .specs-box { order: 7; max-height: none; }
 
   .page-issue1 .title-box .issue-blurb {
     display: none; /* shown in its own box under the buttons */
