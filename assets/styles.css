@@ -1428,8 +1428,7 @@ main {
   flex-direction: column;
   gap: 10px;
   width: min(420px, calc(100% - 20px));
-  background: #fff;
-  opacity: 0;
+  opacity: 0; /* no fill of its own: the boxes float, the page shows between them */
   transform: translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -1443,8 +1442,19 @@ main {
   transform: translateY(0);
 }
 
-.cookie-banner .info-box {
+.cookie-banner .info-box,
+.page-issue1 .cookie-banner .info-box,
+.page-product .cookie-banner .info-box {
   background: #fff;
+  opacity: 1;
+  --rise-opacity: 1;
+}
+
+/* the policy link reads as a link: underlined, red on hover */
+.cookie-banner .info-box p a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
 }
 
 .cookie-banner__actions {
@@ -1478,6 +1488,11 @@ main {
 
 .cookie-banner__actions .info-box:hover button {
   color: red;
+}
+
+@media (hover: none) {
+  .cookie-banner__actions .info-box:hover { border-color: #000; }
+  .cookie-banner__actions .info-box:hover button { color: #000; }
 }
 
 /* ticker as a link (e.g. to the preorder) */
