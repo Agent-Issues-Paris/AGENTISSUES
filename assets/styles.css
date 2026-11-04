@@ -1332,7 +1332,12 @@ main {
   .page-issue1 .credits-box summary {
     display: flex;
     justify-content: space-between;
+    padding: 0; /* same height as the SPECS row below */
     cursor: pointer;
+  }
+
+  .page-issue1 .credits-box[open] > summary {
+    margin-bottom: 4px;
   }
 
   .page-issue1 .credits-box summary::after {
