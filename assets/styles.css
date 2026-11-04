@@ -1219,10 +1219,7 @@ main {
   }
 
   .logo-overlay,
-  .draw-sticker {
-    display: none;
-  }
-
+  .draw-sticker,
   .star {
     display: none;
   }
@@ -1235,7 +1232,7 @@ main {
      top of the photos. Spreads first as a swipe gallery, then title, price
      and buttons, then the description, SPECS and contributors (tap to open). */
   .page-issue1.no-scroll {
-    overflow: auto;
+    overflow: visible; /* a scrolling body would stop the nav from sticking */
     height: auto;
   }
 
@@ -1335,7 +1332,12 @@ main {
   .page-issue1 .credits-box summary {
     display: flex;
     justify-content: space-between;
+    padding: 0; /* same height as the SPECS row below */
     cursor: pointer;
+  }
+
+  .page-issue1 .credits-box[open] > summary {
+    margin-bottom: 4px;
   }
 
   .page-issue1 .credits-box summary::after {
@@ -1624,13 +1626,7 @@ a.ticker:hover .ticker__track span {
   border: 0;
 }
 
-/* star menu: links look like the buttons; the sticker hides while the menu is open */
-a.star-menu__item {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-}
-
+/* star menu: the sticker hides while the menu is open */
 .star-menu-open .draw-sticker {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -1908,8 +1904,7 @@ a.star-menu__item {
 
 @media (max-width: 700px) {
   .look-inside-sticker {
-    right: 8px;
-    bottom: 16px;
+    display: none;
   }
 }
 
@@ -2353,5 +2348,63 @@ button {
 @media (max-width: 700px) {
   main {
     padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- About page boxes ---------- */
+/* The page text and the CONTACT / STOCKISTS row are separate sections. They
+   share one grid so all three boxes line up with the text first: a row on
+   desktop, a stack on phones. */
+main:has(.info-row--page-about) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+main:has(.info-row--page-about) > .shopify-section,
+main:has(.info-row--page-about) .info-row {
+  display: contents;
+}
+
+.info-row--page-about .info-box {
+  order: -1;
+}
+
+@media (max-width: 700px) {
+  main:has(.info-row--page-about) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- phones: only the nav stays on screen ---------- */
+/* The header is fixed on desktop. On phones its parts join the page flow: the
+   ticker scrolls away and .main-nav sticks to the top (it is already sticky).
+   Nothing overlays the page any more, so main needs no room for a header. */
+@media (max-width: 700px) {
+  :root {
+    --header-h: 0px;
+  }
+
+  #shopify-section-header,
+  .site-header {
+    display: contents;
+  }
+}
+
+/* ---------- touch screens: no sticky hover on covers ---------- */
+/* A tap or the start of a scroll counts as hover on a phone, which swapped the
+   front cover for the back one under the visitor's finger. */
+@media (hover: none) {
+  .column:hover .img-hover,
+  .home-hero__cover:hover .img-hover {
+    opacity: 0;
+  }
+
+  .home-hero__cover:hover .look-inside-sticker {
+    color: #fff;
+    animation: none;
   }
 }

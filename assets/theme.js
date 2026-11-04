@@ -873,8 +873,6 @@ document.addEventListener('DOMContentLoaded', function () {
   menu.innerHTML =
     '<button type="button" class="star-menu__item" data-star-draw>DRAW UR OWN LOGO!</button>' +
     '<button type="button" class="star-menu__item" data-star-calc>AGENT CALCULATOR</button>' +
-    // no upload backend yet: pictures come in by email
-    '<a class="star-menu__item" href="mailto:agentissuesparis@gmail.com?subject=Picture%20submission">PICTURE SUBMISSION</a>' +
     '<div class="star-menu__now">' +
     '  <p>PARIS</p>' +
     '  <p data-now-date></p>' +

@@ -6,7 +6,7 @@
 -%}
 {%- if page.content == blank or show_content == false -%}<h1 class="visually-hidden">{{ page.title | escape }}</h1>{%- endif -%}
 {%- if page.content != blank and show_content -%}
-  <section class="info-row info-row--top">
+  <section class="info-row info-row--top info-row--page-{{ page.handle }}">
     <div class="info-box">
       <h1>{{ page.title | escape }}</h1>
       {{ page.content }}
