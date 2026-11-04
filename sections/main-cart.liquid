@@ -24,7 +24,7 @@
             {%- endif -%}
             <div class="cart-line__details">
               <p class="cart-line__title">
-                {{ item.product.title | escape }}
+                {% render 'product-title', product: item.product %}
                 {%- unless item.product.has_only_default_variant %} ({{ item.variant.title | escape }}){% endunless -%}
               </p>
               <div class="qty">

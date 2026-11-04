@@ -50,6 +50,15 @@ When a change ships, move the text from Новая версия to Сейчас 
 10. **Analytics:** see [docs/analytics](docs/analytics/README.md) for the GA4 custom pixel, the Meta app, Microsoft Clarity and UTM links.
 11. Preview the theme. All texts (About, Contact, Stockist, issue description, credits, strip images) are editable in the theme editor.
 
+## Pre-orders
+
+A product with the tag `preorder` (Products → product → Tags) is on pre-order:
+
+- the page title, the home hero, Shop cards and cart lines show "PRE-ORDER: " before the name;
+- the Product structured data says availability `https://schema.org/PreOrder` instead of InStock / OutOfStock.
+
+The `<title>`, og:title and the name in structured data keep the plain product name. Keep the word "PRE-ORDER" out of the product title itself. On release, remove the tag: everything goes back to the plain name and InStock. Code: `snippets/is-preorder.liquid`, `snippets/product-title.liquid`, `snippets/product-schema.liquid`.
+
 ## Buy box
 
 Product, issue and home pages share one buy box (`snippets/qty-cart-controls.liquid`, `snippets/add-box.liquid`, `assets/theme.js`):

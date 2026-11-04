@@ -1,0 +1,15 @@
+{%- comment -%}
+  The product name as shown on the page (escaped): "PRE-ORDER: " in front
+  while the product has the "preorder" tag. Only for visible titles; the
+  <title>, og:title and structured data keep the plain product name.
+  A title that already starts with "pre-order" gets no second prefix.
+  Accepts: product {Product}
+{%- endcomment -%}
+{%- capture is_preorder -%}{% render 'is-preorder', product: product %}{%- endcapture -%}
+{%- liquid
+  assign title_start = product.title | downcase | slice: 0, 9
+  if is_preorder == 'true' and title_start != 'pre-order'
+    echo 'PRE-ORDER: '
+  endif
+  echo product.title | escape
+-%}

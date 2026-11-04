@@ -92,7 +92,7 @@
 <section class="columns product-grid">
   <div class="product-col">
     <div class="info-box title-box">
-      <h1 class="issue-heading">{{ product.title | escape }}</h1>
+      <h1 class="issue-heading">{% render 'product-title', product: product %}</h1>
       <p class="issue-blurb">{{ blurb_html }}</p>
     </div>
     {%- comment -%} Phones: the description moves under the buttons, in its own box {%- endcomment -%}
@@ -126,7 +126,7 @@
     </div>
   {%- endif -%}
 </section>
-<script type="application/ld+json">{{ product | structured_data }}</script>
+{% render 'product-schema', product: product %}
 {%- comment -%}
   The same product described as an issue of the magazine, so search
   engines and AI search know it is a periodical. The number comes from the

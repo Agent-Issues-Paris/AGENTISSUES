@@ -1,0 +1,13 @@
+{%- comment -%}
+  Outputs "true" when the product is on pre-order: it has the tag
+  "preorder" (any case). Remove the tag in the admin on release.
+  Accepts: product {Product}
+{%- endcomment -%}
+{%- liquid
+  assign preorder_tags = product.tags | join: '|' | downcase | split: '|'
+  if preorder_tags contains 'preorder'
+    echo 'true'
+  else
+    echo 'false'
+  endif
+-%}
