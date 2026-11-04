@@ -2345,41 +2345,65 @@ button {
   }
 }
 
-/* ---------- phones: About page order ---------- */
-/* The page text is its own section after CONTACT and STOCKISTS. On phones it
-   comes first, with the usual gap between boxes. Desktop keeps the template order. */
+/* ---------- About page boxes ---------- */
+/* The page text and the CONTACT / STOCKISTS row are separate sections. They
+   share one grid so all three boxes line up with the text first: a row on
+   desktop, a stack on phones. */
+main:has(.info-row--page-about) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+main:has(.info-row--page-about) > .shopify-section,
+main:has(.info-row--page-about) .info-row {
+  display: contents;
+}
+
+.info-row--page-about .info-box {
+  order: -1;
+}
+
 @media (max-width: 700px) {
   main:has(.info-row--page-about) {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  main:has(.info-row--page-about) > .shopify-section:has(.info-row--page-about) {
-    order: -1;
+    grid-template-columns: 1fr;
   }
 }
 
-/* ---------- phones: small logo in the ticker row ---------- */
-/* Left of the ticker, balancing the star on the right. The white box keeps the
-   ticker from running under it; only the image tilts, like a stuck-on sticker.
-   A hand-drawn logo from the star menu lands here too. */
+/* ---------- phones: small logo between the ticker and the nav ---------- */
+/* The desktop overlay, scaled down: it fills the gap between Shop and Cart and
+   sits on the line between the ticker and the nav box. It lets taps through so
+   it never blocks Shop, Cart or the ticker link. */
 @media (max-width: 700px) {
   .logo-overlay {
-    left: 0;
-    display: flex;
-    align-items: center;
-    width: 84px;
-    height: 51px;
-    padding: 0 8px 0 10px;
-    background-color: #fff;
+    top: calc(47px - 4.7vw);
+    left: 40.5vw;
+    width: 19vw;
   }
 
-  .logo-overlay img {
-    transform: rotate(-6deg);
+  .site-header.show-logo .logo-overlay {
+    pointer-events: none;
   }
 
   .logo-overlay img.is-custom {
-    height: 40px;
+    height: 9.4vw;
+  }
+}
+
+/* ---------- touch screens: no sticky hover on covers ---------- */
+/* A tap or the start of a scroll counts as hover on a phone, which swapped the
+   front cover for the back one under the visitor's finger. */
+@media (hover: none) {
+  .column:hover .img-hover,
+  .home-hero__cover:hover .img-hover {
+    opacity: 0;
+  }
+
+  .home-hero__cover:hover .look-inside-sticker {
+    color: #fff;
+    animation: none;
   }
 }
