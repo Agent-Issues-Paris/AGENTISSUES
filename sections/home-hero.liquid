@@ -35,7 +35,7 @@
 <section class="home-hero">
   <div class="home-hero__info">
     <div class="info-box">
-      <h2 class="issue-title">{{ hero.title | escape }}</h2>
+      <h2 class="issue-title">{% render 'product-title', product: hero %}</h2>
       <p>{{ blurb_html }}</p>
     </div>
     {%- if credits_html != blank -%}

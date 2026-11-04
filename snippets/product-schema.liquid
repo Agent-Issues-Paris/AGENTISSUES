@@ -1,0 +1,20 @@
+{%- comment -%}
+  Product JSON-LD: Shopify's own (structured_data), unchanged, except that
+  a product with the "preorder" tag offers availability PreOrder instead
+  of InStock / OutOfStock. The name stays the plain product name.
+  Shopify escapes the slashes in its output ("http:\/\/schema.org\/InStock"),
+  so both spellings are replaced.
+  Accepts: product {Product}
+{%- endcomment -%}
+{%- capture is_preorder -%}{% render 'is-preorder', product: product %}{%- endcapture -%}
+{%- assign product_schema = product | structured_data -%}
+{%- if is_preorder == 'true' -%}
+  {%- liquid
+    assign pre_order = '"availability":"https:\/\/schema.org\/PreOrder"'
+    assign product_schema = product_schema | replace: '"availability":"http:\/\/schema.org\/InStock"', pre_order | replace: '"availability":"http:\/\/schema.org\/OutOfStock"', pre_order
+    assign product_schema = product_schema | replace: '"availability":"https:\/\/schema.org\/InStock"', pre_order | replace: '"availability":"https:\/\/schema.org\/OutOfStock"', pre_order
+    assign product_schema = product_schema | replace: '"availability":"http://schema.org/InStock"', pre_order | replace: '"availability":"http://schema.org/OutOfStock"', pre_order
+    assign product_schema = product_schema | replace: '"availability":"https://schema.org/InStock"', pre_order | replace: '"availability":"https://schema.org/OutOfStock"', pre_order
+  -%}
+{%- endif -%}
+<script type="application/ld+json">{{ product_schema }}</script>

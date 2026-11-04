@@ -30,7 +30,7 @@
       <input type="hidden" name="id" value="{{ picked_variant.id }}" data-variant-input>
 
       <div class="info-box">
-        <h1 class="product-title">{{ product.title | escape }}</h1>
+        <h1 class="product-title">{% render 'product-title', product: product %}</h1>
         <p>{% render 'description-lines', html: product.description %}</p>
       </div>
 
@@ -60,7 +60,7 @@
     {%- endform -%}
   </div>
 </section>
-<script type="application/ld+json">{{ product | structured_data }}</script>
+{% render 'product-schema', product: product %}
 {%- endunless -%}
 
 {% schema %}
