@@ -10,11 +10,11 @@
     {%- if line == blank -%}{%- continue -%}{%- endif -%}
     {%- assign parts = line | split: ' | ' -%}
     {%- assign url = parts.last | strip -%}
-    {%- if parts.size > 1 and url contains 'http' -%}
+    {%- if parts.size > 1 and url contains 'http' or parts.size > 1 and url contains 'mailto:' -%}
       {%- assign label = parts.first | strip -%}
       {%- assign name = label | split: ', ' | first -%}
       {%- assign rest = label | remove_first: name -%}
-      <li><a href="{{ url | escape }}" rel="noopener">{{ name | escape }}</a>{{ rest | escape }}</li>
+      <li><a href="{{ url | escape }}"{% unless url contains 'mailto:' %} rel="noopener"{% endunless %}>{{ name | escape }}</a>{{ rest | escape }}</li>
     {%- else -%}
       <li>{{ line | escape }}</li>
     {%- endif -%}

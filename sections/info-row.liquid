@@ -49,7 +49,7 @@
             A line written "Name, City | https://..." turns the box into a
             list of links (stockists); plain text stays a paragraph.
           {%- endcomment -%}
-          {%- if block.settings.text contains ' | http' -%}
+          {%- if block.settings.text contains ' | http' or block.settings.text contains ' | mailto:' -%}
             {% render 'link-list', text: block.settings.text %}
           {%- else -%}
             <p>{% render 'box-text', text: block.settings.text %}</p>
