@@ -2399,8 +2399,10 @@ main:has(.info-row--page-about) .info-row {
     opacity: 0;
   }
 
+  /* no hover here, so the sticker always wiggles to show the cover opens */
+  .look-inside-sticker,
   .home-hero__cover:hover .look-inside-sticker {
     color: #fff;
-    animation: none;
+    animation: sticker-wiggle 0.25s ease-in-out infinite;
   }
 }
