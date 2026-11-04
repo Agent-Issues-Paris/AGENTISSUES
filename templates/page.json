@@ -48,7 +48,7 @@
     "main": {
       "type": "main-page",
       "settings": {
-        "hide_on_page": "about"
+        "hide_on_page": ""
       }
     },
     "contact": {
