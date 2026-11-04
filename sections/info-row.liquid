@@ -28,7 +28,7 @@
               <li><a href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
             {%- endfor -%}
           </ul>
-          {%- if block.settings.text != blank -%}<p class="policy-note">{{ block.settings.text | escape | newline_to_br }}</p>{%- endif -%}
+          {%- if block.settings.text != blank -%}<p class="policy-note">{% render 'box-text', text: block.settings.text %}</p>{%- endif -%}
         {%- when 'newsletter' -%}
           {%- assign form_id = 'newsletter-' | append: block.id -%}
           {%- form 'customer', class: 'newsletter-form', id: form_id -%}
