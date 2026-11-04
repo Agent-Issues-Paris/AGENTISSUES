@@ -91,10 +91,12 @@
 
 <section class="columns product-grid">
   <div class="product-col">
-    <div class="info-box">
+    <div class="info-box title-box">
       <h1 class="issue-heading">{{ product.title | escape }}</h1>
-      <p>{{ blurb_html }}</p>
+      <p class="issue-blurb">{{ blurb_html }}</p>
     </div>
+    {%- comment -%} Phones: the description moves under the buttons, in its own box {%- endcomment -%}
+    <div class="info-box about-box"><p>{{ blurb_html }}</p></div>
     <div class="info-box price-box">
       <p data-price-box>{{ current_variant.price | money }}</p>
     </div>

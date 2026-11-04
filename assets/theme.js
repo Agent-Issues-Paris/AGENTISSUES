@@ -1,7 +1,11 @@
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
+// Desktop issue pages are a fixed screen that always opens at the top. On
+// phones every page scrolls normally, and Back must return to where you were.
+if (window.innerWidth > 700) {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
 }
-window.scrollTo(0, 0);
 
 document.addEventListener('DOMContentLoaded', function () {
   var overlay = document.getElementById('introOverlay');
@@ -120,7 +124,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // phones: the strip is a native swipe gallery (styles.css); page scrolling
+  // must not move it, and depth is measured from the gallery's own scroll
+  function isPhone() { return window.innerWidth <= 700; }
+  var strip = track.parentElement;
+  strip.addEventListener('scroll', function () {
+    if (!isPhone()) return;
+    var max = strip.scrollWidth - strip.clientWidth;
+    if (max <= 0) return;
+    var seen = strip.scrollLeft / max;
+    var quarter = Math.min(4, Math.floor(seen * 4 + 0.02));
+    while (depthSent < quarter) {
+      depthSent += 1;
+      agentTrack('issue_strip_depth', { percent: depthSent * 25 });
+    }
+  }, { passive: true });
+
   window.addEventListener('wheel', function (e) {
+    if (isPhone()) return;
     offset += e.deltaY * SPEED;
     trackDepth(e.deltaY * SPEED);
     render();
@@ -132,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { passive: true });
 
   window.addEventListener('touchmove', function (e) {
-    if (touchY === null || e.touches.length !== 1) return;
+    if (touchY === null || e.touches.length !== 1 || isPhone()) return;
     var y = e.touches[0].clientY;
     offset += (touchY - y) * SPEED;
     trackDepth((touchY - y) * SPEED);
@@ -182,29 +203,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   sync();
   window.addEventListener('resize', sync);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-  var track = document.querySelector('.hero-strip__track');
-  if (!track) return;
-
-  var MOBILE_BREAKPOINT = 700;
-  var setHeight = 0;
-
-  function measure() {
-    setHeight = window.innerWidth <= MOBILE_BREAKPOINT ? track.scrollHeight / 2 : 0;
-  }
-
-  function loop() {
-    if (!setHeight) return;
-    if (window.scrollY >= setHeight) {
-      window.scrollTo(0, window.scrollY - setHeight);
-    }
-  }
-
-  measure();
-  window.addEventListener('resize', measure);
-  window.addEventListener('scroll', loop, { passive: true });
 });
 
 /* ---------- draw ur own logo ---------- */
@@ -810,6 +808,17 @@ document.addEventListener('click', function (e) {
 
 // Cookie banner: Shopify's Customer Privacy API decides whether consent is
 // needed (e.g. EU visitors) and stores the answer.
+var ANSWER_KEY = 'agentCookieAnswer';
+
+function hasAnswered(privacy) {
+  try {
+    var consent = privacy.getTrackingConsent && privacy.getTrackingConsent();
+    if (consent === 'yes' || consent === 'no') return true;
+  } catch (e) {}
+  // backup for when Shopify's answer callback doesn't land (local preview)
+  try { return !!localStorage.getItem(ANSWER_KEY); } catch (e) { return false; }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   var banner = document.querySelector('[data-cookie-banner]');
   if (!banner || !window.Shopify || !window.Shopify.loadFeatures) return;
@@ -818,6 +827,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (error) return;
     var privacy = window.Shopify.customerPrivacy;
     if (!privacy || !privacy.shouldShowBanner()) return;
+    // shouldShowBanner() only says the visitor's region needs consent; it
+    // stays true after they answer. Show the banner only until they choose.
+    if (hasAnswered(privacy)) return;
 
     banner.hidden = false;
     requestAnimationFrame(function () { banner.classList.add('is-visible'); });
@@ -825,6 +837,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // hide right away; Shopify's callback doesn't always fire (e.g. on a
     // local preview), and the visitor shouldn't wait for it
     function answer(granted) {
+      try { localStorage.setItem(ANSWER_KEY, granted ? 'yes' : 'no'); } catch (e) {}
       banner.classList.remove('is-visible');
       setTimeout(function () { banner.hidden = true; }, 300);
       try {
