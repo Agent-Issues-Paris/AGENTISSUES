@@ -1419,6 +1419,51 @@ main {
   color: red;
 }
 
+/* theme.js splits the policy into one box per section */
+.shopify-policy__container.is-boxed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 !important;
+  border: 0;
+  animation: none;
+}
+
+.policy-box {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.policy-box h1,
+.policy-box h2,
+.policy-box h3 {
+  text-transform: uppercase;
+}
+
+.info-box.policy-box h1,
+.info-box.policy-box h2 {
+  text-align: left;
+}
+
+.info-box.policy-box p,
+.policy-box ul,
+.policy-box ol {
+  margin: 0 0 1.2em;
+}
+
+.info-box.policy-box > :last-child {
+  margin-bottom: 0;
+}
+
+.policy-box a {
+  color: inherit;
+}
+
+.policy-box a:hover {
+  color: red;
+}
+
 /* ---------- cookie banner ---------- */
 
 .cookie-banner {

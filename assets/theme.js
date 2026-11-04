@@ -1320,3 +1320,53 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('visitorConsentCollected', check);
   });
 });
+
+/* ---------- policy pages: one box per section ---------- */
+// Shopify writes the policy HTML, so the theme can only rearrange it here. A
+// section starts at an <h2>, or at a line in Shopify's "bold line, then line
+// break" format (shipping policy). Without JS the page keeps a single frame.
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.querySelector('.shopify-policy__container');
+  var body = container && container.querySelector('.rte');
+  if (!body) return;
+
+  var root = body.children.length === 1 && body.firstElementChild.tagName === 'DIV' ? body.firstElementChild : body;
+
+  function newBox() {
+    var box = document.createElement('div');
+    box.className = 'info-box policy-box';
+    return box;
+  }
+
+  // <p><strong>Title</strong><br>text</p> becomes <h2>Title</h2><p>text</p>
+  function splitBoldLine(el) {
+    var first = el.firstElementChild;
+    if (el.tagName !== 'P' || !first || first.tagName !== 'STRONG' || el.firstChild !== first) return null;
+    var br = first.nextSibling;
+    if (!br || br.nodeName !== 'BR') return null;
+    var heading = document.createElement('h2');
+    heading.textContent = first.textContent;
+    el.removeChild(first);
+    el.removeChild(br);
+    return heading;
+  }
+
+  var boxes = [newBox()];
+  var title = container.querySelector('.shopify-policy__title h1');
+  if (title) boxes[0].appendChild(title);
+
+  Array.prototype.slice.call(root.children).forEach(function (el) {
+    if (!el.textContent.trim()) return; // Shopify leaves empty paragraphs behind
+    var heading = el.tagName === 'H2' ? el : splitBoldLine(el);
+    if (heading) {
+      boxes.push(newBox());
+      boxes[boxes.length - 1].appendChild(heading);
+      if (heading === el) return;
+    }
+    boxes[boxes.length - 1].appendChild(el);
+  });
+
+  container.innerHTML = '';
+  boxes.forEach(function (box) { container.appendChild(box); });
+  container.classList.add('is-boxed');
+});
