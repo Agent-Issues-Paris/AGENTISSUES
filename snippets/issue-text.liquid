@@ -1,7 +1,8 @@
 {%- comment -%}
   Splits an issue's description into the blurb and the credits.
   Same rules as the old static site: paragraphs are separated by a blank
-  line (or </p>), lines by <br>. The paragraph that starts with
+  line (or </p>), lines by <br> or a plain line break (text pasted into
+  the admin as a code block keeps its line breaks that way). The paragraph that starts with
   "Contributors:" and everything after it are the credits; the
   "Contributors:" line itself is dropped (the box has its own heading).
   @handles in the credits become Instagram links.
@@ -11,7 +12,7 @@
                   or 'credits' (one <p> per paragraph)
 {%- endcomment -%}
 {%- liquid
-  assign marked = html | replace: '<br />', '§L§' | replace: '<br/>', '§L§' | replace: '<br>', '§L§' | replace: '</p>', '§L§§L§' | replace: '</div>', '§L§§L§' | replace: '</li>', '§L§' | strip_html | replace: '&nbsp;', ' ' | replace: ' ', ' '
+  assign marked = html | newline_to_br | replace: '<br />', '§L§' | replace: '<br/>', '§L§' | replace: '<br>', '§L§' | replace: '</p>', '§L§§L§' | replace: '</div>', '§L§§L§' | replace: '</li>', '§L§' | strip_html | replace: '&nbsp;', ' ' | replace: ' ', ' '
   assign lines = marked | append: '§L§§L§' | split: '§L§'
   assign blurb = ''
   assign credits = ''
