@@ -1218,12 +1218,7 @@ main {
     grid-template-columns: 1fr;
   }
 
-  .logo-overlay,
   .draw-sticker {
-    display: none;
-  }
-
-  .star {
     display: none;
   }
 
@@ -1624,13 +1619,7 @@ a.ticker:hover .ticker__track span {
   border: 0;
 }
 
-/* star menu: links look like the buttons; the sticker hides while the menu is open */
-a.star-menu__item {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-}
-
+/* star menu: the sticker hides while the menu is open */
 .star-menu-open .draw-sticker {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -2353,5 +2342,44 @@ button {
 @media (max-width: 700px) {
   main {
     padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- phones: About page order ---------- */
+/* The page text is its own section after CONTACT and STOCKISTS. On phones it
+   comes first, with the usual gap between boxes. Desktop keeps the template order. */
+@media (max-width: 700px) {
+  main:has(.info-row--page-about) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  main:has(.info-row--page-about) > .shopify-section:has(.info-row--page-about) {
+    order: -1;
+  }
+}
+
+/* ---------- phones: small logo in the ticker row ---------- */
+/* Left of the ticker, balancing the star on the right. The white box keeps the
+   ticker from running under it; only the image tilts, like a stuck-on sticker.
+   A hand-drawn logo from the star menu lands here too. */
+@media (max-width: 700px) {
+  .logo-overlay {
+    left: 0;
+    display: flex;
+    align-items: center;
+    width: 84px;
+    height: 51px;
+    padding: 0 8px 0 10px;
+    background-color: #fff;
+  }
+
+  .logo-overlay img {
+    transform: rotate(-6deg);
+  }
+
+  .logo-overlay img.is-custom {
+    height: 40px;
   }
 }
