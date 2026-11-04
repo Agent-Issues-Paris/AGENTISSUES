@@ -12,7 +12,7 @@
     "main": {
       "type": "main-product-issue",
       "settings": {
-        "legacy_product": "agent-issues-01-iheartinspo-fw26"
+        "legacy_product": "issue01-iheartinspo-fw26"
       }
     }
   },
