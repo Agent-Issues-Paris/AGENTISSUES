@@ -1251,12 +1251,59 @@ document.addEventListener('toggle', function (e) {
   agentTrack('details_open', { label: agentLabel(summary), area: agentArea(details), page_type: agentPageType() });
 }, true);
 
-// newsletter and contact form: the attempt, then the thank-you after reload
+// newsletter and contact form: the attempt, then the thank-you
 document.addEventListener('submit', function (e) {
   var form = e.target;
   if (form.classList.contains('newsletter-form')) agentTrack('newsletter_submit', { area: agentArea(form) });
   if (form.classList.contains('contact-form')) agentTrack('contact_submit');
 }, true);
+
+// newsletter: only the box updates, the page stays. Shopify's hCaptcha keeps
+// the form.submit it finds when it binds the form (on first focus) and calls
+// it once it has a token, so replacing it sends the request with the token.
+// Without hCaptcha nothing calls it and the form submits the normal way.
+document.querySelectorAll('.newsletter-form').forEach(function (form) {
+  function showError(errorNode) {
+    var old = form.querySelector('.newsletter-form__error');
+    if (old) old.remove();
+    var box = errorNode || document.createElement('div');
+    if (!errorNode) {
+      box.className = 'newsletter-form__error';
+      box.textContent = 'Could not subscribe. Please try again.';
+    }
+    form.appendChild(box);
+    var button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = false;
+  }
+
+  form.submit = function () {
+    var button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+    fetch(form.action, { method: 'POST', body: new URLSearchParams(new FormData(form)) })
+      .then(function (res) {
+        // Shopify wants a visible captcha: same page a normal submit lands on
+        if (res.url.indexOf('/challenge') !== -1) {
+          window.location.assign(res.url);
+          return null;
+        }
+        if (!res.ok) throw new Error('Request failed');
+        return res.text();
+      })
+      .then(function (html) {
+        if (html === null) return;
+        var fresh = new DOMParser().parseFromString(html, 'text/html').getElementById(form.id);
+        if (fresh && fresh.querySelector('[data-newsletter-success]')) {
+          form.innerHTML = fresh.innerHTML;
+          agentTrack('newsletter_subscribed', { page_type: agentPageType() });
+          return;
+        }
+        // keep the form as it is: the hCaptcha widget lives inside it
+        var error = fresh && fresh.querySelector('.newsletter-form__error');
+        showError(error ? document.importNode(error, true) : null);
+      })
+      .catch(function () { showError(null); });
+  };
+});
 
 document.addEventListener('DOMContentLoaded', function () {
   if (document.querySelector('[data-newsletter-success]')) agentTrack('newsletter_subscribed', { page_type: agentPageType() });
