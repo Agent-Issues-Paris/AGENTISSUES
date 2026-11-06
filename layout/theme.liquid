@@ -11,15 +11,58 @@
 {%- endif -%}
 <link rel="apple-touch-icon" href="{{ 'apple-touch-icon.png' | asset_url }}">
 {%- liquid
-  assign meta_title = page_title
+  # Home keeps its descriptive title; every other tab is "Name / Agent Issues"
+  assign page_label = page_title
+  case request.page_type
+    when 'cart'
+      assign page_label = 'Cart'
+    when 'list-collections'
+      assign page_label = 'Shop'
+    when 'collection'
+      assign page_label = 'Shop'
+      if page_title != collection.title
+        assign page_label = page_title
+      endif
+    when 'search'
+      assign page_label = 'Search'
+    when '404'
+      assign page_label = '404'
+    when 'product'
+      assign page_label = product.title
+      if page_title != product.title
+        assign page_label = page_title
+      endif
+    when 'page'
+      assign page_label = page.title
+      if page.handle == 'about'
+        assign page_label = 'About Us'
+      endif
+      if page_title != page.title
+        assign page_label = page_title
+      endif
+    when 'policy'
+      if request.path contains 'privacy-policy'
+        assign page_label = 'Privacy'
+      elsif request.path contains 'refund-policy'
+        assign page_label = 'Refunds'
+      elsif request.path contains 'shipping-policy'
+        assign page_label = 'Shipping'
+      elsif request.path contains 'terms-of-service'
+        assign page_label = 'Terms'
+      elsif request.path contains 'contact-information'
+        assign page_label = 'Contact'
+      endif
+  endcase
+
+  # An SEO title set in admin wins over the short name; one with the brand stays whole
+  assign meta_title = page_label
+  unless page_label contains shop.name
+    assign meta_title = page_label | append: ' / ' | append: shop.name
+  endunless
   assign meta_description = page_description
-  if template.name == 'index'
+  if request.page_type == 'index'
     assign meta_title = settings.home_title | default: page_title | default: shop.name
     assign meta_description = settings.home_description | default: page_description
-  elsif page_title contains shop.name
-    assign meta_title = page_title
-  else
-    assign meta_title = page_title | append: ' | ' | append: shop.name
   endif
 -%}
 <title>{{ meta_title | escape }}</title>
