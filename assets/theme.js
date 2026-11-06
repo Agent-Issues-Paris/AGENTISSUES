@@ -1251,12 +1251,36 @@ document.addEventListener('toggle', function (e) {
   agentTrack('details_open', { label: agentLabel(summary), area: agentArea(details), page_type: agentPageType() });
 }, true);
 
-// newsletter and contact form: the attempt, then the thank-you after reload
+// newsletter and contact form: the attempt, then the thank-you
 document.addEventListener('submit', function (e) {
   var form = e.target;
   if (form.classList.contains('newsletter-form')) agentTrack('newsletter_submit', { area: agentArea(form) });
   if (form.classList.contains('contact-form')) agentTrack('contact_submit');
 }, true);
+
+// newsletter: only the box updates, the page stays. If Shopify asks for a
+// captcha or the request fails, the form submits the normal way instead.
+document.addEventListener('submit', function (e) {
+  var form = e.target;
+  if (!form.classList.contains('newsletter-form')) return;
+  e.preventDefault();
+  var button = form.querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+  fetch(form.action, { method: 'POST', body: new URLSearchParams(new FormData(form)) })
+    .then(function (res) {
+      if (!res.ok || res.url.indexOf('/challenge') !== -1) throw new Error('Request failed');
+      return res.text();
+    })
+    .then(function (html) {
+      var fresh = new DOMParser().parseFromString(html, 'text/html').getElementById(form.id);
+      if (!fresh) throw new Error('No form in response');
+      form.innerHTML = fresh.innerHTML;
+      if (form.querySelector('[data-newsletter-success]')) agentTrack('newsletter_subscribed', { page_type: agentPageType() });
+    })
+    .catch(function () {
+      HTMLFormElement.prototype.submit.call(form);
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function () {
   if (document.querySelector('[data-newsletter-success]')) agentTrack('newsletter_subscribed', { page_type: agentPageType() });
