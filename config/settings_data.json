@@ -13,6 +13,20 @@
       "issue01-iheartinspo-fw26",
       "issue-02-the-food-issue"
     ],
-    "show_intro": false
+    "show_intro": false,
+    "home_title": "Agent Issues / Independent Fashion & Art Magazine",
+    "favicon": "shopify://shop_images/favicon.png",
+    "sections": {
+      "header": {
+        "type": "header",
+        "settings": {
+          "ticker_text": "PRE ORDER NEW ISSUE “THE FOOD ISSUE” NOW!",
+          "ticker_link": "",
+          "shop_collection": "",
+          "about_page": ""
+        }
+      }
+    },
+    "content_for_index": []
   }
 }
