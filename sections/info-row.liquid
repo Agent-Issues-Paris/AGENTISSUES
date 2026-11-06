@@ -34,7 +34,7 @@
           {%- form 'customer', class: 'newsletter-form', id: form_id -%}
             <input type="hidden" name="contact[tags]" value="newsletter">
             {%- if form.posted_successfully? -%}
-              <p data-newsletter-success role="status">{{ block.settings.success | escape }}</p>
+              <p data-newsletter-success>{{ block.settings.success | escape }}</p>
             {%- else -%}
               {%- if block.settings.text != blank -%}<p>{{ block.settings.text | escape | newline_to_br }}</p>{%- endif -%}
               <div class="newsletter-form__row">
