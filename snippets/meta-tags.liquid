@@ -3,6 +3,11 @@
   Accepts:
   - title {String} the page <title>
   - description {String} the meta description
+  The picture is: the product photo on product pages, the collection image
+  on collections, else Theme settings → Sharing → share image, else the
+  bundled logo card (share-card.png). A product whose cover is hidden
+  (is-veiled) never shares its photo: link checkers (Instagram, Facebook)
+  get the share image like everyone else.
 {%- endcomment -%}
 {%- liquid
   assign og_title = title | default: page_title | default: shop.name
@@ -11,15 +16,21 @@
   assign og_image = settings.share_image
   if request.page_type == 'product'
     assign og_type = 'product'
-    assign og_image = product.featured_image | default: og_image
+    capture is_veiled
+      render 'is-veiled', product: product
+    endcapture
+    unless is_veiled contains 'true'
+      assign og_image = product.featured_image | default: og_image
+    endunless
   elsif request.page_type == 'collection' and collection.image
     assign og_image = collection.image
   endif
-  # no sharing image set in Theme settings: show the current issue's cover
-  # (newest product in the Home page collection, like the hero)
-  if og_image == blank
-    assign current_issue = collections.frontpage.products | sort: 'created_at' | reverse | first
-    assign og_image = current_issue.featured_image
+  assign og_image_alt = og_image.alt | default: og_title
+  if og_image != blank
+    assign og_image_url = og_image | image_url: width: 1200 | prepend: 'https:'
+  else
+    assign og_image_url = 'share-card.png' | asset_url | prepend: 'https:'
+    assign og_image_alt = shop.name
   endif
 -%}
 <meta property="og:site_name" content="{{ shop.name }}">
@@ -27,10 +38,13 @@
 <meta property="og:title" content="{{ og_title | escape }}">
 <meta property="og:type" content="{{ og_type }}">
 <meta property="og:description" content="{{ og_description | escape }}">
-{%- if og_image -%}
-  <meta property="og:image" content="https:{{ og_image | image_url: width: 1200 }}">
-  <meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: 1200 }}">
+<meta property="og:image" content="{{ og_image_url }}">
+<meta property="og:image:secure_url" content="{{ og_image_url }}">
+{%- if og_image == blank -%}
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 {%- endif -%}
+<meta property="og:image:alt" content="{{ og_image_alt | escape }}">
 {%- if request.page_type == 'product' -%}
   <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
   <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
@@ -38,7 +52,4 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ og_title | escape }}">
 <meta name="twitter:description" content="{{ og_description | escape }}">
-{%- if og_image -%}
-  <meta name="twitter:image" content="https:{{ og_image | image_url: width: 1200 }}">
-  <meta property="og:image:alt" content="{{ og_image.alt | default: og_title | escape }}">
-{%- endif -%}
+<meta name="twitter:image" content="{{ og_image_url }}">

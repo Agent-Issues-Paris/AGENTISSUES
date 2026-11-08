@@ -99,7 +99,13 @@
         "type": "image_picker",
         "id": "share_image",
         "label": "Default social sharing image",
-        "info": "Shown when a non-product page is shared (Instagram, Telegram, iMessage...). Leave empty to use the current issue's cover."
+        "info": "Shown when a page is shared (Instagram, Telegram, iMessage...). Product pages use the product photo instead, unless the product's cover is hidden. Leave empty to use the Agent Issues logo card."
+      },
+      {
+        "type": "product_list",
+        "id": "veil_products",
+        "label": "Products with a hidden cover",
+        "info": "Their photo is never used as the link preview (Instagram, Telegram, iMessage...): the default sharing image is shown instead. Same as adding the tag \"hide-cover\"."
       },
       {
         "type": "image_picker",

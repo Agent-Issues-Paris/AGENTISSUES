@@ -1,0 +1,24 @@
+{%- comment -%}
+  Outputs "true" when the product's cover must stay out of link previews:
+  it is listed in Theme settings → Sharing → "Products with a hidden cover",
+  or it has the tag "hide-cover" (any case). meta-tags then shares the
+  default share image instead of the product photo, so Instagram's link
+  check doesn't flag the account over a suggestive cover.
+  Accepts: product {Product}
+{%- endcomment -%}
+{%- liquid
+  assign found = false
+  assign veil_tags = product.tags | join: '|' | downcase | split: '|'
+  if veil_tags contains 'hide-cover'
+    assign found = true
+  endif
+  for p in settings.veil_products
+    if p.id == product.id
+      assign found = true
+      break
+    endif
+  endfor
+  if found
+    echo 'true'
+  endif
+-%}
