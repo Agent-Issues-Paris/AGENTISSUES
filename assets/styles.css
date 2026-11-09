@@ -2453,3 +2453,35 @@ main:has(.info-row--page-about) .info-row {
     animation: none;
   }
 }
+
+/* ---------- Instagram landing: blurred hero cover ---------- */
+/* home-hero "Blur the cover": the img is a 20px copy, so the blur hides
+   nothing that's on the page anyway; it just makes the blob look soft. */
+.home-hero__cover img.cover-blur {
+  filter: blur(14px) saturate(0.8);
+  clip-path: inset(0); /* keep the blur inside the frame */
+  background: #ddd;
+}
+
+.cover-blur-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  padding: 8px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.home-hero__cover--blurred:hover .cover-blur-label {
+  background: #000;
+  color: #fff;
+}

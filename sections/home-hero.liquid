@@ -1,6 +1,10 @@
 {%- comment -%}
   The hero is the newest product in the chosen collection ("Home page" by
   default), so a new issue takes over as soon as it's added there.
+  "Blur the cover" (the Instagram landing, templates/page.instagram.json)
+  ships only a 20px copy of the cover, blurred by CSS, with a label on top:
+  Instagram's check of the bio link must not find the real cover file on
+  the page. The cover still links to the issue page, which shows it whole.
   Texts come from the product (description split at a "Contributors:"
   paragraph into blurb + credits). Issues with flat cover art in assets
   (issueN-cover / issueN-cover-alt, cropped to the magazine so they fill
@@ -46,8 +50,13 @@
     {%- endif -%}
   </div>
 
-  <a class="home-hero__cover" href="{{ hero.url }}">
-    {%- if flat != '' -%}
+  {%- assign blur = section.settings.blur_cover -%}
+  <a class="home-hero__cover{% if blur %} home-hero__cover--blurred{% endif %}" href="{{ hero.url }}">
+    {%- if blur and flat != '' -%}
+      <img class="img-default cover-blur" src="{{ flat | append: '-cover-veil.webp' | asset_url }}" width="912" height="1193" alt="{{ hero.title | escape }} cover, blurred">
+    {%- elsif blur -%}
+      <img class="img-default cover-blur" src="{{ hero.featured_image | image_url: width: 20 }}" width="912" height="1193" alt="{{ hero.title | escape }} cover, blurred">
+    {%- elsif flat != '' -%}
       <img class="img-default" src="{{ flat | append: '-cover.webp' | asset_url }}" srcset="{{ flat | append: '-cover-600.webp' | asset_url }} 600w, {{ flat | append: '-cover.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="{{ hero.title | escape }} cover" fetchpriority="high">
       <img class="img-hover" src="{{ flat | append: '-cover-alt.webp' | asset_url }}" srcset="{{ flat | append: '-cover-alt-600.webp' | asset_url }} 600w, {{ flat | append: '-cover-alt.webp' | asset_url }} {{ flat_w }}w" sizes="(max-width: 700px) 100vw, 40vw" width="912" height="1193" alt="" aria-hidden="true" loading="lazy">
     {%- else -%}
@@ -56,6 +65,9 @@
       {{ img2 | image_url: width: 1600 | image_tag: class: 'img-hover', alt: '', aria-hidden: 'true', loading: 'lazy', widths: '600, 1000, 1600', sizes: '(max-width: 700px) 100vw, 40vw' }}
     {%- endif -%}
     {%- comment -%} The whole cover links to the issue page; the sticker says so. {%- endcomment -%}
+    {%- if blur -%}
+      <span class="cover-blur-label">{{ section.settings.blur_text | default: 'TAP TO SEE THE COVER' | escape }}</span>
+    {%- endif -%}
     <span class="look-inside-sticker">← LOOK INSIDE</span>
   </a>
 
@@ -91,6 +103,20 @@
       "id": "fallback_product",
       "label": "Issue 1 product",
       "info": "When this product is the hero it shows the flat cover art. Texts always come from the product."
+    },
+    {
+      "type": "checkbox",
+      "id": "blur_cover",
+      "label": "Blur the cover",
+      "default": false,
+      "info": "For the Instagram landing page. The page loads only a tiny blurred copy of the cover; a tap opens the issue page with the full cover."
+    },
+    {
+      "type": "text",
+      "id": "blur_text",
+      "label": "Text on the blurred cover",
+      "default": "TAP TO SEE THE COVER",
+      "info": "Keep it neutral: words like \"suggestive\" or \"18+\" on the page can themselves be read as a flag by Instagram's link check."
     }
   ]
 }

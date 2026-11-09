@@ -78,6 +78,8 @@
   <meta name="description" content="{{ meta_description | escape }}">
 {%- endif -%}
 {% render 'meta-tags', title: meta_title, description: meta_description %}
+{%- comment -%} Instagram landing repeats the home page: keep it out of search results {%- endcomment -%}
+{%- if template.suffix == 'instagram' -%}<meta name="robots" content="noindex, follow">{%- endif -%}
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ content_for_header }}
 {% render 'structured-data', meta_description: meta_description %}

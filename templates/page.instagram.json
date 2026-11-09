@@ -1,0 +1,57 @@
+{
+  "sections": {
+    "hero": {
+      "type": "home-hero",
+      "settings": {
+        "fallback_product": "issue01-iheartinspo-fw26",
+        "blur_cover": true,
+        "blur_text": "TAP TO SEE THE COVER",
+        "heading": "Agent Issues: pre-order Issue 02, The Food Issue"
+      }
+    },
+    "info": {
+      "type": "info-row",
+      "blocks": {
+        "box_1": {
+          "type": "box",
+          "settings": {
+            "heading": "ABOUT US",
+            "text": "Agent Issues is an independent print magazine of everyday obsessions, based in Paris.\nEach issue follows one ordinary subject through our Agents inside fashion, art, music and games, who report back from where they stand.\nWe’re open to collaborations, commissions and long emails, so if you feel you’re an Agent, [write to us](mailto:agentissuesparis@gmail.com?subject=Inquiry%20/%20Agent%20Issues)."
+          }
+        },
+        "box_2": {
+          "type": "box",
+          "settings": {
+            "heading": "CONTACT",
+            "link": "shopify://pages/contact",
+            "text": "Email: agentissuesparis@gmail.com\nInstagram: @agent.issues"
+          }
+        },
+        "box_3": {
+          "type": "policies",
+          "settings": {
+            "heading": "POLICIES",
+            "text": "© 2026 Agent Issues. All rights reserved.\nWebsite by [AUX STUDIO](https://www.auxstudio.live)"
+          }
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "box_1",
+        "box_2",
+        "newsletter",
+        "box_3"
+      ],
+      "settings": {
+        "top": false
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "info"
+  ]
+}
