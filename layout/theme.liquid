@@ -108,6 +108,7 @@
 {% render 'cookie-banner' %}
 
 <script src="{{ 'theme.js' | asset_url }}" defer></script>
-{% render 'agentation' %}
+{%- comment -%} Dev-only review toolbar: never sent to the published theme. {%- endcomment -%}
+{%- unless theme.role == 'main' -%}{% render 'agentation' %}{%- endunless -%}
 </body>
 </html>

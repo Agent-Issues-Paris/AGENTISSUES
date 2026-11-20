@@ -2,7 +2,8 @@
   Agentation review toolbar (agentation.com): click any element on the page
   and leave a note for the developer/agent. Notes go to the local
   agentation-mcp server on port 4747.
-  Never loads on the published theme: only when Shopify reports a
+  Not even sent to the published theme (layout/theme.liquid gates it on
+  theme.role); the JS check below is a second guard. Loads only when Shopify reports a
   development or unpublished theme (local `shopify theme dev`, preview links).
 {%- endcomment -%}
 <script type="module">
