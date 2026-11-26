@@ -157,7 +157,7 @@
         "type": "textarea",
         "id": "product_box_stockists",
         "label": "WHERE TO BUY",
-        "default": "Cahier Central, Paris | https://cahiercentral.com\nProphet Vision, Paris | https://prophet.vision\nPalais de Tokyo, Paris | https://palaisdetokyo.com\nLebigmag, Moscow | https://lebigmag.ru",
+        "default": "Cahier Central, Paris | https://cahiercentral.com\nPalais de Tokyo, Paris | https://palaisdetokyo.com\nProphet Vision, Paris | https://prophet.vision\nLebigmag, Moscow | https://lebigmag.ru",
         "info": "One shop per line: \"Name, City | https://...\". Leave empty to hide the row."
       },
       {
